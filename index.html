@@ -3,6 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
 <title>ระบบบันทึกการเยี่ยมผู้สูงอายุที่มีภาวะพึ่งพิง | รพ.สต.บ้านทับสอ อ.เมือง จ.สกลนคร</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -156,6 +157,32 @@ label.f>span i{color:var(--g3);font-style:normal}
 .vtiles .t3{background:#fbe4e1}.vtiles .t3 b{color:#a3362a}
 .vbar{height:12px;border-radius:6px;background:#e9eeeb;overflow:hidden;margin:12px 0 8px}
 .vbar i{display:block;height:100%;background:var(--p);border-radius:6px;transition:width .3s}
+.pub{min-height:100vh;display:flex;flex-direction:column}
+.pub-h{background:var(--pine);color:#fff;padding:12px 24px;display:flex;justify-content:space-between;align-items:center;gap:12px;position:sticky;top:0;z-index:30}
+.pub-h b{display:block;font-size:18px}.pub-h small{color:#e8c56a}
+.pub-h .btn-o{color:var(--tx)}
+.pub-b{flex:1;width:100%;max-width:1300px;margin:0 auto;padding:0 24px 40px}
+.pub-f{text-align:center;color:var(--mu);font-size:14px;padding:16px;border-top:1px solid var(--bd)}
+@media(max-width:720px){.pub-h{padding:10px 14px}.pub-h b{font-size:15px}.pub-b{padding:0 14px 30px}}
+.dp{display:block;position:relative}
+.dp-v{cursor:pointer;padding-right:34px;background:#fff url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='18' height='18' viewBox='0 0 24 24' fill='none' stroke='%2366756f' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><rect x='3' y='4' width='18' height='18' rx='2'/><path d='M16 2v4M8 2v4M3 10h18'/></svg>") no-repeat right 10px center}
+.dp-v:disabled{background-color:#f1f3f2;cursor:not-allowed}
+.toolbar .dp{display:inline-block}.toolbar .dp-v{width:auto;min-width:170px}
+.dp-pop{position:fixed;z-index:400;width:296px;max-width:calc(100vw - 16px);background:#fff;border:1px solid var(--bd);border-radius:14px;box-shadow:0 12px 40px rgba(0,0,0,.28);padding:12px}
+.dp-h{display:flex;gap:6px;align-items:center;margin-bottom:8px}
+.dp-h select{padding:6px;flex:1;min-width:0}
+.dp-h button{width:34px;height:34px;border:1px solid var(--bd);background:#fff;border-radius:8px;cursor:pointer;font-size:20px;line-height:1;flex:none}
+.dp-g{display:grid;grid-template-columns:repeat(7,1fr);gap:2px;text-align:center}
+.dp-g .w{font-size:12px;color:var(--mu);padding:4px 0}
+.dp-g button{border:0;background:none;border-radius:8px;height:34px;cursor:pointer;font-size:15px}
+.dp-g button:hover:not(:disabled){background:var(--pl)}
+.dp-g button.t{outline:2px solid var(--gold);outline-offset:-2px}
+.dp-g button.s{background:var(--p);color:#fff}
+.dp-g button:disabled{color:#c3cbc7;cursor:not-allowed}
+.dp-g.dp-m{grid-template-columns:repeat(3,1fr);gap:4px}.dp-g.dp-m button{height:40px}
+.dp-f{display:flex;justify-content:space-between;gap:6px;margin-top:8px}
+.dp-f button{border:1px solid var(--bd);background:#fff;border-radius:8px;padding:5px 12px;cursor:pointer;font-size:14px}
+.dp-f button:disabled{opacity:.45;cursor:not-allowed}
 .ltc-thumb{position:relative;display:block;width:100%;height:280px;padding:0;border:1px solid var(--bd);border-radius:10px;overflow:hidden;cursor:zoom-in;background:#e6f1fa}
 .ltc-thumb img{width:100%;height:100%;object-fit:cover;object-position:top;display:block;transition:transform .3s}
 .ltc-thumb:hover img{transform:scale(1.04)}
@@ -394,9 +421,76 @@ function ask(msg, okText = 'ยืนยัน', danger = true) {
   });
 }
 const field = (label, inner, cls = '', req = false) => `<label class="f ${cls}"><span>${label}${req ? ' <i>*</i>' : ''}</span>${inner}</label>`;
-const inp = (id, v = '', type = 'text', extra = '') => `<input id="${id}" type="${type}" value="${esc(v)}" ${extra}>`;
+const inp = (id, v = '', type = 'text', extra = '') => type === 'date' || type === 'month' ? dpMarkup(id, v, type, extra) : `<input id="${id}" type="${type}" value="${esc(v)}" ${extra}>`;
 const opts = (arr, sel, blank) => (blank !== undefined ? `<option value="">${esc(blank)}</option>` : '') + arr.map(([v, l]) => `<option value="${esc(v)}" ${String(v) === String(sel) ? 'selected' : ''}>${esc(l)}</option>`).join('');
 const chips = (name, arr, sel = []) => `<div class="chips">${arr.map(a => `<label class="chip"><input type="checkbox" name="${name}" value="${esc(a)}" ${sel.includes(a) ? 'checked' : ''}><span>${esc(a)}</span></label>`).join('')}</div>`;
+
+/* =====================================================================
+   ปฏิทินแบบ พ.ศ. (แทน input date/month ของเบราว์เซอร์)
+   ค่าที่เก็บและอ่านยังเป็น ISO (ค.ศ.) เช่น 2026-09-20 / 2026-09 เพื่อให้ส่วนอื่นของระบบทำงานเหมือนเดิม
+   ===================================================================== */
+let DP = null;
+function dpMarkup(id, v, mode, extra) {
+  extra = extra || ''; const dis = /(^|\s)disabled(\s|$)/.test(extra), min = (extra.match(/\bmin="([^"]*)"/) || [])[1] || '', max = (extra.match(/\bmax="([^"]*)"/) || [])[1] || '', oc = (extra.match(/onchange="([^"]*)"/) || [])[1] || '';
+  const txt = v ? (mode === 'month' ? thMonth(v) : thDate(v)) : '';
+  return `<span class="dp"><input type="text" class="dp-v" id="${id}__v" readonly value="${esc(txt)}" placeholder="${mode === 'month' ? 'เลือกเดือน (พ.ศ.)' : 'เลือกวันที่ (พ.ศ.)'}" ${dis ? 'disabled' : ''} onclick="dpOpen('${id}')" onkeydown="if(event.key==='Enter'||event.key===' '||event.key==='ArrowDown'){event.preventDefault();dpOpen('${id}')}"><input type="hidden" id="${id}" value="${esc(v)}" data-mode="${mode}" data-min="${min}" data-max="${max}" ${dis ? 'disabled' : ''} ${oc ? 'onchange="' + oc + '"' : ''}></span>`;
+}
+function dpDisable(id, d) { const h = $(id), v = $(id + '__v'); if (h) h.disabled = d; if (v) v.disabled = d; if (d) dpClose(); }
+function dpSet(id, v) {
+  const h = $(id); if (!h) return; h.value = v; const t = $(id + '__v');
+  if (t) t.value = v ? (h.dataset.mode === 'month' ? thMonth(v) : thDate(v)) : '';
+  h.dispatchEvent(new Event('change', { bubbles: true }));
+}
+function dpOpen(id) {
+  const h = $(id); if (!h || h.disabled) return; dpClose();
+  const mode = h.dataset.mode, v = h.value || '', now = today(), min = h.dataset.min || '', max = h.dataset.max || '';
+  let base = v || now; if (!v && max && now > max) base = max; if (!v && min && now < min) base = min;
+  DP = { id, mode, y: +base.slice(0, 4), m: +base.slice(5, 7) - 1, min, max };
+  const el = document.createElement('div'); el.id = 'dpPop'; el.className = 'dp-pop'; document.body.appendChild(el);
+  dpDraw(); dpPlace();
+  setTimeout(() => { document.addEventListener('mousedown', dpOutside, true); document.addEventListener('touchstart', dpOutside, true); window.addEventListener('scroll', dpScroll, true); window.addEventListener('resize', dpClose); }, 0);
+}
+const dpOutside = e => { if (!e.target.closest('#dpPop') && !e.target.closest('.dp')) dpClose(); };
+const dpScroll = e => { if (!e.target.closest || !e.target.closest('#dpPop')) dpClose(); };
+function dpClose() {
+  const el = $('dpPop'); if (el) el.remove(); DP = null;
+  document.removeEventListener('mousedown', dpOutside, true); document.removeEventListener('touchstart', dpOutside, true); window.removeEventListener('scroll', dpScroll, true); window.removeEventListener('resize', dpClose);
+}
+function dpPlace() {
+  const pop = $('dpPop'), v = DP && $(DP.id + '__v'); if (!pop || !v) return;
+  const r = v.getBoundingClientRect(), W = pop.offsetWidth, Hh = pop.offsetHeight;
+  let left = Math.min(Math.max(8, r.left), window.innerWidth - W - 8), top = r.bottom + 6;
+  if (top + Hh > window.innerHeight - 8) top = Math.max(8, r.top - Hh - 6);
+  pop.style.left = left + 'px'; pop.style.top = top + 'px';
+}
+const dp2 = n => String(n).padStart(2, '0');
+function dpDraw() {
+  const el = $('dpPop'); if (!el || !DP) return;
+  const { mode, y, m, min, max } = DP, sel = $(DP.id).value, now = today(), yNow = +now.slice(0, 4);
+  const y0 = Math.min(min ? +min.slice(0, 4) : yNow - 110, y), y1 = Math.max(max ? +max.slice(0, 4) : yNow + 10, y);
+  let yo = ''; for (let i = y1; i >= y0; i--) yo += `<option value="${i}" ${i === y ? 'selected' : ''}>พ.ศ. ${i + 543}</option>`;
+  let h = `<div class="dp-h"><button type="button" onclick="dpNav(-1)" aria-label="ก่อนหน้า">‹</button>${mode === 'date' ? `<select aria-label="เดือน" onchange="DP.m=+this.value;dpDraw()">${MONTHS_F.map((n, i) => `<option value="${i}" ${i === m ? 'selected' : ''}>${n}</option>`).join('')}</select>` : ''}<select aria-label="ปี พ.ศ." onchange="DP.y=+this.value;dpDraw()">${yo}</select><button type="button" onclick="dpNav(1)" aria-label="ถัดไป">›</button></div>`;
+  if (mode === 'date') {
+    h += '<div class="dp-g">' + ['อา', 'จ', 'อ', 'พ', 'พฤ', 'ศ', 'ส'].map(d => `<div class="w">${d}</div>`).join('');
+    const first = new Date(y, m, 1).getDay(), n = new Date(y, m + 1, 0).getDate();
+    for (let i = 0; i < first; i++) h += '<span></span>';
+    for (let d = 1; d <= n; d++) { const iso = y + '-' + dp2(m + 1) + '-' + dp2(d), off = (min && iso < min) || (max && iso > max); h += `<button type="button" class="${iso === sel ? 's' : ''} ${iso === now ? 't' : ''}" ${off ? 'disabled' : ''} onclick="dpPick('${iso}')">${d}</button>`; }
+    h += '</div>';
+  } else {
+    h += '<div class="dp-g dp-m">' + MONTHS_F.map((n, i) => { const ym = y + '-' + dp2(i + 1), off = (min && ym < min.slice(0, 7)) || (max && ym > max.slice(0, 7)); return `<button type="button" class="${ym === sel ? 's' : ''} ${ym === now.slice(0, 7) ? 't' : ''}" ${off ? 'disabled' : ''} onclick="dpPick('${ym}')">${MONTHS_S[i]}</button>`; }).join('') + '</div>';
+  }
+  const todayV = mode === 'date' ? now : now.slice(0, 7), tOff = (min && todayV < min.slice(0, todayV.length)) || (max && todayV > max.slice(0, todayV.length));
+  h += `<div class="dp-f"><button type="button" ${tOff ? 'disabled' : ''} onclick="dpPick('${todayV}')">${mode === 'date' ? 'วันนี้' : 'เดือนนี้'}</button><button type="button" onclick="dpPick('')">ล้างค่า</button><button type="button" onclick="dpClose()">ปิด</button></div>`;
+  el.innerHTML = h; dpPlace();
+}
+function dpNav(dir) {
+  if (!DP) return;
+  if (DP.mode === 'month') DP.y += dir; else { DP.m += dir; if (DP.m < 0) { DP.m = 11; DP.y--; } if (DP.m > 11) { DP.m = 0; DP.y++; } }
+  dpDraw();
+}
+function dpPick(v) { if (!DP) return; const id = DP.id; dpClose(); dpSet(id, v); }
+document.addEventListener('keydown', e => { if (e.key === 'Escape' && DP) dpClose(); });
+
 const cmOpts = (sel, blank = '- ไม่ระบุ -') => opts(list(S.cms).filter(x => isActive(x) || x.id === sel).sort((a, b) => cmp(a.name, b.name)).map(x => [x.id, pName(x)]), sel, blank);
 const cgOpts = (sel, blank = '- ไม่ระบุ -') => opts(list(S.cgs).filter(x => isActive(x) || x.id === sel).sort((a, b) => cmp(a.name, b.name)).map(x => [x.id, pName(x)]), sel, blank);
 const mooList = () => [...new Set(list(S.elders).map(e => String(e.moo || '').trim()).filter(Boolean))].sort((a, b) => a.localeCompare(b, 'th', { numeric: true }));
@@ -507,10 +601,12 @@ function downloadBlob(name, blob) { const a = document.createElement('a'); a.hre
    INIT / AUTH
    ===================================================================== */
 window.addEventListener('DOMContentLoaded', init);
+const IS_PUBLIC = () => new URLSearchParams(location.search).has('public') || location.hash === '#public';
 async function init() {
-  renderLogin();
+  if (IS_PUBLIC()) $('app').innerHTML = '<div class="empty" style="padding:60px">กำลังโหลดข้อมูล...</div>'; else renderLogin();
   try {
     firebase.initializeApp(FIREBASE_CONFIG); db = firebase.database();
+    if (IS_PUBLIC()) return startPublic();
     db.ref('.info/connected').on('value', s => { const d = $('syncDot'); if (d) { const on = s.val() === true; d.className = 'sync ' + (on ? 'on' : 'off'); d.textContent = on ? 'เชื่อมต่อแล้ว' : 'ออฟไลน์'; } });
     const snap = await db.ref('users').once('value');
     if (!snap.exists()) {
@@ -518,7 +614,8 @@ async function init() {
       seededAdmin = true; renderLogin();
     }
   } catch (e) {
-    loginMsg('เชื่อมต่อฐานข้อมูลไม่ได้: ' + e.message + ' — ตรวจสอบ Firebase Rules และอินเทอร์เน็ต');
+    if (IS_PUBLIC()) $('app').innerHTML = '<div class="card empty" style="margin:40px auto;max-width:520px">เชื่อมต่อฐานข้อมูลไม่ได้ กรุณาลองใหม่ภายหลัง</div>';
+    else loginMsg('เชื่อมต่อฐานข้อมูลไม่ได้: ' + e.message + ' — ตรวจสอบ Firebase Rules และอินเทอร์เน็ต');
   }
 }
 function renderLogin() {
@@ -535,6 +632,7 @@ function renderLogin() {
       ${field('รหัสผ่าน', '<input id="lgP" type="password" autocomplete="current-password" required>')}
       <div class="lg-err" id="lgErr"></div>
       <button class="btn" id="lgBtn" style="width:100%;justify-content:center;padding:11px">เข้าสู่ระบบ</button>
+      <div style="text-align:center;margin-top:20px"><a href="#" onclick="startPublic();return false">ดูข้อมูลภาพรวมสำหรับบุคคลทั่วไป (ไม่ต้องเข้าสู่ระบบ)</a></div>
     </form></div></div>`;
 }
 const loginMsg = m => { const e = $('lgErr'); if (e) e.textContent = m; };
@@ -553,7 +651,7 @@ async function doLogin() {
   } catch (e) { loginMsg('เข้าสู่ระบบไม่สำเร็จ: ' + e.message); btn.disabled = false; }
 }
 function logout() {
-  COLS.forEach(c => { db.ref(c).off(); loaded[c] = false; S[c] = {}; });
+  COLS.forEach(c => { db.ref(c).off(); loaded[c] = false; S[c] = {}; }); db.ref('publicSummary').off(); PUB = null; pubLast = '';
   ME = null; closeModal(); renderLogin();
 }
 const NAV = [
@@ -569,6 +667,7 @@ function startApp() {
     <div class="main"><header class="top"><button id="burger" onclick="toggleSide()" aria-label="เมนู">☰</button><h1 id="pageTitle"></h1><div class="sync" id="syncDot">กำลังเชื่อมต่อ</div></header>
     <main id="content"><div class="empty">กำลังโหลดข้อมูล...</div></main></div></div>`;
   drawNav();
+  db.ref('publicSummary').on('value', snap => { PUB = snap.val() || {}; if (ME && page === 'users' && !formOpen()) renderPage(); }, () => { PUB = {}; });
   COLS.forEach(c => db.ref(c).on('value', snap => {
     S[c] = snap.val() || {}; loaded[c] = true;
     if (c === 'users' && ME) { const m = S.users[ME.id]; if (!m || m.active === false) { toast('บัญชีของคุณถูกปิดหรือลบ', 'err'); logout(); return; } ME = { ...m, id: ME.id }; }
@@ -587,6 +686,7 @@ function onData() {
   clearTimeout(rt);
   rt = setTimeout(() => {
     if (!ME || !COLS.every(c => loaded[c])) return;
+    schedulePublic();
     if (formOpen()) { pending = true; return; }
     renderPage();
   }, 200);
@@ -683,7 +783,7 @@ let VPH = { keep: [], files: [] };
 PAGES.visit = { title: 'บันทึกการเยี่ยม', render: () => visitView === 'form' ? visitForm() : pVisitList(), after: () => { if (visitView === 'form') { vElderChange(!!visitEditing); adlCalc(); photoPreview(); } else visitTable(); } };
 function pVisitList() {
   return `<div class="toolbar">
-    <input type="month" value="${VFL.month}" onchange="VFL.month=this.value;visitTable()" title="เดือน">
+    ${inp('vfl_month', VFL.month, 'month', 'onchange="VFL.month=this.value;visitTable()"')}
     <input type="search" placeholder="ค้นหาชื่อผู้สูงอายุ" value="${esc(VFL.q)}" oninput="VFL.q=this.value.trim();visitTable()">
     <select onchange="VFL.cm=this.value;visitTable()">${cmOpts(VFL.cm, 'CM ทั้งหมด')}</select>
     <select onchange="VFL.type=this.value;visitTable()">${opts(Object.entries(VTYPES), VFL.type, 'ทุกประเภท')}</select>
@@ -927,7 +1027,7 @@ function cgForm(id) {
       ${field('เลขบัตรประชาชน (13 หลัก)', inp('c_cid', x.cid || '', 'text', 'inputmode="numeric" maxlength="17"'), 'span2')}
       ${field('วันออกบัตร', inp('c_iss', x.idIssue || '', 'date'))}
       ${field('วันหมดอายุ', inp('c_exp', x.idExpire || '', 'date', x.idLifetime ? 'disabled' : ''))}
-      <label class="f" style="display:flex;gap:8px;align-items:center"><input type="checkbox" id="c_life" ${x.idLifetime ? 'checked' : ''} onchange="$('c_exp').disabled=this.checked"><span style="margin:0">บัตรตลอดชีพ</span></label>
+      <label class="f" style="display:flex;gap:8px;align-items:center"><input type="checkbox" id="c_life" ${x.idLifetime ? 'checked' : ''} onchange="dpDisable('c_exp',this.checked)"><span style="margin:0">บัตรตลอดชีพ</span></label>
     </div></div>
     <div class="sec"><h4>บัญชีธนาคาร</h4><div class="grid g2">${field('เลขบัญชี ธกส', inp('c_bank', x.bank || '', 'text', 'inputmode="numeric"'))}${field('สาขา', inp('c_branch', x.branch || ''))}</div></div>
     <div class="mt2">${field('หมายเหตุ', inp('c_note', x.note || ''))}</div>`,
@@ -1368,6 +1468,86 @@ async function returnLoan(id) {
 }
 async function txnDel(id) { if (!await ask('ลบรายการนี้? (จำนวนคงเหลือจะถูกคำนวณใหม่)', 'ลบ')) return; try { await dbDel('txns', id); toast('ลบแล้ว'); } catch (e) { toast('ลบไม่สำเร็จ: ' + e.message, 'err'); } }
 
+
+/* =====================================================================
+   หน้าสาธารณะ (ดูอย่างเดียว) — แสดงเฉพาะสถิติภาพรวมที่ไม่ระบุตัวบุคคล
+   ผู้เยี่ยมชมอ่านเฉพาะ node "publicSummary" ไม่ได้เปิดข้อมูลผู้สูงอายุ/CG/CM รายบุคคลในหน้านี้
+   ===================================================================== */
+let PUB = null, pubLast = '', pubTimer = null;
+function buildPublicSummary() {
+  const fy = curFY(), [f0, f1] = fyRange(fy), t = today(), ym = t.slice(0, 7), D = derived(), elders = list(S.elders).filter(isActive), mv = monthVisits(D, ym);
+  const dc = { 0: 0, 1: 0, 2: 0, 3: 0, 4: 0 }; elders.forEach(e => dc[depNo(e)]++);
+  const vFY = D.vs.filter(v => v.date >= f0 && v.date <= f1), vM = D.vs.filter(v => v.date.startsWith(ym));
+  const monthly = FY_ORDER.map(mi => { const y = mi >= 9 ? fy - 1 : fy, key = y + '-' + String(mi + 1).padStart(2, '0'); return { key, label: MONTHS_S[mi], n: vFY.filter(v => v.date.startsWith(key)).length }; });
+  const groups = [1, 2, 3, 4].map(g => { const es = elders.filter(e => depNo(e) === g), q = DEP[g].q, tgt = es.length * q, done = es.reduce((a, e) => a + Math.min(mv[e.id] || 0, q), 0), met = es.filter(e => (mv[e.id] || 0) >= q).length; return { g, n: es.length, q, tgt, done, met, pct: tgt ? Math.round(done * 100 / tgt) : 0 }; });
+  const careTally = []; vFY.forEach(v => (v.care || []).forEach(c => careTally.push(c)));
+  return { asOf: t, fy, ym, total: elders.length, dc, visitsMonth: vM.length, visitsFY: vFY.length, eldersVisitedFY: new Set(vFY.map(v => v.elderId)).size, cmN: list(S.cms).filter(isActive).length, cgN: list(S.cgs).filter(isActive).length, monthly, groups,
+    byMoo: tally(vFY, v => S.elders[v.elderId] && S.elders[v.elderId].moo, m => 'หมู่ ' + m, 20), care: tally(careTally, x => x, null, 11) };
+}
+function schedulePublic() {
+  if (!ME || ME.role === 'viewer' || !PUB || PUB.enabled !== true) return;
+  clearTimeout(pubTimer); pubTimer = setTimeout(() => publishPublic(false), 2500);
+}
+async function publishPublic(force) {
+  if (!db || !ME) return;
+  try { const d = clean(buildPublicSummary()), str = JSON.stringify(d); if (!force && str === pubLast) return; pubLast = str; await db.ref('publicSummary').update({ enabled: true, updatedAt: Date.now(), data: d }); }
+  catch (e) { pubLast = ''; if (force) toast('อัปเดตข้อมูลหน้าสาธารณะไม่สำเร็จ: ' + e.message, 'err'); }
+}
+const pubLink = () => location.href.split(/[?#]/)[0] + '?public=1';
+function pubCard() {
+  const on = PUB && PUB.enabled === true, up = PUB && PUB.updatedAt ? new Date(PUB.updatedAt) : null;
+  const upTxt = up ? thDate(new Date(up - up.getTimezoneOffset() * 60000).toISOString().slice(0, 10)) + ' ' + up.toTimeString().slice(0, 5) + ' น.' : '-';
+  return `<div class="card" style="margin-bottom:14px"><div class="row sp"><h3 style="margin:0">🌐 หน้าสาธารณะ (ดูอย่างเดียว) ${on ? '<span class="badge b-g1">เปิดอยู่</span>' : '<span class="badge b-n">ปิดอยู่</span>'}</h3>
+    <button class="btn ${on ? 'btn-d' : ''}" onclick="pubToggle()">${on ? 'ปิดหน้าสาธารณะ' : 'เปิดหน้าสาธารณะ'}</button></div>
+    <p class="mu sm" style="margin:8px 0 10px">บุคคลภายนอกที่มีลิงก์เข้าดูได้โดยไม่ต้องเข้าสู่ระบบ เห็นเฉพาะสถิติภาพรวม (จำนวนผู้สูงอายุแต่ละกลุ่ม การเยี่ยม กราฟ) ไม่มีชื่อ ที่อยู่ หรือข้อมูลรายบุคคล และแก้ไขหรือกดดูรายละเอียดไม่ได้</p>
+    <div class="row" style="flex-wrap:nowrap"><input id="pubLinkBox" readonly value="${esc(pubLink())}" onclick="this.select()"><button class="btn btn-o" onclick="pubCopy()">คัดลอกลิงก์</button>${on ? '<button class="btn btn-o" onclick="pubNow()">อัปเดตข้อมูลตอนนี้</button>' : ''}</div>
+    <div class="mu sm mt2">${on ? 'ข้อมูลอัปเดตอัตโนมัติเมื่อเจ้าหน้าที่ใช้งานระบบ · อัปเดตล่าสุด ' + upTxt : 'หน้านี้จะแสดงว่า "ยังไม่เปิดให้บริการ" จนกว่าจะเปิด'}</div></div>`;
+}
+async function pubToggle() {
+  if (!isAdmin()) return; const on = PUB && PUB.enabled === true;
+  if (!await ask(on ? 'ปิดหน้าสาธารณะ? ข้อมูลสรุปที่เผยแพร่จะถูกลบออก' : 'เปิดหน้าสาธารณะ? บุคคลที่มีลิงก์จะเห็นสถิติภาพรวมได้โดยไม่ต้องเข้าสู่ระบบ', on ? 'ปิด' : 'เปิด', on)) return;
+  try {
+    if (on) { await db.ref('publicSummary').update({ enabled: false, data: null }); pubLast = ''; toast('ปิดหน้าสาธารณะแล้ว'); }
+    else { pubLast = JSON.stringify(clean(buildPublicSummary())); await db.ref('publicSummary').update({ enabled: true, updatedAt: Date.now(), data: clean(buildPublicSummary()) }); toast('เปิดหน้าสาธารณะแล้ว'); }
+  } catch (e) { toast('ไม่สำเร็จ: ' + e.message, 'err'); }
+}
+function pubCopy() { const b = $('pubLinkBox'); b.select(); (navigator.clipboard ? navigator.clipboard.writeText(b.value) : Promise.reject()).then(() => toast('คัดลอกลิงก์แล้ว'), () => { try { document.execCommand('copy'); toast('คัดลอกลิงก์แล้ว'); } catch (e) { toast('คัดลอกไม่สำเร็จ ให้กดค้างที่ลิงก์แล้วคัดลอกเอง', 'warn'); } }); }
+async function pubNow() { await publishPublic(true); toast('อัปเดตข้อมูลหน้าสาธารณะแล้ว'); }
+
+function renderPublic(v) {
+  if (!v || v.enabled !== true || !v.data) return '<div class="card empty" style="margin-top:24px">หน้านี้ยังไม่เปิดให้บริการ หรือถูกปิดชั่วคราวโดยผู้ดูแลระบบ</div>';
+  const d = v.data, dc = g => (d.dc && d.dc[g]) || 0, tot = d.total || 1, groups = d.groups || [], monthly = d.monthly || [];
+  const seg = [1, 2, 3, 4, 0].map(g => `<i style="width:${dc(g) / tot * 100}%;background:${g ? DEP[g].color : '#9aa6a1'}" title="${g ? DEP[g].label : 'ยังไม่ระบุกลุ่ม'}"></i>`).join('');
+  const lg = [1, 2, 3, 4].map(g => `<div><span class="dot" style="background:${DEP[g].color}"></span>${DEP[g].label} = เยี่ยม ${DEP[g].q} ครั้ง/เดือน <b>${dc(g)}</b></div>`).join('') + (dc(0) ? `<div><span class="dot" style="background:#9aa6a1"></span>ยังไม่ระบุกลุ่ม <b>${dc(0)}</b></div>` : '');
+  const qN = groups.reduce((a, r) => a + r.n, 0), qMet = groups.reduce((a, r) => a + r.met, 0), qTgt = groups.reduce((a, r) => a + r.tgt, 0), qDone = groups.reduce((a, r) => a + r.done, 0);
+  const up = v.updatedAt ? new Date(v.updatedAt) : null, upTxt = up ? thDate(new Date(up - up.getTimezoneOffset() * 60000).toISOString().slice(0, 10)) + ' ' + up.toTimeString().slice(0, 5) + ' น.' : thDate(d.asOf);
+  return `<div class="mu" style="margin:14px 0">ข้อมูลสรุปภาพรวม · อัปเดตล่าสุด ${upTxt}</div>
+    <section class="hero"><div><div class="big">${d.total}<small>ราย</small></div><div class="cap">ผู้สูงอายุที่มีภาวะพึ่งพิงในความดูแล</div></div><div><div class="segbar">${seg}</div><div class="seglg">${lg}</div></div></section>
+    <div class="kpis">
+      ${kpi('เยี่ยมเดือนนี้', d.visitsMonth + ' ครั้ง', qN ? 'ครบเกณฑ์ ' + qMet + '/' + qN + ' ราย (' + Math.round(qMet * 100 / qN) + '%)' : '', '#1d6b57')}
+      ${kpi('เยี่ยมปีงบ ' + (d.fy + 543), d.visitsFY + ' ครั้ง', d.eldersVisitedFY + ' ราย', '#e0a526')}
+      ${kpi('Care Manager (CM)', d.cmN + ' คน', '', '#3b6ea5')}
+      ${kpi('ผู้ดูแล (CG)', d.cgN + ' คน', d.cgN ? 'เฉลี่ย ' + (d.total / d.cgN).toFixed(1) + ' ราย/คน' : '', '#7a5aa6')}
+    </div>
+    <div class="dgrid">
+      <div class="card c8"><h3>เกณฑ์การเยี่ยมตามกลุ่มผู้มีภาวะพึ่งพิง<small>ผลเดือน ${thMonth(d.ym)}</small></h3>
+        <div class="tw"><table><thead><tr><th>กลุ่มผู้มีภาวะพึ่งพิง</th><th class="n">เกณฑ์ (ครั้ง/เดือน/ราย)</th><th class="n">จำนวน (ราย)</th><th class="n">เป้าหมาย (ครั้ง)</th><th class="n">เยี่ยมแล้ว (ครั้ง)</th><th style="min-width:130px">ความสำเร็จ</th></tr></thead><tbody>
+        ${groups.map(r => `<tr><td><span class="dot" style="background:${DEP[r.g].color}"></span> <b>${DEP[r.g].label}</b></td><td class="n">${r.q}</td><td class="n">${r.n}</td><td class="n">${r.tgt}</td><td class="n">${r.done}</td><td><div class="row" style="gap:8px;flex-wrap:nowrap"><div style="flex:1;background:#e9eeeb;border-radius:5px;height:12px;overflow:hidden"><div style="width:${r.pct}%;background:${DEP[r.g].color};height:100%"></div></div><b class="sm">${r.pct}%</b></div></td></tr>`).join('')}
+        <tr style="background:#f4f7f5;font-weight:600"><td>รวม</td><td></td><td class="n">${qN}</td><td class="n">${qTgt}</td><td class="n">${qDone}</td><td>${qTgt ? Math.round(qDone * 100 / qTgt) : 0}%</td></tr></tbody></table></div></div>
+      <div class="card c4"><h3>เกณฑ์การเยี่ยมผู้ป่วยระยะยาว (LTC)</h3><button class="ltc-thumb" onclick="showLtc()" aria-label="ดูภาพเกณฑ์การเยี่ยมขนาดเต็ม"><img src="${LTC_IMG}" alt="ภาพเกณฑ์การเยี่ยมผู้ป่วยระยะยาว (LTC)"><span>🔍 คลิกเพื่อดูภาพขนาดเต็ม</span></button></div>
+      <div class="card c8"><h3>จำนวนการเยี่ยมรายเดือน<small>ปีงบประมาณ ${d.fy + 543}</small></h3>${colChart(monthly, d.ym)}</div>
+      <div class="card c4"><h3>การเยี่ยมแยกตามหมู่บ้าน<small>ปีงบ ${d.fy + 543}</small></h3>${hBars(d.byMoo || [])}</div>
+      <div class="card c12"><h3>กิจกรรมการดูแลที่ให้<small>ปีงบ ${d.fy + 543}</small></h3>${hBars(d.care || [])}</div>
+    </div>`;
+}
+function startPublic() {
+  $('app').innerHTML = `<div class="pub"><header class="pub-h"><div><b>${APP_TITLE}</b><small>${ORG.name} ${ORG.area}</small></div><a class="btn btn-o btn-s" href="${esc(location.href.split(/[?#]/)[0])}">เข้าสู่ระบบเจ้าหน้าที่</a></header>
+    <main id="pubBody" class="pub-b"><div class="empty">กำลังโหลดข้อมูล...</div></main>
+    <footer class="pub-f">หน้านี้แสดงเฉพาะสถิติภาพรวมเพื่อการเผยแพร่ ไม่มีข้อมูลที่ระบุตัวบุคคล · ดูอย่างเดียว</footer></div>`;
+  db.ref('publicSummary').on('value', snap => { const b = $('pubBody'); if (b) b.innerHTML = renderPublic(snap.val()); },
+    () => { const b = $('pubBody'); if (b) b.innerHTML = '<div class="card empty">ไม่สามารถโหลดข้อมูลได้ในขณะนี้</div>'; });
+}
+
 /* =====================================================================
    PAGE 7 : USERS
    ===================================================================== */
@@ -1375,7 +1555,7 @@ PAGES.users = { title: 'จัดการผู้ใช้', render: pUsers };
 function pUsers() {
   if (!isAdmin()) return noAccess();
   const us = list(S.users).sort((a, b) => cmp(a.username, b.username));
-  return `<div class="row sp" style="margin-bottom:12px"><div class="mu sm">ผู้ดูแลระบบ = ทุกอย่าง · เจ้าหน้าที่ / CG = บันทึกและแก้ไข (ลบไม่ได้) · ผู้ดูข้อมูล = ดูอย่างเดียว</div><div class="row"><button class="btn btn-o" onclick="cgUsersPreview()">👥 สร้างผู้ใช้ CG ทั้งหมด</button><button class="btn" onclick="userForm()">＋ เพิ่มผู้ใช้</button></div></div>
+  return pubCard() + `<div class="row sp" style="margin-bottom:12px"><div class="mu sm">ผู้ดูแลระบบ = ทุกอย่าง · เจ้าหน้าที่ / CG = บันทึกและแก้ไข (ลบไม่ได้) · ผู้ดูข้อมูล = ดูอย่างเดียว</div><div class="row"><button class="btn btn-o" onclick="cgUsersPreview()">👥 สร้างผู้ใช้ CG ทั้งหมด</button><button class="btn" onclick="userForm()">＋ เพิ่มผู้ใช้</button></div></div>
     <div class="tw"><table><thead><tr><th>ชื่อผู้ใช้</th><th>ชื่อ-สกุล</th><th>สิทธิ์</th><th>สถานะ</th><th></th></tr></thead><tbody>${us.map(u => `<tr><td><b>${esc(u.username)}</b>${u.id === ME.id ? ' <span class="badge b-p">คุณ</span>' : ''}</td><td>${esc(u.name || '')}</td><td>${ROLES[u.role] || u.role}${u.cgId && S.cgs[u.cgId] ? `<div class="mu sm">CG: ${esc(nmCg(u.cgId))}</div>` : ''}</td><td>${u.active === false ? '<span class="badge b-n">ปิดใช้งาน</span>' : '<span class="badge b-g1">ใช้งาน</span>'}</td><td class="n" style="white-space:nowrap"><button class="btn btn-o btn-s" onclick="userForm('${u.id}')">แก้ไข</button>${u.id !== ME.id ? ` <button class="btn btn-d btn-s" onclick="userDel('${u.id}')">ลบ</button>` : ''}</td></tr>`).join('')}</tbody></table></div>`;
 }
 function userForm(id) {
