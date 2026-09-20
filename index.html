@@ -143,6 +143,19 @@ label.f>span i{color:var(--g3);font-style:normal}
 .seglg{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:8px 22px;margin-top:14px}
 .seglg div{display:flex;align-items:center;gap:8px;font-size:15px}
 .seglg b{font-size:22px;color:#fff;margin-left:auto}
+.vinfo{background:#e6f2ef;color:var(--p2);border-radius:10px;padding:9px 14px;margin-top:12px;font-size:15px}
+.vquota{background:#fbe4e1;color:#a3362a;border-radius:10px;padding:9px 14px;margin-top:8px;font-size:15px;font-weight:600}
+.vquota.ok{background:#dff3e6;color:#1d7040}.vquota.none{background:#f1f3f2;color:var(--mu);font-weight:500}
+.vrep{border:1px solid var(--bd);border-radius:12px;padding:14px 16px;margin-top:12px;background:#fff}
+.vrep h4{font-size:16px;margin-bottom:10px}
+.vtiles{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.vtiles>div{border-radius:10px;padding:10px 6px;text-align:center}
+.vtiles b{display:block;font-size:28px;line-height:1.2}.vtiles span{font-size:13px;color:var(--mu)}
+.vtiles .t1{background:#fbe9ee}.vtiles .t1 b{color:#a8325a}
+.vtiles .t2{background:#e3f5e9}.vtiles .t2 b{color:#1d7040}
+.vtiles .t3{background:#fbe4e1}.vtiles .t3 b{color:#a3362a}
+.vbar{height:12px;border-radius:6px;background:#e9eeeb;overflow:hidden;margin:12px 0 8px}
+.vbar i{display:block;height:100%;background:var(--p);border-radius:6px;transition:width .3s}
 .ltc-thumb{position:relative;display:block;width:100%;height:280px;padding:0;border:1px solid var(--bd);border-radius:10px;overflow:hidden;cursor:zoom-in;background:#e6f1fa}
 .ltc-thumb img{width:100%;height:100%;object-fit:cover;object-position:top;display:block;transition:transform .3s}
 .ltc-thumb:hover img{transform:scale(1.04)}
@@ -220,6 +233,16 @@ label.f>span i{color:var(--g3);font-style:normal}
 #rpPaper th,#rpPaper td{border:1px solid #999;padding:4px 6px}
 #rpPaper th{background:#e8ede9;color:#000;white-space:normal}
 #rpPaper .foot{margin-top:12px;font-size:12px;color:#444}
+#rpPaper .mini{margin-bottom:6px}
+#rpPaper .vsec{font-weight:600;font-size:15px;margin:14px 0 6px;padding-bottom:3px;border-bottom:2px solid #333}
+#rpPaper .vb{display:grid;grid-template-columns:1fr 230px;gap:12px;border:1px solid #888;padding:8px 10px;margin-bottom:8px;font-size:13px;line-height:1.45}
+#rpPaper .vb .vh{font-weight:600}
+#rpPaper .vb .vn{font-weight:600;color:#0b4d3c;margin-bottom:2px}
+#rpPaper .vb .ph{width:230px;height:172px;object-fit:cover;border:1px solid #999;display:block}
+#rpPaper .vb .noph{display:flex;align-items:center;justify-content:center;color:#999;border:1px dashed #aaa;background:#fafafa}
+#rpPaper .sign{margin-top:16px;font-size:13px}
+#rpPaper .sign .cert{margin-bottom:10px}
+#rpPaper .sign .sg{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;text-align:center;line-height:1.9}
 @media print{
   body *{visibility:hidden}
   #rpPaper,#rpPaper *{visibility:visible}
@@ -261,7 +284,7 @@ const MONTHS_S = ['ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','
 const MONTHS_F = ['มกราคม','กุมภาพันธ์','มีนาคม','เมษายน','พฤษภาคม','มิถุนายน','กรกฎาคม','สิงหาคม','กันยายน','ตุลาคม','พฤศจิกายน','ธันวาคม'];
 const FY_ORDER = [9,10,11,0,1,2,3,4,5,6,7,8];
 const COLS = ['elders','cms','cgs','visits','materials','txns','users'];
-const ROLES = { admin: 'ผู้ดูแลระบบ', staff: 'เจ้าหน้าที่ (บันทึก/แก้ไข)', viewer: 'ผู้ดูข้อมูล' };
+const ROLES = { admin: 'ผู้ดูแลระบบ', staff: 'เจ้าหน้าที่ (บันทึก/แก้ไข)', cg: 'ผู้ดูแล CG (บันทึก/แก้ไข ลบไม่ได้)', viewer: 'ผู้ดูข้อมูล' };
 const VTYPES = { plan: 'เยี่ยมตามแผน', follow: 'เยี่ยมติดตาม', urgent: 'เยี่ยมเร่งด่วน' };
 const DISEASES = ['ความดันโลหิตสูง','เบาหวาน','หลอดเลือดสมอง (Stroke)','โรคหัวใจ','โรคไตเรื้อรัง','COPD/โรคปอด','สมองเสื่อม/อัลไซเมอร์','พาร์กินสัน','มะเร็ง','ข้อเสื่อม/กระดูกหัก','ซึมเศร้า'];
 const PROBLEMS = ['แผลกดทับ','สับสน/สมองเสื่อม','พลัดตกหกล้ม','ข้อติดแข็ง','สำลัก/กลืนลำบาก','ซึมเศร้า/เครียด','ผู้ดูแลเหนื่อยล้า','ขาดยา/กินยาไม่ต่อเนื่อง','ขาดอุปกรณ์','สภาพบ้านไม่เหมาะสม','ท้องผูก/ปัสสาวะติดขัด'];
@@ -434,26 +457,49 @@ function gps(latId, lngId) {
 }
 
 /* ---------- PDF ---------- */
+async function inlineImages(el) {
+  const imgs = [...el.querySelectorAll('img')].filter(i => /^https?:/.test(i.src)), saved = []; let failed = 0;
+  await Promise.all(imgs.map(async img => {
+    try {
+      const r = await fetch(img.src, { mode: 'cors' }); if (!r.ok) throw new Error('http');
+      const b = await r.blob(), d = await new Promise((res, rej) => { const f = new FileReader(); f.onload = () => res(f.result); f.onerror = rej; f.readAsDataURL(b); });
+      saved.push([img, img.src]); img.src = d;
+    } catch (e) { failed++; }
+  }));
+  if (failed) toast('ใส่รูปภาพลง PDF ไม่ได้ ' + failed + ' รูป (เซิร์ฟเวอร์รูปไม่อนุญาต) ภาพเหล่านั้นอาจไม่ปรากฏใน PDF', 'warn');
+  return () => saved.forEach(([i, s]) => { i.src = s; });
+}
 async function exportPDF(el, filename, landscape = false) {
   if (!window.html2canvas || !window.jspdf) return toast('ยังโหลดไลบรารี PDF ไม่เสร็จ ตรวจสอบอินเทอร์เน็ตแล้วลองใหม่', 'err');
   toast('กำลังสร้างไฟล์ PDF...');
+  let restore = () => {};
   try {
+    restore = await inlineImages(el);
+    await Promise.all([...el.querySelectorAll('img')].map(i => i.decode ? i.decode().catch(() => {}) : 0));
+    const rect = el.getBoundingClientRect();
     const canvas = await html2canvas(el, { scale: 2, backgroundColor: '#ffffff', useCORS: true, logging: false, scrollX: 0, scrollY: 0 });
+    restore();
     const pdf = new window.jspdf.jsPDF({ orientation: landscape ? 'l' : 'p', unit: 'mm', format: 'a4' });
-    const pw = pdf.internal.pageSize.getWidth(), ph = pdf.internal.pageSize.getHeight(), m = 8;
-    const iw = pw - 2 * m, pageH = ph - 2 * m, pxPerMm = canvas.width / iw, slice = Math.floor(pageH * pxPerMm);
-    let y = 0, n = 0;
-    while (y < canvas.height) {
-      const h = Math.min(slice, canvas.height - y), c = document.createElement('canvas');
-      c.width = canvas.width; c.height = h;
-      const ctx = c.getContext('2d'); ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, c.width, h);
-      ctx.drawImage(canvas, 0, y, canvas.width, h, 0, 0, canvas.width, h);
-      if (n > 0) pdf.addPage();
-      pdf.addImage(c.toDataURL('image/jpeg', 0.92), 'JPEG', m, m, iw, h / pxPerMm);
-      y += h; n++;
+    const pw = pdf.internal.pageSize.getWidth(), ph = pdf.internal.pageSize.getHeight(), m = 8, footMm = 7;
+    const iw = pw - 2 * m, pxPerMm = canvas.width / iw, slice = Math.floor((ph - 2 * m - footMm) * pxPerMm), foot = Math.round(footMm * pxPerMm), k = canvas.width / rect.width, H = canvas.height;
+    const blocks = [...el.querySelectorAll('tr,.nb')].map(b => { const r = b.getBoundingClientRect(); return { t: (r.top - rect.top) * k, b: (r.bottom - rect.top) * k }; }).filter(x => x.b - x.t > 1 && x.b - x.t < slice * 0.9);
+    const cuts = []; let y = 0;
+    while (y < H) {
+      let end = Math.min(y + slice, H);
+      if (end < H) { const st = blocks.filter(bl => bl.t < end && bl.b > end).sort((a, b) => a.t - b.t)[0]; if (st && st.t > y + slice * 0.25) end = Math.floor(st.t); }
+      cuts.push([y, end]); y = end;
     }
+    cuts.forEach(([y0, y1], i) => {
+      const h = y1 - y0, c = document.createElement('canvas'); c.width = canvas.width; c.height = slice + foot;
+      const cx = c.getContext('2d'); cx.fillStyle = '#fff'; cx.fillRect(0, 0, c.width, c.height);
+      cx.drawImage(canvas, 0, y0, canvas.width, h, 0, 0, canvas.width, h);
+      cx.fillStyle = '#555'; cx.font = Math.round(13 * k) + 'px Sarabun, sans-serif'; cx.textAlign = 'center';
+      cx.fillText('หน้า ' + (i + 1) + ' / ' + cuts.length, c.width / 2, slice + Math.round(foot * 0.7));
+      if (i > 0) pdf.addPage();
+      pdf.addImage(c.toDataURL('image/jpeg', 0.92), 'JPEG', m, m, iw, (slice + foot) / pxPerMm);
+    });
     pdf.save(filename); toast('สร้าง PDF เรียบร้อย');
-  } catch (e) { toast('สร้าง PDF ไม่สำเร็จ: ' + e.message, 'err'); }
+  } catch (e) { restore(); toast('สร้าง PDF ไม่สำเร็จ: ' + e.message, 'err'); }
 }
 function downloadBlob(name, blob) { const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = name; document.body.appendChild(a); a.click(); setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 500); }
 
@@ -493,17 +539,17 @@ function renderLogin() {
 }
 const loginMsg = m => { const e = $('lgErr'); if (e) e.textContent = m; };
 async function doLogin() {
-  const u = val('lgU').toLowerCase(), p = $('lgP').value;
+  const u = normU(val('lgU')), p = $('lgP').value;
   if (!u || !p) return;
   const btn = $('lgBtn'); btn.disabled = true; loginMsg('');
   try {
     const snap = await db.ref('users').once('value');
-    const usr = list(snap.val()).find(x => (x.username || '').toLowerCase() === u);
+    const usr = list(snap.val()).find(x => normU(x.username) === u);
     const h = await hashPw(p);
     if (!usr || usr.pass !== h) { loginMsg('ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง'); btn.disabled = false; return; }
     if (usr.active === false) { loginMsg('บัญชีนี้ถูกปิดใช้งาน'); btn.disabled = false; return; }
     ME = usr; page = 'dash'; startApp();
-    if (usr.pass === await hashPw('admin1234')) toast('รหัสผ่านยังเป็นค่าเริ่มต้น กรุณาเปลี่ยนรหัสผ่านที่เมนูด้านล่างซ้าย', 'warn');
+    if (usr.pass === await hashPw('admin1234') || usr.pass === await hashPw('123456')) toast('รหัสผ่านยังเป็นค่าเริ่มต้น กรุณาเปลี่ยนรหัสผ่านที่เมนูด้านล่างซ้าย', 'warn');
   } catch (e) { loginMsg('เข้าสู่ระบบไม่สำเร็จ: ' + e.message); btn.disabled = false; }
 }
 function logout() {
@@ -657,22 +703,26 @@ function newVisit(elderId) {
   if (!canEdit()) return; visitEditing = null; visitPre = elderId || null; VPH = { keep: [], files: [] }; closeModal(); visitView = 'form'; page = 'visit'; renderPage(); window.scrollTo(0, 0);
 }
 function editVisit(id) { if (!canEdit()) return; visitEditing = id; visitPre = null; VPH = { keep: [...(S.visits[id].photos || [])], files: [] }; closeModal(); visitView = 'form'; page = 'visit'; renderPage(); window.scrollTo(0, 0); }
-function elderOptions(q, sel) {
-  const es = list(S.elders).filter(e => isActive(e) || e.id === sel).filter(e => e.id === sel || !q || (fullName(e) + ' ' + (e.moo || '') + ' ' + (e.hn || '')).includes(q)).sort((a, b) => cmp(fullName(a), fullName(b)));
-  return '<option value="">-- เลือกผู้สูงอายุ --</option>' + es.map(e => `<option value="${e.id}" ${e.id === sel ? 'selected' : ''}>${esc(fullName(e))}${e.moo ? ' (หมู่ ' + esc(e.moo) + ')' : ''}</option>`).join('');
+function elderOptions(cgId, sel) {
+  const es = list(S.elders).filter(e => e.id === sel || (isActive(e) && (!cgId || e.cgId === cgId))).sort((a, b) => cmp(fullName(a), fullName(b)));
+  return '<option value="">-- เลือกผู้สูงอายุ' + (cgId ? ' (' + es.length + ' คน)' : '') + ' --</option>' + es.map(e => `<option value="${e.id}" ${e.id === sel ? 'selected' : ''}>${esc(fullName(e))}${e.moo ? ' (หมู่ ' + esc(e.moo) + ')' : ''}</option>`).join('');
 }
 function visitForm() {
   const v = visitEditing ? { ...S.visits[visitEditing], id: visitEditing } : {};
-  const sel = v.elderId || visitPre || '';
+  const sel = v.elderId || visitPre || '', defCg = v.cgId || (!visitEditing && ((visitPre && S.elders[visitPre] && S.elders[visitPre].cgId) || (ME.role === 'cg' ? ME.cgId : ''))) || '';
   return `<div class="card"><div class="row sp"><h3 style="margin:0">${visitEditing ? 'แก้ไขบันทึกการเยี่ยม' : 'บันทึกการเยี่ยมใหม่'}</h3><button class="btn btn-o btn-s" onclick="cancelVisit()">← กลับรายการ</button></div>
-    <div class="sec"><h4>1. ข้อมูลการเยี่ยม</h4><div class="grid g3">
-      <div class="span2 grid g2" style="gap:8px;align-items:end">${field('ค้นหาผู้สูงอายุ', '<input id="vElderQ" type="search" placeholder="พิมพ์ชื่อ / หมู่" oninput="vElderFilter()">')}${field('ผู้สูงอายุที่เยี่ยม', `<select id="vElder" onchange="vElderChange(false)">${elderOptions('', sel)}</select>`, '', true)}</div>
-      ${field('ประเภทการเยี่ยม', `<select id="vType">${opts(Object.entries(VTYPES), v.type || 'plan')}</select>`)}
-      ${field('วันที่เยี่ยม', inp('vDate', v.date || today(), 'date', 'max="' + today() + '" onchange="vElderChange(true)"'), '', true)}
-      ${field('เวลา', inp('vTime', v.time || new Date().toTimeString().slice(0, 5), 'time'))}
-      ${field('CM ผู้เยี่ยม', `<select id="vCm">${cmOpts(v.cmId)}</select>`)}
-      ${field('CG ผู้เยี่ยม', `<select id="vCg">${cgOpts(v.cgId)}</select>`)}
-    </div><div id="vInfo"></div></div>
+    <div class="sec"><h4>1. เลือก CG และผู้สูงอายุ</h4>
+      <div class="grid g2">
+        ${field('1. เลือก CG', `<select id="vCg" onchange="vCgChange()">${cgOpts(defCg, '-- ทุก CG / ไม่ระบุ --')}</select>`)}
+        ${field('2. เลือกผู้สูงอายุ', `<select id="vElder" onchange="vElderChange(false)">${elderOptions(defCg, sel)}</select>`, '', true)}
+      </div>
+      <div id="vInfo"></div>
+      <div class="grid g4 mt2">
+        ${field('ประเภทการเยี่ยม', `<select id="vType">${opts(Object.entries(VTYPES), v.type || 'plan')}</select>`)}
+        ${field('วันที่เยี่ยม', inp('vDate', v.date || today(), 'date', 'max="' + today() + '" onchange="vElderChange(true)"'), '', true)}
+        ${field('เวลา', inp('vTime', v.time || new Date().toTimeString().slice(0, 5), 'time'))}
+        ${field('CM ผู้เยี่ยม', `<select id="vCm">${cmOpts(v.cmId)}</select>`)}
+      </div></div>
     <div class="sec"><h4>2. สัญญาณชีพ</h4><div class="grid g6">
       ${field('BP บน', inp('vSys', v.sys ?? '', 'number', 'inputmode="numeric" min="0" max="300"'))}${field('BP ล่าง', inp('vDia', v.dia ?? '', 'number', 'inputmode="numeric" min="0" max="200"'))}
       ${field('ชีพจร/นาที', inp('vPulse', v.pulse ?? '', 'number', 'inputmode="numeric"'))}${field('อุณหภูมิ °C', inp('vTemp', v.temp ?? '', 'number', 'step="0.1" inputmode="decimal"'))}
@@ -699,13 +749,31 @@ function visitForm() {
     <div class="sticky-actions"><button class="btn btn-o" onclick="cancelVisit()">ยกเลิก</button><button class="btn" id="vSave" onclick="saveVisit()">💾 บันทึกการเยี่ยม</button></div></div>`;
 }
 function cancelVisit() { visitView = 'list'; visitEditing = null; pending = false; renderPage(); }
-function vElderFilter() { const s = $('vElder').value; $('vElder').innerHTML = elderOptions($('vElderQ').value.trim(), s); }
+function vCgChange() {
+  const cur = $('vElder').value; $('vElder').innerHTML = elderOptions($('vCg').value, cur); vElderChange(true);
+}
 function vElderChange(keep) {
   const id = $('vElder').value, e = S.elders[id], box = $('vInfo'); if (!box) return;
-  if (!e) { box.innerHTML = ''; return; }
-  if (!keep) { if (e.cmId && S.cms[e.cmId]) $('vCm').value = e.cmId; if (e.cgId && S.cgs[e.cgId]) $('vCg').value = e.cgId; }
-  const D = derived(), lv = D.last[id];
-  box.innerHTML = `<div class="infobox">${e.birthdate ? 'อายุ ' + age(e.birthdate) + ' ปี · ' : ''}${e.moo ? 'หมู่ ' + esc(e.moo) + ' · ' : ''}ADL ล่าสุด ${adlBadge(D.adlOf(e))}<br>${esc(quotaText(e, monthVisits(D, (val('vDate') || today()).slice(0, 7), visitEditing)[id] || 0))}${(e.diseases || []).length ? '<br>โรคประจำตัว: ' + esc(e.diseases.join(', ')) : ''}${lv ? '<br>เยี่ยมล่าสุด ' + thDate(lv.date) + (lv.plan ? ' · แผน: ' + esc(lv.plan) : '') : '<br>ยังไม่เคยบันทึกการเยี่ยม'}</div>`;
+  if (e && !keep) {
+    if (e.cmId && S.cms[e.cmId]) $('vCm').value = e.cmId;
+    if (!$('vCg').value && e.cgId && S.cgs[e.cgId]) { $('vCg').value = e.cgId; $('vElder').innerHTML = elderOptions(e.cgId, id); }
+  }
+  const D = derived(), ym = (val('vDate') || today()).slice(0, 7), mv = monthVisits(D, ym), cgId = $('vCg').value;
+  let h = '';
+  if (e) {
+    const q = depQuota(e), n = mv[id] || 0, left = Math.max(0, q - n), lv = D.last[id], sc = D.adlOf(e), g = depNo(e);
+    h += `<div class="vinfo">ℹ️ <b>${esc(fullName(e))}</b> — ${g ? DEP[g].label : 'ยังไม่ระบุ TAI'}${e.birthdate ? ' | อายุ ' + age(e.birthdate) + ' ปี' : ''} | ADL ${adlGroup(sc).label}${sc !== null && sc !== undefined ? ' (' + sc + ')' : ''}</div>`;
+    h += q ? `<div class="vquota ${left ? '' : 'ok'}">● ต้องเยี่ยม ${q} ครั้ง/เดือน | เยี่ยมแล้ว ${n} ครั้ง | คงเหลือ ${left} ครั้ง</div>` : '<div class="vquota none">● ยังไม่ระบุ TAI จึงยังไม่มีเกณฑ์การเยี่ยม (แก้ไขที่หน้าข้อมูลผู้สูงอายุ)</div>';
+    const more = [(e.diseases || []).length ? 'โรคประจำตัว: ' + e.diseases.join(', ') : '', lv ? 'เยี่ยมล่าสุด ' + thDate(lv.date) + (lv.plan ? ' · แผน: ' + lv.plan : '') : 'ยังไม่เคยบันทึกการเยี่ยม'].filter(Boolean).join(' · ');
+    h += `<div class="mu sm" style="margin:6px 2px 0">${esc(more)}</div>`;
+  }
+  const es = list(S.elders).filter(x => isActive(x) && (!cgId || x.cgId === cgId)), wq = es.filter(x => depQuota(x) > 0);
+  const tgt = wq.reduce((a, x) => a + depQuota(x), 0), done = wq.reduce((a, x) => a + Math.min(mv[x.id] || 0, depQuota(x)), 0), pct = tgt ? Math.round(done * 100 / tgt) : 0;
+  h += `<div class="vrep"><h4>📊 รายงานผลการเยี่ยมประจำเดือน ${thMonth(ym)}</h4>
+    <div class="vtiles"><div class="t1"><b>${tgt}</b><span>ต้องเยี่ยม (ครั้ง)</span></div><div class="t2"><b>${done}</b><span>เยี่ยมแล้ว (ครั้ง)</span></div><div class="t3"><b>${Math.max(0, tgt - done)}</b><span>คงเหลือ (ครั้ง)</span></div></div>
+    <div class="vbar"><i style="width:${pct}%"></i></div>
+    <div class="mu sm">ขอบเขต: ${cgId ? 'CG: ' + esc(nmCg(cgId)) : 'ทุก CG'} · ผู้สูงอายุ ${es.length} คน · ความคืบหน้า ${pct}%${es.length > wq.length ? ' · ยังไม่ระบุ TAI ' + (es.length - wq.length) + ' คน (ไม่นับ)' : ''}</div></div>`;
+  box.innerHTML = h;
 }
 function adlCalc() {
   const vals = BARTHEL.map(b => $('adl_' + b.k).value), n = vals.filter(x => x !== '').length, sum = vals.reduce((a, x) => a + (x === '' ? 0 : +x), 0);
@@ -1114,14 +1182,16 @@ async function cmSeedImport() {
 /* =====================================================================
    PAGE 5 : REPORTS
    ===================================================================== */
-const RTYPES = { summary: 'สรุปผลการเยี่ยมรายเดือน', quota: 'การเยี่ยมตามเกณฑ์รายเดือน', person: 'ประวัติการเยี่ยมรายบุคคล', registry: 'ทะเบียนผู้สูงอายุ', perf: 'ผลงาน CM / CG', unvisited: 'ผู้สูงอายุที่ยังไม่ได้รับการเยี่ยม', loans: 'อุปกรณ์ที่ยืมค้างส่ง', stock: 'คลังวัสดุ อุปกรณ์' };
-let RP = { type: 'summary', month: today().slice(0, 7), from: fyRange(curFY())[0], to: today(), moo: '', cm: '', cg: '', elder: '', grp: '', status: 'active', res: null };
+const RTYPES = { cgvisits: 'ผลการเยี่ยมผู้สูงอายุของ CG รายบุคคล', summary: 'สรุปผลการเยี่ยมรายเดือน', quota: 'การเยี่ยมตามเกณฑ์รายเดือน', person: 'ประวัติการเยี่ยมรายบุคคล', registry: 'ทะเบียนผู้สูงอายุ', perf: 'ผลงาน CM / CG', unvisited: 'ผู้สูงอายุที่ยังไม่ได้รับการเยี่ยม', loans: 'อุปกรณ์ที่ยืมค้างส่ง', stock: 'คลังวัสดุ อุปกรณ์' };
+let RP = { type: 'cgvisits', month: today().slice(0, 7), from: fyRange(curFY())[0], to: today(), moo: '', cm: '', cg: '', elder: '', grp: '', status: 'active', res: null };
 PAGES.report = { title: 'รายงาน', render: pReport, after: runReport };
 function pReport() {
-  const t = RP.type, fl = k => ({ summary: ['date', 'moo', 'cm', 'cg'], quota: ['month', 'moo', 'cm', 'cg'], person: ['date', 'elder'], registry: ['moo', 'cm', 'cg', 'grp', 'status'], perf: ['date'], unvisited: ['date', 'moo', 'cm', 'cg', 'grp'], loans: [], stock: [] }[t] || []).includes(k);
+  if (!RP.cg && ME.role === 'cg' && ME.cgId) RP.cg = ME.cgId;
+  const t = RP.type, fl = k => ({ cgvisits: ['month', 'cgreq'], summary: ['date', 'moo', 'cm', 'cg'], quota: ['month', 'moo', 'cm', 'cg'], person: ['date', 'elder'], registry: ['moo', 'cm', 'cg', 'grp', 'status'], perf: ['date'], unvisited: ['date', 'moo', 'cm', 'cg', 'grp'], loans: [], stock: [] }[t] || []).includes(k);
   return `<div class="card"><div class="grid g4" style="align-items:end">
     ${field('ประเภทรายงาน', `<select onchange="RP.type=this.value;renderPage()">${opts(Object.entries(RTYPES), RP.type)}</select>`, 'span2')}
     ${fl('month') ? field('เดือน', inp('rp_month', RP.month, 'month', 'onchange="RP.month=this.value;runReport()"')) : ''}
+    ${fl('cgreq') ? field('CG ผู้เยี่ยม', `<select onchange="RP.cg=this.value;runReport()">${cgOpts(RP.cg, '-- เลือก CG --')}</select>`, 'span2') : ''}
     ${fl('date') ? field('ตั้งแต่วันที่', inp('rp_from', RP.from, 'date', 'onchange="RP.from=this.value;runReport()"')) + field('ถึงวันที่', inp('rp_to', RP.to, 'date', 'onchange="RP.to=this.value;runReport()"')) : ''}
     ${fl('elder') ? field('ผู้สูงอายุ', `<select onchange="RP.elder=this.value;runReport()">${opts(list(S.elders).sort((a, b) => cmp(fullName(a), fullName(b))).map(e => [e.id, fullName(e)]), RP.elder, '-- เลือก --')}</select>`, 'span2') : ''}
     ${fl('moo') ? field('หมู่ที่', `<select onchange="RP.moo=this.value;runReport()">${opts(mooList().map(m => [m, 'หมู่ ' + m]), RP.moo, 'ทุกหมู่')}</select>`) : ''}
@@ -1145,6 +1215,27 @@ function buildReport() {
     r.sub = range + (filt ? ' · ' + filt : ''); r.headers = ['เดือน', 'จำนวนครั้ง', 'จำนวนราย', 'ตามแผน', 'ติดตาม', 'เร่งด่วน', 'ส่งต่อ', 'ติดสังคม', 'ติดบ้าน', 'ติดเตียง'];
     Object.keys(months).sort().forEach(k => { const a = months[k], u = new Set(a.map(v => v.elderId)), gcnt = g => new Set(a.filter(v => adlGroup(v.adl).g === g).map(v => v.elderId)).size; r.rows.push([thMonth(k), a.length, u.size, a.filter(v => v.type === 'plan').length, a.filter(v => v.type === 'follow').length, a.filter(v => v.type === 'urgent').length, a.filter(v => v.refer).length, gcnt(1), gcnt(2), gcnt(3)]); });
     r.sum = [['จำนวนการเยี่ยมทั้งหมด', vs.length + ' ครั้ง'], ['ผู้สูงอายุที่ได้รับการเยี่ยม', new Set(vs.map(v => v.elderId)).size + ' ราย'], ['ผู้สูงอายุในความดูแล', act + ' ราย'], ['ส่งต่อ', vs.filter(v => v.refer).length + ' ครั้ง']];
+  } else if (RP.type === 'cgvisits') {
+    const ym = RP.month || today().slice(0, 7), cg = S.cgs[RP.cg];
+    if (!cg) { r.sub = 'กรุณาเลือก CG และเดือนที่ต้องการออกรายงาน'; r.empty = true; return r; }
+    const vs = D.vs.filter(v => v.cgId === RP.cg && v.date.startsWith(ym));
+    const cut = (t, n) => { t = String(t || '').replace(/\s+/g, ' ').trim(); return t.length > n ? t.slice(0, n - 1) + '…' : t; };
+    const line = (lab, v) => v ? `<div><b>${lab}</b> ${esc(v)}</div>` : '';
+    r.sub = 'CG: ' + pName(cg) + ' · ประจำเดือน ' + thMonth(ym);
+    const mv = monthVisits(D, ym), ids = new Set(vs.map(v => v.elderId)); list(S.elders).forEach(e => { if (isActive(e) && e.cgId === RP.cg) ids.add(e.id); });
+    const eRows = [...ids].map(id => S.elders[id] && { e: S.elders[id], id }).filter(Boolean).sort((a, b) => cmp(fullName(a.e), fullName(b.e)));
+    const withPhoto = vs.filter(v => (v.photos || []).length).length, visited = new Set(vs.map(v => v.elderId)).size;
+    r.headers = ['วันที่', 'เวลา', 'ผู้สูงอายุ', 'หมู่', 'ประเภท', 'สัญญาณชีพ', 'ADL', 'ปัญหาที่พบ', 'การดูแลที่ให้', 'สรุป', 'แผน/นัด', 'ภาพประกอบ (URL)'];
+    vs.forEach(v => { const e = S.elders[v.elderId] || {}; r.rows.push([thDate(v.date), v.time || '', fullName(e), e.moo || '', VTYPES[v.type] || '', [v.sys ? 'BP ' + v.sys + '/' + (v.dia ?? '') : '', v.pulse ? 'ชีพจร ' + v.pulse : '', v.spo2 ? 'SpO2 ' + v.spo2 : '', v.dtx ? 'DTX ' + v.dtx : ''].filter(Boolean).join(' '), v.adl ?? '', (v.problems || []).join(', '), (v.care || []).join(', '), cut(v.note, 150), [cut(v.plan, 80), v.nextDate ? 'นัด ' + thDate(v.nextDate) : ''].filter(Boolean).join(' · '), (v.photos || [])[0] || '']); });
+    r.sum = [['จำนวนครั้งที่เยี่ยม', vs.length + ' ครั้ง'], ['ผู้สูงอายุที่ได้รับการเยี่ยม', visited + ' ราย จาก ' + eRows.length + ' ราย'], ['มีภาพประกอบ', withPhoto + '/' + vs.length + ' ครั้ง']];
+    if (!vs.length) { r.empty = true; r.html = '<div style="text-align:center;padding:30px;color:#666">ไม่พบบันทึกการเยี่ยมของ CG นี้ในเดือนที่เลือก</div>'; return r; }
+    const cmCount = {}; vs.forEach(v => { if (v.cmId) cmCount[v.cmId] = (cmCount[v.cmId] || 0) + 1; }); const cmTop = Object.entries(cmCount).sort((a, b) => b[1] - a[1])[0];
+    const dayList = id => vs.filter(v => v.elderId === id).map(v => +v.date.slice(8)).join(', ');
+    r.html = `<table class="mini"><thead><tr><th style="width:34px">ที่</th><th>ผู้สูงอายุ</th><th>หมู่</th><th>กลุ่มพึ่งพิง</th><th>เกณฑ์ (ครั้ง/เดือน)</th><th>เยี่ยม (ครั้ง)</th><th>วันที่เยี่ยม</th></tr></thead><tbody>${eRows.map(({ e, id }, i) => `<tr><td style="text-align:center">${i + 1}</td><td>${esc(fullName(e))}</td><td>${esc(e.moo || '')}</td><td>${esc(taiGroup(e.tai) || '-')}</td><td style="text-align:center">${depQuota(e) || '-'}</td><td style="text-align:center">${mv[id] || 0}</td><td>${esc(dayList(id) || '-')}</td></tr>`).join('')}</tbody></table>
+      <div class="vsec">รายละเอียดการเยี่ยม (พร้อมภาพประกอบ 1 ภาพต่อครั้ง)</div>
+      ${vs.map((v, i) => { const e = S.elders[v.elderId] || {}, photo = (v.photos || [])[0], vit = [v.sys ? 'BP ' + v.sys + '/' + (v.dia ?? '-') : '', v.pulse ? 'ชีพจร ' + v.pulse : '', v.temp ? 'T ' + v.temp + '°C' : '', v.spo2 ? 'SpO₂ ' + v.spo2 + '%' : '', v.dtx ? 'DTX ' + v.dtx : ''].filter(Boolean).join(' · ');
+        return `<div class="vb nb"><div class="vt"><div class="vh">ครั้งที่ ${i + 1} · ${thDate(v.date)}${v.time ? ' เวลา ' + esc(v.time) + ' น.' : ''} · ${VTYPES[v.type] || ''}</div><div class="vn">${esc(fullName(e))}${e.moo ? ' · หมู่ ' + esc(e.moo) : ''}${e.birthdate ? ' · อายุ ' + age(e.birthdate) + ' ปี' : ''}</div>${line('สัญญาณชีพ:', vit)}${v.adl !== null && v.adl !== undefined ? line('ADL:', v.adl + ' คะแนน (' + adlGroup(v.adl).label + ')') : ''}${line('ปัญหาที่พบ:', (v.problems || []).join(', '))}${line('การดูแลที่ให้:', (v.care || []).join(', '))}${line('สรุป:', cut(v.note, 150))}${line('แผน/นัด:', [cut(v.plan, 80), v.nextDate ? 'นัด ' + thDate(v.nextDate) : ''].filter(Boolean).join(' · '))}${v.refer ? line('ส่งต่อ:', v.referTo || 'ส่งต่อ/ปรึกษาแพทย์') : ''}</div>${photo ? `<img class="ph" src="${esc(photo)}" alt="ภาพประกอบการเยี่ยม">` : '<div class="ph noph">ไม่มีภาพประกอบ</div>'}</div>`; }).join('')}
+      <div class="sign nb"><div class="cert">ข้าพเจ้าขอรับรองว่าได้ออกเยี่ยมบ้านผู้สูงอายุตามรายการข้างต้นจริง</div><div class="sg"><div>ลงชื่อ ........................................<br>(${esc(pName(cg))})<br>ผู้เยี่ยม / ผู้รายงาน (CG)<br>วันที่ ........................</div><div>ลงชื่อ ........................................<br>(${cmTop && S.cms[cmTop[0]] ? esc(pName(S.cms[cmTop[0]])) : '........................................'})<br>ผู้ตรวจสอบ (Care Manager)<br>วันที่ ........................</div><div>ลงชื่อ ........................................<br>(........................................)<br>ผู้อำนวยการ ${ORG.name}<br>วันที่ ........................</div></div></div>`;
   } else if (RP.type === 'quota') {
     const ym = RP.month || today().slice(0, 7), mv = monthVisits(D, ym);
     r.landscape = true; r.sub = 'ประจำเดือน ' + thMonth(ym) + (filt ? ' · ' + filt : ''); r.headers = ['ชื่อ-สกุล', 'หมู่', 'กลุ่มผู้มีภาวะพึ่งพิง', 'เกณฑ์ (ครั้ง/เดือน)', 'เยี่ยมแล้ว (ครั้ง)', 'ขาด (ครั้ง)', 'ผล', 'CG', 'CM'];
@@ -1195,10 +1286,15 @@ function runReport() {
   p.style.width = (r.landscape ? 1123 : 794) + 'px';
   p.innerHTML = `<div class="org">${ORG.name} ${ORG.area}</div><h2>${esc(r.title)}</h2><div class="rsub">${esc(r.sub)}</div>
     ${r.sum.length ? `<div class="rsum">${r.sum.map(([a, b]) => `<span>${esc(a)}: <b>${esc(b)}</b></span>`).join('')}</div>` : ''}
-    ${r.headers.length ? (r.rows.length ? `<table><thead><tr><th style="width:34px">ที่</th>${r.headers.map(h => `<th>${esc(h)}</th>`).join('')}</tr></thead><tbody>${r.rows.map((row, i) => `<tr><td style="text-align:center">${i + 1}</td>${row.map(c => `<td>${esc(c)}</td>`).join('')}</tr>`).join('')}</tbody></table>` : '<div style="text-align:center;padding:24px;color:#666">ไม่พบข้อมูลตามเงื่อนไขที่เลือก</div>') : ''}
+    ${r.html ? r.html : r.headers.length ? (r.rows.length ? `<table><thead><tr><th style="width:34px">ที่</th>${r.headers.map(h => `<th>${esc(h)}</th>`).join('')}</tr></thead><tbody>${r.rows.map((row, i) => `<tr><td style="text-align:center">${i + 1}</td>${row.map(c => `<td>${esc(c)}</td>`).join('')}</tr>`).join('')}</tbody></table>` : '<div style="text-align:center;padding:24px;color:#666">ไม่พบข้อมูลตามเงื่อนไขที่เลือก</div>') : ''}
     <div class="foot">พิมพ์เมื่อ ${thDate(today())} โดย ${esc(ME.name || ME.username)}</div>`;
 }
-function rpPDF() { if (!RP.res || !RP.res.headers.length) return; exportPDF($('rpPaper'), 'report_' + RP.type + '_' + today() + '.pdf', RP.res.landscape); }
+function rpPDF() {
+  const r = RP.res; if (!r || (!r.headers.length && !r.html)) return toast('ยังไม่มีข้อมูลสำหรับออกรายงาน', 'err');
+  if (r.empty) return toast(RP.type === 'cgvisits' ? 'กรุณาเลือก CG ที่มีบันทึกการเยี่ยมในเดือนที่เลือก' : 'ไม่มีข้อมูลสำหรับออกรายงาน', 'err');
+  const nm = RP.type === 'cgvisits' ? 'report_CG_' + cgFirstName(S.cgs[RP.cg] || {}) + '_' + RP.month + '.pdf' : 'report_' + RP.type + '_' + today() + '.pdf';
+  exportPDF($('rpPaper'), nm, r.landscape);
+}
 function rpCSV() {
   const r = RP.res; if (!r || !r.rows.length) return toast('ไม่มีข้อมูลให้ส่งออก', 'err');
   const rows = [[r.title], [r.sub], [], ['ที่', ...r.headers], ...r.rows.map((x, i) => [i + 1, ...x])];
@@ -1279,27 +1375,62 @@ PAGES.users = { title: 'จัดการผู้ใช้', render: pUsers };
 function pUsers() {
   if (!isAdmin()) return noAccess();
   const us = list(S.users).sort((a, b) => cmp(a.username, b.username));
-  return `<div class="row sp" style="margin-bottom:12px"><div class="mu sm">ผู้ดูแลระบบ = ทุกอย่าง · เจ้าหน้าที่ = บันทึก/แก้ไข · ผู้ดูข้อมูล = ดูอย่างเดียว</div><button class="btn" onclick="userForm()">＋ เพิ่มผู้ใช้</button></div>
-    <div class="tw"><table><thead><tr><th>ชื่อผู้ใช้</th><th>ชื่อ-สกุล</th><th>สิทธิ์</th><th>สถานะ</th><th></th></tr></thead><tbody>${us.map(u => `<tr><td><b>${esc(u.username)}</b>${u.id === ME.id ? ' <span class="badge b-p">คุณ</span>' : ''}</td><td>${esc(u.name || '')}</td><td>${ROLES[u.role] || u.role}</td><td>${u.active === false ? '<span class="badge b-n">ปิดใช้งาน</span>' : '<span class="badge b-g1">ใช้งาน</span>'}</td><td class="n" style="white-space:nowrap"><button class="btn btn-o btn-s" onclick="userForm('${u.id}')">แก้ไข</button>${u.id !== ME.id ? ` <button class="btn btn-d btn-s" onclick="userDel('${u.id}')">ลบ</button>` : ''}</td></tr>`).join('')}</tbody></table></div>`;
+  return `<div class="row sp" style="margin-bottom:12px"><div class="mu sm">ผู้ดูแลระบบ = ทุกอย่าง · เจ้าหน้าที่ / CG = บันทึกและแก้ไข (ลบไม่ได้) · ผู้ดูข้อมูล = ดูอย่างเดียว</div><div class="row"><button class="btn btn-o" onclick="cgUsersPreview()">👥 สร้างผู้ใช้ CG ทั้งหมด</button><button class="btn" onclick="userForm()">＋ เพิ่มผู้ใช้</button></div></div>
+    <div class="tw"><table><thead><tr><th>ชื่อผู้ใช้</th><th>ชื่อ-สกุล</th><th>สิทธิ์</th><th>สถานะ</th><th></th></tr></thead><tbody>${us.map(u => `<tr><td><b>${esc(u.username)}</b>${u.id === ME.id ? ' <span class="badge b-p">คุณ</span>' : ''}</td><td>${esc(u.name || '')}</td><td>${ROLES[u.role] || u.role}${u.cgId && S.cgs[u.cgId] ? `<div class="mu sm">CG: ${esc(nmCg(u.cgId))}</div>` : ''}</td><td>${u.active === false ? '<span class="badge b-n">ปิดใช้งาน</span>' : '<span class="badge b-g1">ใช้งาน</span>'}</td><td class="n" style="white-space:nowrap"><button class="btn btn-o btn-s" onclick="userForm('${u.id}')">แก้ไข</button>${u.id !== ME.id ? ` <button class="btn btn-d btn-s" onclick="userDel('${u.id}')">ลบ</button>` : ''}</td></tr>`).join('')}</tbody></table></div>`;
 }
 function userForm(id) {
   const u = id ? S.users[id] : {};
   openModal(id ? 'แก้ไขผู้ใช้' : 'เพิ่มผู้ใช้', `<div class="grid g2">
     ${field('ชื่อผู้ใช้ (ภาษาอังกฤษ/ตัวเลข)', inp('u_user', u.username || '', 'text', 'autocapitalize="none" ' + (id ? '' : '')), '', true)}${field('ชื่อ-สกุล', inp('u_name', u.name || ''), '', true)}
     ${field('สิทธิ์', `<select id="u_role">${opts(Object.entries(ROLES), u.role || 'staff')}</select>`)}${field('สถานะ', `<select id="u_active">${opts([['1', 'ใช้งาน'], ['0', 'ปิดใช้งาน']], u.active === false ? '0' : '1')}</select>`)}
+    ${field('เชื่อมกับ CG (ใช้กับสิทธิ์ CG)', `<select id="u_cg">${cgOpts(u.cgId, '- ไม่เชื่อม -')}</select>`, 'spanall')}
     ${field(id ? 'รหัสผ่านใหม่ (เว้นว่าง = ไม่เปลี่ยน)' : 'รหัสผ่าน (อย่างน้อย 6 ตัว)', '<input id="u_pw" type="password" autocomplete="new-password">', 'spanall', !id)}</div>`,
     `<button class="btn btn-o" onclick="closeModal()">ยกเลิก</button><button class="btn" onclick="userSave('${id || ''}')">บันทึก</button>`);
 }
 const adminCount = ex => list(S.users).filter(u => u.role === 'admin' && u.active !== false && u.id !== ex).length;
 async function userSave(id) {
-  const username = val('u_user').toLowerCase(), name = val('u_name'), pw = $('u_pw').value, role = val('u_role'), active = val('u_active') === '1';
-  if (!/^[a-z0-9._-]{3,}$/.test(username)) return toast('ชื่อผู้ใช้ต้องเป็น a-z 0-9 . _ - อย่างน้อย 3 ตัว', 'err');
+  const username = normU(val('u_user')), name = val('u_name'), pw = $('u_pw').value, role = val('u_role'), active = val('u_active') === '1';
+  if (!/^[a-z0-9._\-\u0E00-\u0E7F]{3,}$/.test(username)) return toast('ชื่อผู้ใช้ใช้ได้เฉพาะตัวอักษรไทย a-z 0-9 . _ - อย่างน้อย 3 ตัว', 'err');
   if (!name) return toast('กรุณากรอกชื่อ-สกุล', 'err');
-  if (list(S.users).some(u => u.username.toLowerCase() === username && u.id !== id)) return toast('ชื่อผู้ใช้นี้ถูกใช้แล้ว', 'err');
+  if (list(S.users).some(u => normU(u.username) === username && u.id !== id)) return toast('ชื่อผู้ใช้นี้ถูกใช้แล้ว', 'err');
   if (!id && pw.length < 6) return toast('รหัสผ่านต้องยาวอย่างน้อย 6 ตัว', 'err');
   if (id && pw && pw.length < 6) return toast('รหัสผ่านต้องยาวอย่างน้อย 6 ตัว', 'err');
   if (id && (role !== 'admin' || !active) && adminCount(id) === 0) return toast('ต้องมีผู้ดูแลระบบที่ใช้งานอยู่อย่างน้อย 1 คน', 'err');
-  try { const d = { username, name, role, active }; if (pw) d.pass = await hashPw(pw); await dbSave('users', id || null, d); closeModal(); toast('บันทึกผู้ใช้แล้ว'); } catch (e) { toast('บันทึกไม่สำเร็จ: ' + e.message, 'err'); }
+  try { const d = { username, name, role, active, cgId: role === 'cg' ? val('u_cg') : '' }; if (pw) d.pass = await hashPw(pw); await dbSave('users', id || null, d); closeModal(); toast('บันทึกผู้ใช้แล้ว'); } catch (e) { toast('บันทึกไม่สำเร็จ: ' + e.message, 'err'); }
+}
+
+/* ---------- สร้างผู้ใช้ CG ทั้งหมดจากรายชื่อ CG ในระบบ ---------- */
+const CG_DEFAULT_PW = '123456';
+const normU = s => String(s || '').normalize('NFC').trim().toLowerCase();
+const cgFirstName = c => (splitPrefix(((c.prefix || '') + (c.name || '')).trim())[1] || '').split(/\s+/)[0] || '';
+function cgUsersPlan() {
+  const have = new Set(list(S.users).map(u => normU(u.username))), linked = new Set(list(S.users).map(u => u.cgId).filter(Boolean)), seen = new Set(), add = [], skip = [];
+  list(S.cgs).filter(isActive).sort((a, b) => cmp(a.name, b.name)).forEach(c => {
+    const un = normU(cgFirstName(c)), full = pName(c);
+    if (!un) return skip.push([full, 'ไม่มีชื่อ']);
+    if (linked.has(c.id)) return skip.push([full, 'มีผู้ใช้เชื่อมกับ CG คนนี้แล้ว']);
+    if (have.has(un) || seen.has(un)) return skip.push([full, 'ชื่อผู้ใช้ "' + un + '" ซ้ำ']);
+    seen.add(un); add.push({ c, un, full });
+  });
+  return { add, skip };
+}
+function cgUsersPreview() {
+  if (!isAdmin()) return; const p = cgUsersPlan();
+  if (!p.add.length && !p.skip.length) return toast('ยังไม่มีข้อมูล CG ในระบบ — นำเข้า CG ที่หน้า จัดการ CM และ CG ก่อน', 'warn');
+  openModal('สร้างผู้ใช้ CG ทั้งหมด', `<p style="margin-top:0">จะสร้างผู้ใช้ <b>${p.add.length}</b> คน · ชื่อผู้ใช้ = ชื่อต้น (ไม่รวมคำนำหน้าและนามสกุล) · รหัสผ่านเริ่มต้น <b>${CG_DEFAULT_PW}</b> · สิทธิ์ ผู้ดูแล CG (บันทึก/แก้ไข ลบไม่ได้)</p>
+    ${p.add.length ? `<div class="tw"><table><thead><tr><th>ชื่อผู้ใช้</th><th>ชื่อ-สกุล</th></tr></thead><tbody>${p.add.map(a => `<tr><td><b>${esc(a.un)}</b></td><td>${esc(a.full)}</td></tr>`).join('')}</tbody></table></div>` : ''}
+    ${p.skip.length ? `<div class="infobox">ข้าม ${p.skip.length} รายการ: ${esc(p.skip.map(x => x[0] + ' (' + x[1] + ')').join(', '))}</div>` : ''}
+    <div class="mu sm mt2">แนะนำให้ CG แต่ละคนเปลี่ยนรหัสผ่านหลังเข้าสู่ระบบครั้งแรก</div>`,
+    `<button class="btn btn-o" onclick="closeModal()">ยกเลิก</button>${p.add.length ? `<button class="btn" id="cgUGo" onclick="cgUsersCreate()">สร้าง ${p.add.length} ผู้ใช้</button>` : ''}`);
+}
+async function cgUsersCreate() {
+  if (!isAdmin()) return; const p = cgUsersPlan(); if (!p.add.length) return closeModal();
+  const b = $('cgUGo'); if (b) { b.disabled = true; b.textContent = 'กำลังสร้าง...'; }
+  try {
+    const pass = await hashPw(CG_DEFAULT_PW), now = Date.now(), upd = {};
+    p.add.forEach(a => { upd['users/' + db.ref('users').push().key] = { username: a.un, name: a.full, role: 'cg', active: true, cgId: a.c.id, pass, createdAt: now, createdBy: ME.username, updatedAt: now }; });
+    await db.ref().update(clean(upd)); closeModal(); toast('สร้างผู้ใช้ CG แล้ว ' + p.add.length + ' คน');
+  } catch (e) { toast('สร้างไม่สำเร็จ: ' + e.message, 'err'); if (b) { b.disabled = false; b.textContent = 'ลองอีกครั้ง'; } }
 }
 async function userDel(id) {
   if (S.users[id].role === 'admin' && adminCount(id) === 0) return toast('ต้องมีผู้ดูแลระบบอย่างน้อย 1 คน', 'err');
