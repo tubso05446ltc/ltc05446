@@ -1,0 +1,1071 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>ระบบบันทึกการเยี่ยมผู้สูงอายุที่มีภาวะพึ่งพิง | รพ.สต.บ้านทับสอ</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --pine:#17362e; --pine2:#1f4a3f; --p:#1d6b57; --p2:#155243; --pl:#dcefe8;
+  --gold:#e0a526; --gold-l:#fbf0d3;
+  --bg:#eef1ee; --card:#fff; --tx:#22302b; --mu:#66756f; --bd:#dde4e0;
+  --g1:#2e9d5b; --g2:#e0a526; --g3:#cc4b3c; --g0:#9aa6a1;
+  --r:12px;
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;font-family:'Sarabun',system-ui,-apple-system,'Segoe UI',sans-serif;background:var(--bg);color:var(--tx);font-size:16px;line-height:1.55}
+body.noscroll{overflow:hidden}
+button,input,select,textarea{font-family:inherit;font-size:inherit;color:inherit}
+h1,h2,h3,h4{margin:0;font-weight:600;line-height:1.3}
+a{color:var(--p)}
+:focus-visible{outline:3px solid var(--gold);outline-offset:1px}
+.hide{display:none!important}
+
+/* ---------- login ---------- */
+#login{min-height:100vh;display:grid;grid-template-columns:1.1fr 1fr}
+.lg-art{background:var(--pine);color:#fff;padding:56px 56px;display:flex;flex-direction:column;justify-content:space-between;position:relative;overflow:hidden}
+.lg-art:after{content:"";position:absolute;right:-120px;bottom:-120px;width:420px;height:420px;border-radius:50%;border:56px solid rgba(224,165,38,.16)}
+.lg-art h1{font-size:40px;font-weight:700;line-height:1.25;max-width:520px}
+.lg-art p{color:#b8cfc7;max-width:460px;margin:16px 0 0;font-size:18px}
+.lg-org{font-size:15px;letter-spacing:.2px;color:#e8c56a;font-weight:600}
+.lg-seg{display:flex;height:12px;border-radius:6px;overflow:hidden;max-width:360px;margin-bottom:10px}
+.lg-seg i{display:block}
+.lg-form{display:flex;align-items:center;justify-content:center;padding:32px;background:var(--card)}
+.lg-box{width:100%;max-width:360px}
+.lg-box h2{font-size:26px;margin-bottom:6px}
+.lg-box .sub{color:var(--mu);margin:0 0 24px}
+.lg-err{color:var(--g3);min-height:24px;margin:8px 0;font-size:15px}
+.lg-hint{background:var(--gold-l);border-radius:8px;padding:10px 12px;font-size:14px;margin-bottom:16px}
+@media(max-width:820px){#login{grid-template-columns:1fr}.lg-art{padding:28px 24px;min-height:auto;gap:24px}.lg-art h1{font-size:26px}.lg-art p{font-size:16px}.lg-art:after{display:none}}
+
+/* ---------- shell ---------- */
+.shell{display:flex;min-height:100vh}
+#side{width:250px;background:var(--pine);color:#dbe8e3;position:fixed;inset:0 auto 0 0;display:flex;flex-direction:column;z-index:40;transition:transform .2s}
+.brand{padding:22px 20px 16px;border-bottom:1px solid rgba(255,255,255,.09)}
+.brand b{display:block;color:#fff;font-size:17px;line-height:1.35}
+.brand small{color:#e8c56a;font-size:13px}
+#nav{padding:12px 10px;flex:1;overflow-y:auto}
+#nav button{display:flex;align-items:center;gap:12px;width:100%;text-align:left;background:none;border:0;color:inherit;padding:11px 12px;border-radius:9px;cursor:pointer;margin-bottom:2px}
+#nav button .ic{width:24px;text-align:center;font-size:18px}
+#nav button:hover{background:rgba(255,255,255,.07)}
+#nav button.on{background:var(--gold);color:#2b2100;font-weight:600}
+.me{padding:14px 16px;border-top:1px solid rgba(255,255,255,.09);font-size:14px}
+.me b{display:block;color:#fff;font-size:15px}
+.me .rl{color:#9fb8ae;margin-bottom:8px}
+.me button{background:rgba(255,255,255,.09);border:0;color:#fff;border-radius:7px;padding:5px 10px;cursor:pointer;margin-right:6px;font-size:13px}
+.main{margin-left:250px;flex:1;min-width:0}
+.top{position:sticky;top:0;z-index:30;background:rgba(238,241,238,.94);backdrop-filter:blur(6px);display:flex;align-items:center;gap:12px;padding:14px 28px;border-bottom:1px solid var(--bd)}
+.top h1{font-size:22px;flex:1}
+#burger{display:none;background:var(--pine);color:#fff;border:0;border-radius:8px;width:40px;height:40px;font-size:20px;cursor:pointer}
+.sync{font-size:13px;color:var(--mu);display:flex;align-items:center;gap:6px}
+.sync:before{content:"";width:9px;height:9px;border-radius:50%;background:var(--g0)}
+.sync.on:before{background:var(--g1)}
+.sync.off:before{background:var(--g3)}
+#content{padding:24px 28px 60px;max-width:1400px}
+.scrim{display:none}
+@media(max-width:960px){
+  #side{transform:translateX(-100%)}
+  #side.open{transform:none}
+  .scrim.on{display:block;position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:35}
+  .main{margin-left:0}
+  #burger{display:block}
+  .top{padding:10px 14px}.top h1{font-size:18px}
+  #content{padding:16px 14px 60px}
+}
+
+/* ---------- common ---------- */
+.card{background:var(--card);border:1px solid var(--bd);border-radius:var(--r);padding:18px 20px}
+.card h3{font-size:17px;margin-bottom:12px}
+.card h3 small{font-weight:400;color:var(--mu);font-size:14px;margin-left:6px}
+.row{display:flex;gap:12px;flex-wrap:wrap;align-items:center}
+.row.sp{justify-content:space-between}
+.grow{flex:1}
+.mt{margin-top:18px}.mt2{margin-top:10px}
+.mu{color:var(--mu)}
+.sm{font-size:14px}
+.btn{border:1px solid transparent;border-radius:9px;padding:9px 16px;cursor:pointer;font-weight:500;display:inline-flex;align-items:center;gap:6px;background:var(--p);color:#fff;white-space:nowrap}
+.btn:hover{background:var(--p2)}
+.btn:disabled{opacity:.55;cursor:not-allowed}
+.btn-o{background:#fff;color:var(--tx);border-color:var(--bd)}
+.btn-o:hover{background:#f3f6f4}
+.btn-d{background:var(--g3)}.btn-d:hover{background:#a93a2d}
+.btn-g{background:var(--gold);color:#2b2100}.btn-g:hover{background:#c99118}
+.btn-s{padding:5px 10px;font-size:14px;border-radius:7px}
+.badge{display:inline-block;border-radius:20px;padding:1px 10px;font-size:13px;font-weight:500;white-space:nowrap}
+.b-g1{background:#dff3e6;color:#1d7040}.b-g2{background:#fbeccb;color:#8a5f05}.b-g3{background:#f8dcd8;color:#a3362a}.b-n{background:#e6ebe8;color:#55645e}
+.b-p{background:var(--pl);color:var(--p2)}
+.tw{overflow-x:auto;border:1px solid var(--bd);border-radius:var(--r);background:#fff}
+table{border-collapse:collapse;width:100%}
+th,td{padding:9px 12px;text-align:left;border-bottom:1px solid var(--bd);vertical-align:top}
+th{background:#f4f7f5;font-weight:600;font-size:14px;color:#3d4d47;white-space:nowrap}
+tr:last-child td{border-bottom:0}
+tbody tr:hover{background:#fafcfb}
+td.n,th.n{text-align:right}
+.empty{padding:36px 16px;text-align:center;color:var(--mu)}
+.toolbar{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:14px;align-items:center}
+.toolbar input,.toolbar select{min-width:150px}
+input,select,textarea{border:1px solid #c9d3ce;border-radius:8px;padding:8px 11px;background:#fff;width:100%}
+input[type=checkbox],input[type=radio]{width:auto}
+textarea{min-height:76px;resize:vertical}
+.toolbar input,.toolbar select{width:auto}
+label.f{display:block}
+label.f>span{display:block;font-size:14px;color:#3d4d47;margin-bottom:3px;font-weight:500}
+label.f>span i{color:var(--g3);font-style:normal}
+.grid{display:grid;gap:12px 14px}
+.g2{grid-template-columns:repeat(2,1fr)}.g3{grid-template-columns:repeat(3,1fr)}.g4{grid-template-columns:repeat(4,1fr)}.g6{grid-template-columns:repeat(6,1fr)}
+.span2{grid-column:span 2}.spanall{grid-column:1/-1}
+@media(max-width:720px){.g2,.g3,.g4{grid-template-columns:1fr 1fr}.g6{grid-template-columns:repeat(3,1fr)}.span2{grid-column:span 2}}
+@media(max-width:480px){.g3,.g4{grid-template-columns:1fr 1fr}.g2{grid-template-columns:1fr}.span2{grid-column:1/-1}}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{cursor:pointer}
+.chip input{position:absolute;opacity:0;pointer-events:none}
+.chip span{display:inline-block;padding:5px 13px;border:1px solid #c9d3ce;border-radius:20px;font-size:15px;background:#fff}
+.chip input:checked+span{background:var(--p);border-color:var(--p);color:#fff}
+.chip input:focus-visible+span{outline:3px solid var(--gold)}
+.sec{border-top:1px solid var(--bd);margin-top:20px;padding-top:16px}
+.sec>h4{margin-bottom:10px;font-size:16px;color:var(--p2)}
+.tabs{display:flex;gap:4px;border-bottom:2px solid var(--bd);margin-bottom:16px;flex-wrap:wrap}
+.tabs button{background:none;border:0;padding:9px 18px;cursor:pointer;font-weight:500;color:var(--mu);border-bottom:3px solid transparent;margin-bottom:-2px}
+.tabs button.on{color:var(--p2);border-color:var(--gold)}
+.avatar{width:38px;height:38px;border-radius:50%;object-fit:cover;background:var(--pl);display:inline-flex;align-items:center;justify-content:center;color:var(--p2);font-weight:600;flex:none}
+
+/* ---------- dashboard ---------- */
+.hero{background:var(--pine);color:#fff;border-radius:16px;padding:26px 28px;display:grid;grid-template-columns:auto 1fr;gap:28px;align-items:center}
+.hero .big{font-size:64px;font-weight:700;line-height:1;color:#fff}
+.hero .big small{font-size:18px;font-weight:400;color:#b8cfc7;margin-left:6px}
+.hero .cap{color:#b8cfc7;margin-top:6px}
+.segbar{display:flex;height:22px;border-radius:11px;overflow:hidden;background:rgba(255,255,255,.12)}
+.segbar i{display:block;min-width:0;transition:width .3s}
+.seglg{display:flex;gap:22px;flex-wrap:wrap;margin-top:12px}
+.seglg div{display:flex;align-items:center;gap:8px;font-size:15px}
+.seglg b{font-size:22px;color:#fff}
+.dot{width:11px;height:11px;border-radius:50%;display:inline-block}
+@media(max-width:720px){.hero{grid-template-columns:1fr;gap:18px;padding:20px}.hero .big{font-size:52px}}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:12px;margin-top:14px}
+.kpi{background:#fff;border:1px solid var(--bd);border-radius:var(--r);padding:14px 16px;border-left:5px solid var(--c,var(--p))}
+.kpi .kv{font-size:30px;font-weight:700;line-height:1.1}
+.kpi .kl{color:var(--mu);font-size:15px}
+.kpi .ks{font-size:13px;color:var(--mu);margin-top:2px}
+.dgrid{display:grid;grid-template-columns:repeat(12,1fr);gap:14px;margin-top:14px}
+.c4{grid-column:span 4}.c5{grid-column:span 5}.c6{grid-column:span 6}.c7{grid-column:span 7}.c8{grid-column:span 8}.c12{grid-column:span 12}
+@media(max-width:1100px){.c4,.c5,.c6,.c7,.c8{grid-column:span 12}}
+.cols{display:flex;align-items:stretch;gap:6px;height:200px}
+.col{flex:1;display:flex;flex-direction:column;align-items:center;min-width:0}
+.col .cv{font-size:13px;height:18px;color:var(--mu)}
+.col .cbw{flex:1;display:flex;align-items:flex-end;width:100%;min-height:0}
+.col .cb{width:100%;background:var(--p);border-radius:5px 5px 0 0;min-height:2px}
+.col .cb.cur{background:var(--gold)}
+.col .cl{font-size:13px;color:var(--mu);margin-top:4px;white-space:nowrap}
+.hb{display:grid;grid-template-columns:minmax(80px,140px) 1fr 40px;gap:10px;align-items:center;margin-bottom:7px;font-size:15px}
+.hb .hl{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.hb .ht{background:#e9eeeb;border-radius:5px;height:14px;overflow:hidden}
+.hb .hf{background:var(--p);height:100%;border-radius:5px}
+.hb .hn{text-align:right;font-weight:600}
+.ml{list-style:none;margin:0;padding:0}
+.ml li{display:flex;gap:10px;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--bd);font-size:15px}
+.ml li:last-child{border:0}
+
+/* ---------- modal ---------- */
+.ov{position:fixed;inset:0;background:rgba(15,30,25,.55);z-index:100;display:flex;align-items:flex-start;justify-content:center;padding:32px 12px;overflow-y:auto}
+.ov.top{z-index:200;align-items:center}
+.mdl{background:#fff;border-radius:14px;width:100%;max-width:640px;box-shadow:0 20px 60px rgba(0,0,0,.3);display:flex;flex-direction:column}
+.mdl.wide{max-width:920px}.mdl.sm{max-width:400px}
+.mh{display:flex;justify-content:space-between;align-items:center;padding:16px 20px;border-bottom:1px solid var(--bd)}
+.mh h3{font-size:19px}
+.x{background:none;border:0;font-size:20px;cursor:pointer;color:var(--mu);border-radius:6px;width:34px;height:34px}
+.x:hover{background:#eef1ef}
+.mb{padding:18px 20px}
+.mf{padding:12px 20px;border-top:1px solid var(--bd);display:flex;justify-content:flex-end;gap:10px;flex-wrap:wrap;background:#fafcfb;border-radius:0 0 14px 14px}
+#toast-root{position:fixed;right:16px;bottom:16px;z-index:300;display:flex;flex-direction:column;gap:8px;max-width:min(92vw,380px)}
+.toast{background:var(--pine);color:#fff;padding:11px 16px;border-radius:10px;box-shadow:0 6px 20px rgba(0,0,0,.25);animation:tin .2s}
+.toast.err{background:var(--g3)}.toast.warn{background:#8a5f05}
+@keyframes tin{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+
+/* ---------- visit form / detail ---------- */
+.adlrow{display:grid;grid-template-columns:1fr 1.2fr;gap:8px;align-items:center;padding:6px 0;border-bottom:1px dashed var(--bd)}
+.adlrow:last-child{border:0}
+.adltot{position:sticky;bottom:0;background:var(--pl);border-radius:10px;padding:10px 14px;display:flex;gap:12px;align-items:center;margin-top:10px;flex-wrap:wrap}
+.adltot b{font-size:24px}
+@media(max-width:600px){.adlrow{grid-template-columns:1fr}}
+.thumbs{display:flex;gap:10px;flex-wrap:wrap;margin-top:8px}
+.thumb{position:relative;width:96px;height:96px;border-radius:9px;overflow:hidden;border:1px solid var(--bd)}
+.thumb img{width:100%;height:100%;object-fit:cover;display:block}
+.thumb button{position:absolute;top:3px;right:3px;background:rgba(0,0,0,.65);color:#fff;border:0;border-radius:50%;width:24px;height:24px;cursor:pointer;line-height:1}
+.infobox{background:var(--gold-l);border-radius:10px;padding:10px 14px;font-size:15px;margin-top:8px}
+.dl{display:grid;grid-template-columns:150px 1fr;gap:6px 14px;font-size:15px}
+.dl dt{color:var(--mu)}.dl dd{margin:0}
+@media(max-width:560px){.dl{grid-template-columns:1fr}.dl dt{margin-top:6px}}
+.sticky-actions{position:sticky;bottom:0;background:linear-gradient(transparent,var(--bg) 30%);padding:18px 0 4px;display:flex;gap:10px;justify-content:flex-end}
+
+/* ---------- report ---------- */
+.rpwrap{overflow-x:auto;border:1px solid var(--bd);border-radius:var(--r);background:#e4e9e6;padding:14px}
+#rpPaper{background:#fff;padding:28px 30px;margin:0 auto;color:#000;font-size:14px}
+#rpPaper h2{text-align:center;font-size:19px}
+#rpPaper .org{text-align:center;color:#333;font-size:14px}
+#rpPaper .rsub{text-align:center;color:#333;margin:4px 0 12px}
+#rpPaper .rsum{display:flex;flex-wrap:wrap;gap:6px 26px;margin:8px 0 12px;font-size:14px;border:1px solid #bbb;padding:8px 12px}
+#rpPaper table{font-size:13px}
+#rpPaper th,#rpPaper td{border:1px solid #999;padding:4px 6px}
+#rpPaper th{background:#e8ede9;color:#000;white-space:normal}
+#rpPaper .foot{margin-top:12px;font-size:12px;color:#444}
+@media print{
+  body *{visibility:hidden}
+  #rpPaper,#rpPaper *{visibility:visible}
+  #rpPaper{position:absolute;left:0;top:0;width:100%!important;padding:0}
+}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<div id="modal-root"></div>
+<div id="toast-root"></div>
+
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+
+<script>
+/* =====================================================================
+   ระบบบันทึกการเยี่ยมผู้สูงอายุที่มีภาวะพึ่งพิง  รพ.สต.บ้านทับสอ
+   อ.เมืองสกลนคร จ.สกลนคร
+   ===================================================================== */
+const FIREBASE_CONFIG = {
+  apiKey: "AIzaSyDxF2G4NWVAm-UJL5txSyLRKOwqX26mxCQ",
+  authDomain: "thupsor.firebaseapp.com",
+  databaseURL: "https://thupsor-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId: "thupsor",
+  storageBucket: "thupsor.firebasestorage.app",
+  messagingSenderId: "322427373870",
+  appId: "1:322427373870:web:a0373040a6405ae57912bf"
+};
+const IMGBB_API_KEY = "6d050ff0baa662110ba2ca12c7247555";
+const ORG = { name: 'รพ.สต.บ้านทับสอ', area: 'อ.เมืองสกลนคร จ.สกลนคร' };
+const APP_TITLE = 'ระบบบันทึกการเยี่ยมผู้สูงอายุที่มีภาวะพึ่งพิง';
+
+/* ---------- constants ---------- */
+const MONTHS_S = ['ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.','ต.ค.','พ.ย.','ธ.ค.'];
+const MONTHS_F = ['มกราคม','กุมภาพันธ์','มีนาคม','เมษายน','พฤษภาคม','มิถุนายน','กรกฎาคม','สิงหาคม','กันยายน','ตุลาคม','พฤศจิกายน','ธันวาคม'];
+const FY_ORDER = [9,10,11,0,1,2,3,4,5,6,7,8];
+const COLS = ['elders','cms','cgs','visits','materials','txns','users'];
+const ROLES = { admin: 'ผู้ดูแลระบบ', staff: 'เจ้าหน้าที่ (บันทึก/แก้ไข)', viewer: 'ผู้ดูข้อมูล' };
+const VTYPES = { plan: 'เยี่ยมตามแผน', follow: 'เยี่ยมติดตาม', urgent: 'เยี่ยมเร่งด่วน' };
+const DISEASES = ['ความดันโลหิตสูง','เบาหวาน','หลอดเลือดสมอง (Stroke)','โรคหัวใจ','โรคไตเรื้อรัง','COPD/โรคปอด','สมองเสื่อม/อัลไซเมอร์','พาร์กินสัน','มะเร็ง','ข้อเสื่อม/กระดูกหัก','ซึมเศร้า'];
+const PROBLEMS = ['แผลกดทับ','สับสน/สมองเสื่อม','พลัดตกหกล้ม','ข้อติดแข็ง','สำลัก/กลืนลำบาก','ซึมเศร้า/เครียด','ผู้ดูแลเหนื่อยล้า','ขาดยา/กินยาไม่ต่อเนื่อง','ขาดอุปกรณ์','สภาพบ้านไม่เหมาะสม','ท้องผูก/ปัสสาวะติดขัด'];
+const CARE = ['ตรวจวัดสัญญาณชีพ','ทำความสะอาดร่างกาย','ดูแลแผล/แผลกดทับ','พลิกตะแคงตัว/จัดท่า','กายภาพบำบัด/ฝึกขยับ','ให้อาหารทางสายยาง','ทบทวนการใช้ยา','ให้คำแนะนำญาติ/CG','ประเมินสุขภาพจิต','ประเมินสภาพบ้าน','ให้ยืมอุปกรณ์'];
+const ESTATUS = { active: 'อยู่ในความดูแล', moved: 'ย้ายออก', dead: 'เสียชีวิต', recovered: 'พ้นภาวะพึ่งพิง' };
+/* Barthel Index (ADL) ฉบับกระทรวงสาธารณสุข คะแนนเต็ม 20 */
+const BARTHEL = [
+  { k:'feed',   t:'1. Feeding (รับประทานอาหาร)', o:[[0,'ไม่สามารถตักอาหารเองได้'],[1,'ตักเองได้แต่ต้องมีคนช่วยบางส่วน'],[2,'ตักและทานได้เอง']] },
+  { k:'trans',  t:'2. Transfer (ลุกจากเตียงไปเก้าอี้)', o:[[0,'ไม่สามารถนั่งได้/ใช้ 2 คนช่วยยก'],[1,'ต้องการความช่วยเหลืออย่างมาก'],[2,'ต้องการความช่วยเหลือเล็กน้อย'],[3,'ทำได้เอง']] },
+  { k:'groom',  t:'3. Grooming (ล้างหน้า หวีผม แปรงฟัน)', o:[[0,'ต้องการความช่วยเหลือ'],[1,'ทำได้เอง']] },
+  { k:'toilet', t:'4. Toilet use (ใช้ห้องน้ำ)', o:[[0,'ช่วยตัวเองไม่ได้'],[1,'ทำได้บางส่วน'],[2,'ช่วยเหลือตัวเองได้ดี']] },
+  { k:'bath',   t:'5. Bathing (การอาบน้ำ)', o:[[0,'ต้องมีคนช่วย'],[1,'อาบน้ำได้เอง']] },
+  { k:'mobil',  t:'6. Mobility (การเคลื่อนที่ในบ้าน)', o:[[0,'เคลื่อนที่ไปไหนไม่ได้'],[1,'ใช้รถเข็นได้เอง'],[2,'เดินได้โดยมีคนช่วย/พยุง'],[3,'เดินได้เอง (อาจใช้ไม้เท้า)']] },
+  { k:'stairs', t:'7. Stairs (ขึ้นลงบันได)', o:[[0,'ทำไม่ได้'],[1,'ต้องมีคนช่วย'],[2,'ขึ้นลงได้เอง']] },
+  { k:'dress',  t:'8. Dressing (สวมใส่เสื้อผ้า)', o:[[0,'ต้องมีคนช่วยทั้งหมด'],[1,'ช่วยตัวเองได้ประมาณครึ่งหนึ่ง'],[2,'ช่วยตัวเองได้ดี']] },
+  { k:'bowel',  t:'9. Bowels (การกลั้นอุจจาระ)', o:[[0,'กลั้นไม่ได้/ต้องสวน'],[1,'กลั้นไม่ได้บางครั้ง'],[2,'กลั้นได้ปกติ']] },
+  { k:'bladder',t:'10. Bladder (การกลั้นปัสสาวะ)', o:[[0,'กลั้นไม่ได้/ใส่สายสวน'],[1,'กลั้นไม่ได้บางครั้ง'],[2,'กลั้นได้ปกติ']] }
+];
+
+/* ---------- state ---------- */
+let db = null;
+const S = { elders:{}, cms:{}, cgs:{}, visits:{}, materials:{}, txns:{}, users:{} };
+const loaded = {};
+let ME = null, page = 'dash', pending = false, rt = null;
+let seededAdmin = false;
+
+/* ---------- helpers ---------- */
+const $ = id => document.getElementById(id);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const val = id => { const e = $(id); return e ? String(e.value).trim() : ''; };
+const numOrNull = v => { v = String(v ?? '').trim(); if (v === '') return null; const n = +v; return isNaN(n) ? null : n; };
+const chk = name => [...document.querySelectorAll('input[name="' + name + '"]:checked')].map(x => x.value);
+const list = o => Object.entries(o || {}).map(([id, v]) => ({ ...v, id }));
+const clean = o => JSON.parse(JSON.stringify(o));
+const today = () => { const d = new Date(); return new Date(d - d.getTimezoneOffset() * 60000).toISOString().slice(0, 10); };
+const thDate = iso => { if (!iso) return '-'; const [y, m, d] = iso.split('-'); return (+d) + ' ' + MONTHS_S[+m - 1] + ' ' + (+y + 543); };
+const thMonth = ym => { const [y, m] = ym.split('-'); return MONTHS_F[+m - 1] + ' ' + (+y + 543); };
+const daysBetween = (a, b) => Math.round((Date.UTC(...b.split('-').map((x, i) => i === 1 ? x - 1 : +x)) - Date.UTC(...a.split('-').map((x, i) => i === 1 ? x - 1 : +x))) / 86400000);
+const fyOf = iso => { const [y, m] = iso.split('-').map(Number); return m >= 10 ? y + 1 : y; };
+const fyRange = fy => [(fy - 1) + '-10-01', fy + '-09-30'];
+const curFY = () => fyOf(today());
+const age = bd => { if (!bd) return ''; const b = new Date(bd), n = new Date(); let a = n.getFullYear() - b.getFullYear(); const m = n.getMonth() - b.getMonth(); if (m < 0 || (m === 0 && n.getDate() < b.getDate())) a--; return a; };
+const fullName = e => e ? ((e.prefix || '') + (e.fname || '') + ' ' + (e.lname || '')).trim() : '(ไม่พบข้อมูล)';
+const pName = x => x ? ((x.prefix || '') + (x.name || '')).trim() : '-';
+const elderName = id => S.elders[id] ? fullName(S.elders[id]) : '(ถูกลบ)';
+const nmCm = id => id && S.cms[id] ? pName(S.cms[id]) : '-';
+const nmCg = id => id && S.cgs[id] ? pName(S.cgs[id]) : '-';
+const isAdmin = () => ME && ME.role === 'admin';
+const canEdit = () => ME && ME.role !== 'viewer';
+const cmp = (a, b) => String(a).localeCompare(String(b), 'th');
+const mapUrl = (la, ln) => 'https://www.google.com/maps?q=' + la + ',' + ln;
+
+function adlGroup(s) {
+  if (s === null || s === undefined || s === '' || isNaN(s)) return { g: 0, label: 'ไม่ระบุ', cls: 'b-n', color: '#9aa6a1' };
+  s = +s;
+  if (s >= 12) return { g: 1, label: 'ติดสังคม', cls: 'b-g1', color: '#2e9d5b' };
+  if (s >= 5) return { g: 2, label: 'ติดบ้าน', cls: 'b-g2', color: '#e0a526' };
+  return { g: 3, label: 'ติดเตียง', cls: 'b-g3', color: '#cc4b3c' };
+}
+const adlBadge = s => { const g = adlGroup(s); return `<span class="badge ${g.cls}">${g.label}${s !== null && s !== undefined && s !== '' ? ' · ' + s : ''}</span>`; };
+
+function derived() {
+  const vs = list(S.visits).sort((a, b) => a.date < b.date ? -1 : a.date > b.date ? 1 : (a.createdAt || 0) - (b.createdAt || 0));
+  const last = {}, adl = {};
+  vs.forEach(v => { last[v.elderId] = v; if (v.adl !== null && v.adl !== undefined) adl[v.elderId] = v; });
+  return { vs, last, adlOf: e => adl[e.id] ? adl[e.id].adl : (e.adl !== undefined && e.adl !== null && e.adl !== '' ? +e.adl : null) };
+}
+const isActive = x => (x.status || 'active') === 'active';
+
+function toast(msg, type = '') {
+  const d = document.createElement('div'); d.className = 'toast ' + type; d.textContent = msg;
+  $('toast-root').appendChild(d); setTimeout(() => d.remove(), type === 'err' ? 6000 : 3200);
+}
+function openModal(title, body, foot = '', wide = false) {
+  $('modal-root').innerHTML = `<div class="ov" onmousedown="if(event.target===this)closeModal()"><div class="mdl ${wide ? 'wide' : ''}" role="dialog" aria-modal="true"><div class="mh"><h3>${title}</h3><button class="x" onclick="closeModal()" aria-label="ปิด">✕</button></div><div class="mb" id="mdlBody">${body}</div>${foot ? `<div class="mf">${foot}</div>` : ''}</div></div>`;
+  document.body.classList.add('noscroll');
+}
+function closeModal() { $('modal-root').innerHTML = ''; document.body.classList.remove('noscroll'); }
+function ask(msg, okText = 'ยืนยัน', danger = true) {
+  return new Promise(res => {
+    const d = document.createElement('div'); d.className = 'ov top';
+    d.innerHTML = `<div class="mdl sm"><div class="mb"><p style="margin:6px 0 0;font-size:17px">${esc(msg)}</p></div><div class="mf"><button class="btn btn-o" data-v="0">ยกเลิก</button><button class="btn ${danger ? 'btn-d' : ''}" data-v="1">${esc(okText)}</button></div></div>`;
+    d.onclick = e => { const b = e.target.closest('button'); if (b || e.target === d) { d.remove(); res(!!b && b.dataset.v === '1'); } };
+    document.body.appendChild(d);
+  });
+}
+const field = (label, inner, cls = '', req = false) => `<label class="f ${cls}"><span>${label}${req ? ' <i>*</i>' : ''}</span>${inner}</label>`;
+const inp = (id, v = '', type = 'text', extra = '') => `<input id="${id}" type="${type}" value="${esc(v)}" ${extra}>`;
+const opts = (arr, sel, blank) => (blank !== undefined ? `<option value="">${esc(blank)}</option>` : '') + arr.map(([v, l]) => `<option value="${esc(v)}" ${String(v) === String(sel) ? 'selected' : ''}>${esc(l)}</option>`).join('');
+const chips = (name, arr, sel = []) => `<div class="chips">${arr.map(a => `<label class="chip"><input type="checkbox" name="${name}" value="${esc(a)}" ${sel.includes(a) ? 'checked' : ''}><span>${esc(a)}</span></label>`).join('')}</div>`;
+const cmOpts = (sel, blank = '- ไม่ระบุ -') => opts(list(S.cms).filter(x => isActive(x) || x.id === sel).sort((a, b) => cmp(a.name, b.name)).map(x => [x.id, pName(x)]), sel, blank);
+const cgOpts = (sel, blank = '- ไม่ระบุ -') => opts(list(S.cgs).filter(x => isActive(x) || x.id === sel).sort((a, b) => cmp(a.name, b.name)).map(x => [x.id, pName(x)]), sel, blank);
+const mooList = () => [...new Set(list(S.elders).map(e => String(e.moo || '').trim()).filter(Boolean))].sort((a, b) => a.localeCompare(b, 'th', { numeric: true }));
+
+/* ---------- DB helpers ---------- */
+async function dbSave(col, id, data) {
+  const now = Date.now(); data = clean(data);
+  if (id) { await db.ref(col + '/' + id).update({ ...data, updatedAt: now, updatedBy: ME.username }); return id; }
+  const ref = db.ref(col).push();
+  await ref.set({ ...data, createdAt: now, createdBy: ME.username, updatedAt: now });
+  return ref.key;
+}
+const dbDel = (col, id) => db.ref(col + '/' + id).remove();
+
+async function sha256(str) {
+  try {
+    if (window.crypto && crypto.subtle) {
+      const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(str));
+      return [...new Uint8Array(buf)].map(b => b.toString(16).padStart(2, '0')).join('');
+    }
+  } catch (e) {}
+  let h1 = 0xdeadbeef, h2 = 0x41c6ce57;
+  for (let i = 0; i < str.length; i++) { const ch = str.charCodeAt(i); h1 = Math.imul(h1 ^ ch, 2654435761); h2 = Math.imul(h2 ^ ch, 1597334677); }
+  h1 = Math.imul(h1 ^ (h1 >>> 16), 2246822507) ^ Math.imul(h2 ^ (h2 >>> 13), 3266489909);
+  h2 = Math.imul(h2 ^ (h2 >>> 16), 2246822507) ^ Math.imul(h1 ^ (h1 >>> 13), 3266489909);
+  return 'x' + (4294967296 * (2097151 & h2) + (h1 >>> 0)).toString(16);
+}
+const hashPw = p => sha256('thupsor|' + p);
+
+/* ---------- images (ImgBB) ---------- */
+function resizeImage(file, max = 1280, q = 0.82) {
+  return new Promise((res, rej) => {
+    const img = new Image(), url = URL.createObjectURL(file);
+    img.onload = () => {
+      let w = img.width, h = img.height; const r = Math.min(1, max / Math.max(w, h));
+      w = Math.round(w * r); h = Math.round(h * r);
+      const c = document.createElement('canvas'); c.width = w; c.height = h;
+      c.getContext('2d').drawImage(img, 0, 0, w, h); URL.revokeObjectURL(url);
+      c.toBlob(b => b ? res(b) : rej(new Error('ย่อรูปไม่สำเร็จ')), 'image/jpeg', q);
+    };
+    img.onerror = () => { URL.revokeObjectURL(url); rej(new Error('อ่านไฟล์รูปไม่ได้ (รองรับ JPG/PNG)')); };
+    img.src = url;
+  });
+}
+async function uploadImg(file) {
+  const blob = await resizeImage(file);
+  const fd = new FormData(); fd.append('image', blob, 'photo.jpg');
+  const r = await fetch('https://api.imgbb.com/1/upload?key=' + IMGBB_API_KEY, { method: 'POST', body: fd });
+  const j = await r.json();
+  if (!j.success) throw new Error((j.error && j.error.message) || 'อัปโหลดรูปไม่สำเร็จ');
+  return j.data.display_url || j.data.url;
+}
+function gps(latId, lngId) {
+  if (!navigator.geolocation) return toast('อุปกรณ์นี้ไม่รองรับ GPS', 'err');
+  toast('กำลังหาตำแหน่ง...');
+  navigator.geolocation.getCurrentPosition(p => { $(latId).value = p.coords.latitude.toFixed(6); $(lngId).value = p.coords.longitude.toFixed(6); toast('ได้พิกัดแล้ว'); },
+    () => toast('ไม่สามารถอ่านตำแหน่งได้ (ตรวจสอบสิทธิ์ตำแหน่งของเบราว์เซอร์)', 'err'), { enableHighAccuracy: true, timeout: 15000 });
+}
+
+/* ---------- PDF ---------- */
+async function exportPDF(el, filename, landscape = false) {
+  if (!window.html2canvas || !window.jspdf) return toast('ยังโหลดไลบรารี PDF ไม่เสร็จ ตรวจสอบอินเทอร์เน็ตแล้วลองใหม่', 'err');
+  toast('กำลังสร้างไฟล์ PDF...');
+  try {
+    const canvas = await html2canvas(el, { scale: 2, backgroundColor: '#ffffff', useCORS: true, logging: false, scrollX: 0, scrollY: 0 });
+    const pdf = new window.jspdf.jsPDF({ orientation: landscape ? 'l' : 'p', unit: 'mm', format: 'a4' });
+    const pw = pdf.internal.pageSize.getWidth(), ph = pdf.internal.pageSize.getHeight(), m = 8;
+    const iw = pw - 2 * m, pageH = ph - 2 * m, pxPerMm = canvas.width / iw, slice = Math.floor(pageH * pxPerMm);
+    let y = 0, n = 0;
+    while (y < canvas.height) {
+      const h = Math.min(slice, canvas.height - y), c = document.createElement('canvas');
+      c.width = canvas.width; c.height = h;
+      const ctx = c.getContext('2d'); ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, c.width, h);
+      ctx.drawImage(canvas, 0, y, canvas.width, h, 0, 0, canvas.width, h);
+      if (n > 0) pdf.addPage();
+      pdf.addImage(c.toDataURL('image/jpeg', 0.92), 'JPEG', m, m, iw, h / pxPerMm);
+      y += h; n++;
+    }
+    pdf.save(filename); toast('สร้าง PDF เรียบร้อย');
+  } catch (e) { toast('สร้าง PDF ไม่สำเร็จ: ' + e.message, 'err'); }
+}
+function downloadBlob(name, blob) { const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = name; document.body.appendChild(a); a.click(); setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 500); }
+
+/* =====================================================================
+   INIT / AUTH
+   ===================================================================== */
+window.addEventListener('DOMContentLoaded', init);
+async function init() {
+  renderLogin();
+  try {
+    firebase.initializeApp(FIREBASE_CONFIG); db = firebase.database();
+    db.ref('.info/connected').on('value', s => { const d = $('syncDot'); if (d) { const on = s.val() === true; d.className = 'sync ' + (on ? 'on' : 'off'); d.textContent = on ? 'เชื่อมต่อแล้ว' : 'ออฟไลน์'; } });
+    const snap = await db.ref('users').once('value');
+    if (!snap.exists()) {
+      await db.ref('users').push({ username: 'admin', name: 'ผู้ดูแลระบบ', role: 'admin', active: true, pass: await hashPw('admin1234'), createdAt: Date.now() });
+      seededAdmin = true; renderLogin();
+    }
+  } catch (e) {
+    loginMsg('เชื่อมต่อฐานข้อมูลไม่ได้: ' + e.message + ' — ตรวจสอบ Firebase Rules และอินเทอร์เน็ต');
+  }
+}
+function renderLogin() {
+  $('app').innerHTML = `<div id="login">
+    <div class="lg-art"><div class="lg-org">${ORG.name} · ${ORG.area}</div>
+      <div><div class="lg-seg"><i style="background:#2e9d5b;width:30%"></i><i style="background:#e0a526;width:42%"></i><i style="background:#cc4b3c;width:28%"></i></div>
+        <h1>${APP_TITLE}</h1><p>บันทึกการเยี่ยมบ้าน ติดตามระดับ ADL และบริหารผู้ดูแลกับอุปกรณ์ ในที่เดียว</p></div>
+      <div class="sm" style="color:#8fb0a4">Care Manager · Caregiver · Long-term care</div></div>
+    <div class="lg-form"><form class="lg-box" onsubmit="doLogin();return false">
+      <h2>เข้าสู่ระบบ</h2><p class="sub">ใช้บัญชีที่ผู้ดูแลระบบสร้างให้</p>
+      ${seededAdmin ? '<div class="lg-hint">สร้างผู้ใช้เริ่มต้นแล้ว: <b>admin</b> / <b>admin1234</b><br>กรุณาเปลี่ยนรหัสผ่านหลังเข้าสู่ระบบ</div>' : ''}
+      ${field('ชื่อผู้ใช้', '<input id="lgU" autocomplete="username" autocapitalize="none" required>')}
+      <div class="mt2"></div>
+      ${field('รหัสผ่าน', '<input id="lgP" type="password" autocomplete="current-password" required>')}
+      <div class="lg-err" id="lgErr"></div>
+      <button class="btn" id="lgBtn" style="width:100%;justify-content:center;padding:11px">เข้าสู่ระบบ</button>
+    </form></div></div>`;
+}
+const loginMsg = m => { const e = $('lgErr'); if (e) e.textContent = m; };
+async function doLogin() {
+  const u = val('lgU').toLowerCase(), p = $('lgP').value;
+  if (!u || !p) return;
+  const btn = $('lgBtn'); btn.disabled = true; loginMsg('');
+  try {
+    const snap = await db.ref('users').once('value');
+    const usr = list(snap.val()).find(x => (x.username || '').toLowerCase() === u);
+    const h = await hashPw(p);
+    if (!usr || usr.pass !== h) { loginMsg('ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง'); btn.disabled = false; return; }
+    if (usr.active === false) { loginMsg('บัญชีนี้ถูกปิดใช้งาน'); btn.disabled = false; return; }
+    ME = usr; page = 'dash'; startApp();
+    if (usr.pass === await hashPw('admin1234')) toast('รหัสผ่านยังเป็นค่าเริ่มต้น กรุณาเปลี่ยนรหัสผ่านที่เมนูด้านล่างซ้าย', 'warn');
+  } catch (e) { loginMsg('เข้าสู่ระบบไม่สำเร็จ: ' + e.message); btn.disabled = false; }
+}
+function logout() {
+  COLS.forEach(c => { db.ref(c).off(); loaded[c] = false; S[c] = {}; });
+  ME = null; closeModal(); renderLogin();
+}
+const NAV = [
+  ['dash', '📊', 'ภาพรวม (Dashboard)'], ['visit', '🩺', 'บันทึกการเยี่ยม'], ['team', '👥', 'จัดการ CM และ CG'],
+  ['elder', '👵', 'ข้อมูลผู้สูงอายุ'], ['report', '📄', 'รายงาน'], ['mat', '🧰', 'วัสดุ อุปกรณ์'], ['users', '🔑', 'จัดการผู้ใช้']
+];
+function startApp() {
+  $('app').innerHTML = `<div class="shell">
+    <aside id="side"><div class="brand"><b>${APP_TITLE}</b><small>${ORG.name} ${ORG.area}</small></div>
+      <nav id="nav"></nav>
+      <div class="me"><b>${esc(ME.name || ME.username)}</b><div class="rl">${ROLES[ME.role] || ''}</div><button onclick="pwModal()">เปลี่ยนรหัสผ่าน</button><button onclick="logout()">ออกจากระบบ</button></div></aside>
+    <div class="scrim" id="scrim" onclick="toggleSide(false)"></div>
+    <div class="main"><header class="top"><button id="burger" onclick="toggleSide()" aria-label="เมนู">☰</button><h1 id="pageTitle"></h1><div class="sync" id="syncDot">กำลังเชื่อมต่อ</div></header>
+    <main id="content"><div class="empty">กำลังโหลดข้อมูล...</div></main></div></div>`;
+  drawNav();
+  COLS.forEach(c => db.ref(c).on('value', snap => {
+    S[c] = snap.val() || {}; loaded[c] = true;
+    if (c === 'users' && ME) { const m = S.users[ME.id]; if (!m || m.active === false) { toast('บัญชีของคุณถูกปิดหรือลบ', 'err'); logout(); return; } ME = { ...m, id: ME.id }; }
+    onData();
+  }, err => { toast('อ่านข้อมูล ' + c + ' ไม่ได้: ' + err.message + ' (ตรวจสอบ Firebase Rules)', 'err'); loaded[c] = true; onData(); }));
+}
+function drawNav() {
+  $('nav').innerHTML = NAV.filter(n => n[0] !== 'users' || isAdmin()).map(n => `<button class="${page === n[0] ? 'on' : ''}" onclick="go('${n[0]}')"><span class="ic">${n[1]}</span>${n[2]}</button>`).join('');
+}
+function toggleSide(force) { const s = $('side'), o = force !== undefined ? force : !s.classList.contains('open'); s.classList.toggle('open', o); $('scrim').classList.toggle('on', o); }
+function go(p) {
+  if (p === 'users' && !isAdmin()) return;
+  page = p; if (p === 'visit') { visitView = 'list'; } toggleSide(false); renderPage(); window.scrollTo(0, 0);
+}
+function onData() {
+  clearTimeout(rt);
+  rt = setTimeout(() => {
+    if (!ME || !COLS.every(c => loaded[c])) return;
+    if (formOpen()) { pending = true; return; }
+    renderPage();
+  }, 200);
+}
+function formOpen() {
+  if (page === 'visit' && visitView === 'form') return true;
+  const a = document.activeElement; return !!(a && ['INPUT', 'SELECT', 'TEXTAREA'].includes(a.tagName) && $('content') && $('content').contains(a));
+}
+document.addEventListener('focusout', () => { if (pending) setTimeout(() => { if (ME && !formOpen()) { pending = false; renderPage(); } }, 300); });
+
+const PAGES = {};
+function renderPage() {
+  if (!ME || !$('content')) return;
+  const p = PAGES[page]; drawNav();
+  $('pageTitle').textContent = p.title;
+  $('content').innerHTML = p.render();
+  if (p.after) p.after();
+}
+const noAccess = () => '<div class="card empty">ไม่มีสิทธิ์เข้าถึงหน้านี้</div>';
+
+/* =====================================================================
+   PAGE 1 : DASHBOARD
+   ===================================================================== */
+let dashFY = null;
+PAGES.dash = { title: 'ภาพรวม (Dashboard)', render: pDash };
+function kpi(label, val, sub, color) { return `<div class="kpi" style="--c:${color}"><div class="kv">${val}</div><div class="kl">${label}</div>${sub ? `<div class="ks">${sub}</div>` : ''}</div>`; }
+function colChart(data, curKey) {
+  const mx = Math.max(1, ...data.map(d => d.n));
+  return `<div class="cols">${data.map(d => `<div class="col"><div class="cv">${d.n || ''}</div><div class="cbw"><div class="cb ${d.key === curKey ? 'cur' : ''}" style="height:${Math.round(d.n / mx * 100)}%"></div></div><div class="cl">${d.label}</div></div>`).join('')}</div>`;
+}
+function hBars(items, unit = '') {
+  if (!items.length) return '<div class="empty">ยังไม่มีข้อมูล</div>';
+  const mx = Math.max(1, ...items.map(i => i.n));
+  return items.map(i => `<div class="hb"><span class="hl" title="${esc(i.label)}">${esc(i.label)}</span><div class="ht"><div class="hf" style="width:${Math.round(i.n / mx * 100)}%"></div></div><span class="hn">${i.n}${unit}</span></div>`).join('');
+}
+function tally(arr, keyFn, nameFn, top = 8) {
+  const m = {}; arr.forEach(x => { const k = keyFn(x); if (k === undefined || k === null || k === '') return; m[k] = (m[k] || 0) + 1; });
+  return Object.entries(m).map(([k, n]) => ({ label: nameFn ? nameFn(k) : k, n })).sort((a, b) => b.n - a.n).slice(0, top);
+}
+function pDash() {
+  const fy = dashFY || curFY(), [f0, f1] = fyRange(fy), t = today(), ym = t.slice(0, 7);
+  const D = derived(), elders = list(S.elders).filter(isActive);
+  const gc = { 0: 0, 1: 0, 2: 0, 3: 0 }; elders.forEach(e => gc[adlGroup(D.adlOf(e)).g]++);
+  const vFY = D.vs.filter(v => v.date >= f0 && v.date <= f1), vM = D.vs.filter(v => v.date.startsWith(ym));
+  const visitedM = new Set(vM.map(v => v.elderId)), covered = elders.filter(e => visitedM.has(e.id)).length;
+  const cover = elders.length ? Math.round(covered * 100 / elders.length) : 0;
+  const nCM = list(S.cms).filter(isActive).length, nCG = list(S.cgs).filter(isActive).length;
+  const monthly = FY_ORDER.map(mi => { const y = mi >= 9 ? fy - 1 : fy, key = y + '-' + String(mi + 1).padStart(2, '0'); return { key, label: MONTHS_S[mi], n: vFY.filter(v => v.date.startsWith(key)).length }; });
+  const tot = elders.length || 1;
+  const seg = [[1, '#2e9d5b'], [2, '#e0a526'], [3, '#cc4b3c'], [0, '#9aa6a1']].map(([g, c]) => `<i style="width:${gc[g] / tot * 100}%;background:${c}" title="${adlGroup(g === 0 ? null : g === 1 ? 20 : g === 2 ? 8 : 0).label}"></i>`).join('');
+  const lg = [[1, '#2e9d5b', 'ติดสังคม'], [2, '#e0a526', 'ติดบ้าน'], [3, '#cc4b3c', 'ติดเตียง'], [0, '#9aa6a1', 'ยังไม่ประเมิน']].map(([g, c, l]) => `<div><span class="dot" style="background:${c}"></span>${l} <b>${gc[g]}</b></div>`).join('');
+  // overdue
+  const over = elders.map(e => { const lv = D.last[e.id]; return { e, days: lv ? daysBetween(lv.date, t) : 9999, lv }; }).filter(x => x.days > 30).sort((a, b) => b.days - a.days);
+  // appointments
+  const appts = elders.map(e => ({ e, d: D.last[e.id] && D.last[e.id].nextDate })).filter(x => x.d && daysBetween(t, x.d) <= 7).sort((a, b) => a.d < b.d ? -1 : 1);
+  const ms = matStats(), low = Object.values(ms).filter(o => o.m.active !== false && o.avail <= (+o.m.min || 0) && (+o.m.min || 0) > 0).length;
+  const loansOut = list(S.txns).filter(x => x.kind === 'loan' && !x.returned).length;
+  const careTally = []; vFY.forEach(v => (v.care || []).forEach(c => careTally.push(c)));
+  const fyOpts = Array.from({ length: 5 }, (_, i) => curFY() - i).map(y => [y, 'ปีงบประมาณ ' + (y + 543)]);
+  return `<div class="row sp" style="margin-bottom:14px"><div class="mu">ข้อมูล ณ วันที่ ${thDate(t)}</div>
+      <select style="width:auto" onchange="dashFY=+this.value;renderPage()">${opts(fyOpts, fy)}</select></div>
+    <section class="hero"><div><div class="big">${elders.length}<small>ราย</small></div><div class="cap">ผู้สูงอายุที่ภาวะพึ่งพิงในความดูแล</div></div>
+      <div><div class="segbar">${seg}</div><div class="seglg">${lg}</div></div></section>
+    <div class="kpis">
+      ${kpi('เยี่ยมเดือนนี้', vM.length + ' ครั้ง', 'ครอบคลุม ' + covered + '/' + elders.length + ' ราย (' + cover + '%)', '#1d6b57')}
+      ${kpi('เยี่ยมปีงบ ' + (fy + 543), vFY.length + ' ครั้ง', new Set(vFY.map(v => v.elderId)).size + ' ราย', '#e0a526')}
+      ${kpi('Care Manager (CM)', nCM + ' คน', '', '#3b6ea5')}
+      ${kpi('ผู้ดูแล (CG)', nCG + ' คน', nCG ? 'เฉลี่ย ' + (elders.length / nCG).toFixed(1) + ' ราย/คน' : '', '#7a5aa6')}
+      ${kpi('ค้างเยี่ยมเกิน 30 วัน', over.length + ' ราย', '', over.length ? '#cc4b3c' : '#2e9d5b')}
+      ${kpi('อุปกรณ์ที่ยืมอยู่', loansOut + ' ชิ้น', low ? 'วัสดุใกล้หมด ' + low + ' รายการ' : '', low ? '#cc4b3c' : '#66756f')}
+    </div>
+    <div class="dgrid">
+      <div class="card c8"><h3>จำนวนการเยี่ยมรายเดือน<small>ปีงบประมาณ ${fy + 543}</small></h3>${colChart(monthly, ym)}</div>
+      <div class="card c4"><h3>นัดเยี่ยมใน 7 วัน / เลยกำหนด</h3>${appts.length ? `<ul class="ml">${appts.slice(0, 8).map(a => { const dd = daysBetween(t, a.d); return `<li><a href="#" onclick="showElder('${a.e.id}');return false">${esc(fullName(a.e))}</a><span class="badge ${dd < 0 ? 'b-g3' : 'b-p'}">${dd < 0 ? 'เลย ' + -dd + ' วัน' : dd === 0 ? 'วันนี้' : thDate(a.d)}</span></li>`; }).join('')}</ul>` : '<div class="empty">ไม่มีรายการนัด</div>'}</div>
+      <div class="card c4"><h3>ผลงานการเยี่ยมของ CM<small>ปีงบ ${fy + 543}</small></h3>${hBars(tally(vFY, v => v.cmId, id => nmCm(id)), '')}</div>
+      <div class="card c4"><h3>ผลงานการเยี่ยมของ CG<small>ปีงบ ${fy + 543}</small></h3>${hBars(tally(vFY, v => v.cgId, id => nmCg(id)), '')}</div>
+      <div class="card c4"><h3>การเยี่ยมแยกตามหมู่บ้าน<small>ปีงบ ${fy + 543}</small></h3>${hBars(tally(vFY, v => S.elders[v.elderId] && S.elders[v.elderId].moo, m => 'หมู่ ' + m, 10))}</div>
+      <div class="card c6"><h3>ผู้สูงอายุที่ค้างเยี่ยมเกิน 30 วัน</h3>${over.length ? `<div class="tw"><table><thead><tr><th>ชื่อ</th><th>หมู่</th><th>ระดับ</th><th>เยี่ยมล่าสุด</th></tr></thead><tbody>${over.slice(0, 10).map(o => `<tr><td><a href="#" onclick="showElder('${o.e.id}');return false">${esc(fullName(o.e))}</a></td><td>${esc(o.e.moo || '-')}</td><td>${adlBadge(D.adlOf(o.e))}</td><td>${o.lv ? thDate(o.lv.date) + ' <span class="mu sm">(' + o.days + ' วัน)</span>' : '<span class="badge b-g3">ยังไม่เคยเยี่ยม</span>'}</td></tr>`).join('')}</tbody></table></div>${over.length > 10 ? `<div class="mu sm mt2">และอีก ${over.length - 10} ราย — ดูทั้งหมดที่หน้ารายงาน</div>` : ''}` : '<div class="empty">ทุกรายได้รับการเยี่ยมภายใน 30 วัน 👍</div>'}</div>
+      <div class="card c6"><h3>การเยี่ยมล่าสุด</h3>${D.vs.length ? `<ul class="ml">${D.vs.slice(-8).reverse().map(v => `<li><span><a href="#" onclick="showVisit('${v.id}');return false">${esc(elderName(v.elderId))}</a><br><span class="mu sm">${thDate(v.date)} · CM ${esc(nmCm(v.cmId))} · CG ${esc(nmCg(v.cgId))}</span></span>${adlBadge(v.adl)}</li>`).join('')}</ul>` : '<div class="empty">ยังไม่มีการบันทึกเยี่ยม</div>'}</div>
+      <div class="card c12"><h3>กิจกรรมการดูแลที่ให้<small>ปีงบ ${fy + 543}</small></h3>${hBars(tally(careTally, x => x, null, 11))}</div>
+    </div>`;
+}
+
+/* =====================================================================
+   PAGE 2 : VISITS
+   ===================================================================== */
+let visitView = 'list', visitEditing = null, visitPre = null, VFL = { month: today().slice(0, 7), q: '', cm: '', type: '' };
+let VPH = { keep: [], files: [] };
+PAGES.visit = { title: 'บันทึกการเยี่ยม', render: () => visitView === 'form' ? visitForm() : pVisitList(), after: () => { if (visitView === 'form') { vElderChange(!!visitEditing); adlCalc(); photoPreview(); } else visitTable(); } };
+function pVisitList() {
+  return `<div class="toolbar">
+    <input type="month" value="${VFL.month}" onchange="VFL.month=this.value;visitTable()" title="เดือน">
+    <input type="search" placeholder="ค้นหาชื่อผู้สูงอายุ" value="${esc(VFL.q)}" oninput="VFL.q=this.value.trim();visitTable()">
+    <select onchange="VFL.cm=this.value;visitTable()">${cmOpts(VFL.cm, 'CM ทั้งหมด')}</select>
+    <select onchange="VFL.type=this.value;visitTable()">${opts(Object.entries(VTYPES), VFL.type, 'ทุกประเภท')}</select>
+    <button class="btn btn-o btn-s" onclick="VFL.month='';renderPage()">ดูทุกเดือน</button>
+    <span class="grow"></span>
+    ${canEdit() ? '<button class="btn" onclick="newVisit()">＋ บันทึกการเยี่ยมใหม่</button>' : ''}</div>
+    <div id="visitArea"></div>`;
+}
+function visitTable() {
+  const rows = derived().vs.filter(v => (!VFL.month || v.date.startsWith(VFL.month)) && (!VFL.cm || v.cmId === VFL.cm) && (!VFL.type || v.type === VFL.type) && (!VFL.q || elderName(v.elderId).includes(VFL.q))).reverse();
+  $('visitArea').innerHTML = rows.length ? `<div class="tw"><table><thead><tr><th>วันที่</th><th>ผู้สูงอายุ</th><th>หมู่</th><th>ประเภท</th><th>ADL</th><th>BP</th><th>CM / CG</th><th></th></tr></thead><tbody>${rows.slice(0, 300).map(v => {
+    const e = S.elders[v.elderId] || {};
+    return `<tr><td>${thDate(v.date)}</td><td><b>${esc(elderName(v.elderId))}</b></td><td>${esc(e.moo || '-')}</td><td>${VTYPES[v.type] || '-'}${v.refer ? ' <span class="badge b-g3">ส่งต่อ</span>' : ''}</td><td>${adlBadge(v.adl)}</td><td>${v.sys ? v.sys + '/' + (v.dia || '-') : '-'}</td><td class="sm">${esc(nmCm(v.cmId))}<br><span class="mu">${esc(nmCg(v.cgId))}</span></td><td class="n"><button class="btn btn-o btn-s" onclick="showVisit('${v.id}')">ดู</button></td></tr>`;
+  }).join('')}</tbody></table></div><div class="mu sm mt2">แสดง ${Math.min(rows.length, 300)} จาก ${rows.length} รายการ</div>` : '<div class="card empty">ไม่พบบันทึกการเยี่ยมตามเงื่อนไขที่เลือก</div>';
+}
+function newVisit(elderId) {
+  if (!canEdit()) return; visitEditing = null; visitPre = elderId || null; VPH = { keep: [], files: [] }; closeModal(); visitView = 'form'; page = 'visit'; renderPage(); window.scrollTo(0, 0);
+}
+function editVisit(id) { if (!canEdit()) return; visitEditing = id; visitPre = null; VPH = { keep: [...(S.visits[id].photos || [])], files: [] }; closeModal(); visitView = 'form'; page = 'visit'; renderPage(); window.scrollTo(0, 0); }
+function elderOptions(q, sel) {
+  const es = list(S.elders).filter(e => isActive(e) || e.id === sel).filter(e => e.id === sel || !q || (fullName(e) + ' ' + (e.moo || '') + ' ' + (e.hn || '')).includes(q)).sort((a, b) => cmp(fullName(a), fullName(b)));
+  return '<option value="">-- เลือกผู้สูงอายุ --</option>' + es.map(e => `<option value="${e.id}" ${e.id === sel ? 'selected' : ''}>${esc(fullName(e))}${e.moo ? ' (หมู่ ' + esc(e.moo) + ')' : ''}</option>`).join('');
+}
+function visitForm() {
+  const v = visitEditing ? { ...S.visits[visitEditing], id: visitEditing } : {};
+  const sel = v.elderId || visitPre || '';
+  return `<div class="card"><div class="row sp"><h3 style="margin:0">${visitEditing ? 'แก้ไขบันทึกการเยี่ยม' : 'บันทึกการเยี่ยมใหม่'}</h3><button class="btn btn-o btn-s" onclick="cancelVisit()">← กลับรายการ</button></div>
+    <div class="sec"><h4>1. ข้อมูลการเยี่ยม</h4><div class="grid g3">
+      <div class="span2 grid g2" style="gap:8px;align-items:end">${field('ค้นหาผู้สูงอายุ', '<input id="vElderQ" type="search" placeholder="พิมพ์ชื่อ / หมู่" oninput="vElderFilter()">')}${field('ผู้สูงอายุที่เยี่ยม', `<select id="vElder" onchange="vElderChange(false)">${elderOptions('', sel)}</select>`, '', true)}</div>
+      ${field('ประเภทการเยี่ยม', `<select id="vType">${opts(Object.entries(VTYPES), v.type || 'plan')}</select>`)}
+      ${field('วันที่เยี่ยม', inp('vDate', v.date || today(), 'date', 'max="' + today() + '"'), '', true)}
+      ${field('เวลา', inp('vTime', v.time || new Date().toTimeString().slice(0, 5), 'time'))}
+      ${field('CM ผู้เยี่ยม', `<select id="vCm">${cmOpts(v.cmId)}</select>`)}
+      ${field('CG ผู้เยี่ยม', `<select id="vCg">${cgOpts(v.cgId)}</select>`)}
+    </div><div id="vInfo"></div></div>
+    <div class="sec"><h4>2. สัญญาณชีพ</h4><div class="grid g6">
+      ${field('BP บน', inp('vSys', v.sys ?? '', 'number', 'inputmode="numeric" min="0" max="300"'))}${field('BP ล่าง', inp('vDia', v.dia ?? '', 'number', 'inputmode="numeric" min="0" max="200"'))}
+      ${field('ชีพจร/นาที', inp('vPulse', v.pulse ?? '', 'number', 'inputmode="numeric"'))}${field('อุณหภูมิ °C', inp('vTemp', v.temp ?? '', 'number', 'step="0.1" inputmode="decimal"'))}
+      ${field('หายใจ/นาที', inp('vRr', v.rr ?? '', 'number', 'inputmode="numeric"'))}${field('SpO₂ %', inp('vSpo2', v.spo2 ?? '', 'number', 'inputmode="numeric" max="100"'))}
+      ${field('น้ำหนัก กก.', inp('vWt', v.wt ?? '', 'number', 'step="0.1" inputmode="decimal"'))}${field('DTX mg/dL', inp('vDtx', v.dtx ?? '', 'number', 'inputmode="numeric"'))}
+    </div></div>
+    <div class="sec"><h4>3. ประเมิน ADL (Barthel Index เต็ม 20)</h4><div class="mu sm" style="margin-bottom:6px">เว้นว่างทั้งหมดได้หากครั้งนี้ไม่ได้ประเมิน · ถ้าประเมินต้องครบ 10 ข้อ</div>
+      ${BARTHEL.map(b => `<div class="adlrow"><div>${b.t}</div><select id="adl_${b.k}" onchange="adlCalc()"><option value="">-</option>${b.o.map(o => `<option value="${o[0]}" ${v.adlItems && v.adlItems[b.k] === o[0] ? 'selected' : ''}>${o[0]} = ${o[1]}</option>`).join('')}</select></div>`).join('')}
+      <div class="adltot"><span>คะแนนรวม</span><b id="adlTot">-</b><span id="adlGrp"></span></div></div>
+    <div class="sec"><h4>4. ปัญหาที่พบและการดูแลที่ให้</h4>
+      <div style="margin-bottom:12px"><div class="sm mu" style="margin-bottom:4px">ปัญหาที่พบ</div>${chips('vProb', PROBLEMS, v.problems || [])}</div>
+      <div style="margin-bottom:12px"><div class="sm mu" style="margin-bottom:4px">การดูแลที่ให้</div>${chips('vCare', CARE, v.care || [])}</div>
+      <div class="grid g2">${field('สภาพทั่วไป / รายละเอียดที่พบ', `<textarea id="vNote">${esc(v.note || '')}</textarea>`)}${field('อุปกรณ์/วัสดุที่ให้หรือยืม', `<textarea id="vEquip">${esc(v.equip || '')}</textarea>`)}</div></div>
+    <div class="sec"><h4>5. แผนและการส่งต่อ</h4><div class="grid g3">
+      ${field('แผนการดูแลครั้งต่อไป', `<textarea id="vPlan">${esc(v.plan || '')}</textarea>`, 'span2')}
+      ${field('นัดเยี่ยมครั้งถัดไป', inp('vNext', v.nextDate || '', 'date'))}
+      <label class="f span2" style="display:flex;gap:8px;align-items:center"><input type="checkbox" id="vRefer" ${v.refer ? 'checked' : ''} onchange="$('vReferWrap').classList.toggle('hide',!this.checked)"><span style="margin:0">ส่งต่อ/ปรึกษาแพทย์</span></label>
+      <label id="vReferWrap" class="f spanall ${v.refer ? '' : 'hide'}"><span>ส่งต่อไปที่ / เหตุผล</span><input id="vReferTxt" type="text" value="${esc(v.referTo || '')}"></label>
+    </div></div>
+    <div class="sec"><h4>6. รูปภาพและพิกัด</h4>
+      <input type="file" id="vFiles" accept="image/*" multiple onchange="photoAdd(this)" style="max-width:420px"><span class="mu sm"> สูงสุด 4 รูป (ระบบย่อรูปก่อนอัปโหลดไป ImgBB)</span>
+      <div class="thumbs" id="vThumbs"></div>
+      <div class="grid g4 mt2" style="align-items:end">${field('ละติจูด', inp('vLat', v.lat ?? '', 'text', 'inputmode="decimal"'))}${field('ลองจิจูด', inp('vLng', v.lng ?? '', 'text', 'inputmode="decimal"'))}<button class="btn btn-o" onclick="gps('vLat','vLng')">📍 ใช้ตำแหน่งปัจจุบัน</button></div></div>
+    <div class="sticky-actions"><button class="btn btn-o" onclick="cancelVisit()">ยกเลิก</button><button class="btn" id="vSave" onclick="saveVisit()">💾 บันทึกการเยี่ยม</button></div></div>`;
+}
+function cancelVisit() { visitView = 'list'; visitEditing = null; pending = false; renderPage(); }
+function vElderFilter() { const s = $('vElder').value; $('vElder').innerHTML = elderOptions($('vElderQ').value.trim(), s); }
+function vElderChange(keep) {
+  const id = $('vElder').value, e = S.elders[id], box = $('vInfo'); if (!box) return;
+  if (!e) { box.innerHTML = ''; return; }
+  if (!keep) { if (e.cmId && S.cms[e.cmId]) $('vCm').value = e.cmId; if (e.cgId && S.cgs[e.cgId]) $('vCg').value = e.cgId; }
+  const D = derived(), lv = D.last[id];
+  box.innerHTML = `<div class="infobox">${e.birthdate ? 'อายุ ' + age(e.birthdate) + ' ปี · ' : ''}${e.moo ? 'หมู่ ' + esc(e.moo) + ' · ' : ''}ADL ล่าสุด ${adlBadge(D.adlOf(e))}${(e.diseases || []).length ? '<br>โรคประจำตัว: ' + esc(e.diseases.join(', ')) : ''}${lv ? '<br>เยี่ยมล่าสุด ' + thDate(lv.date) + (lv.plan ? ' · แผน: ' + esc(lv.plan) : '') : '<br>ยังไม่เคยบันทึกการเยี่ยม'}</div>`;
+}
+function adlCalc() {
+  const vals = BARTHEL.map(b => $('adl_' + b.k).value), n = vals.filter(x => x !== '').length, sum = vals.reduce((a, x) => a + (x === '' ? 0 : +x), 0);
+  $('adlTot').textContent = n === 0 ? '-' : sum + ' / 20'; $('adlGrp').innerHTML = n === 10 ? adlBadge(sum) : n ? `<span class="mu">ตอบแล้ว ${n}/10 ข้อ</span>` : '';
+}
+function photoAdd(inputEl) {
+  const room = 4 - VPH.keep.length - VPH.files.length;
+  [...inputEl.files].slice(0, Math.max(0, room)).forEach(f => VPH.files.push(f));
+  if (inputEl.files.length > room) toast('เพิ่มได้สูงสุด 4 รูป', 'warn');
+  inputEl.value = ''; photoPreview();
+}
+function photoPreview() {
+  const t = $('vThumbs'); if (!t) return;
+  t.innerHTML = VPH.keep.map((u, i) => `<div class="thumb"><img src="${esc(u)}" alt=""><button onclick="VPH.keep.splice(${i},1);photoPreview()" aria-label="ลบรูป">✕</button></div>`).join('') +
+    VPH.files.map((f, i) => `<div class="thumb"><img src="${URL.createObjectURL(f)}" alt=""><button onclick="VPH.files.splice(${i},1);photoPreview()" aria-label="ลบรูป">✕</button></div>`).join('');
+}
+async function saveVisit() {
+  if (!canEdit()) return;
+  const elderId = val('vElder'), date = val('vDate');
+  if (!elderId) return toast('กรุณาเลือกผู้สูงอายุ', 'err');
+  if (!date) return toast('กรุณาระบุวันที่เยี่ยม', 'err');
+  const vals = BARTHEL.map(b => $('adl_' + b.k).value), n = vals.filter(x => x !== '').length;
+  if (n > 0 && n < 10) return toast('กรุณาประเมิน ADL ให้ครบ 10 ข้อ หรือเว้นว่างทั้งหมด', 'err');
+  const adlItems = {}; if (n === 10) BARTHEL.forEach((b, i) => adlItems[b.k] = +vals[i]);
+  const adl = n === 10 ? vals.reduce((a, x) => a + +x, 0) : null;
+  const btn = $('vSave'); btn.disabled = true; btn.textContent = 'กำลังบันทึก...';
+  try {
+    const urls = [...VPH.keep];
+    for (let i = 0; i < VPH.files.length; i++) { btn.textContent = `อัปโหลดรูป ${i + 1}/${VPH.files.length}...`; urls.push(await uploadImg(VPH.files[i])); }
+    const refer = $('vRefer').checked;
+    const data = {
+      elderId, date, time: val('vTime'), type: val('vType'), cmId: val('vCm'), cgId: val('vCg'),
+      sys: numOrNull(val('vSys')), dia: numOrNull(val('vDia')), pulse: numOrNull(val('vPulse')), temp: numOrNull(val('vTemp')), rr: numOrNull(val('vRr')),
+      spo2: numOrNull(val('vSpo2')), wt: numOrNull(val('vWt')), dtx: numOrNull(val('vDtx')),
+      adl, adlItems: n === 10 ? adlItems : null, problems: chk('vProb'), care: chk('vCare'),
+      note: val('vNote'), equip: val('vEquip'), plan: val('vPlan'), nextDate: val('vNext'), refer, referTo: refer ? val('vReferTxt') : '',
+      photos: urls, lat: val('vLat'), lng: val('vLng')
+    };
+    await dbSave('visits', visitEditing, data);
+    toast('บันทึกการเยี่ยมเรียบร้อย'); visitView = 'list'; visitEditing = null; pending = false; renderPage(); window.scrollTo(0, 0);
+  } catch (e) { toast('บันทึกไม่สำเร็จ: ' + e.message, 'err'); btn.disabled = false; btn.textContent = '💾 บันทึกการเยี่ยม'; }
+}
+function visitHtml(v) {
+  const e = S.elders[v.elderId] || {}, g = adlGroup(v.adl);
+  const vit = [['BP', v.sys ? v.sys + '/' + (v.dia ?? '-') + ' mmHg' : ''], ['ชีพจร', v.pulse ? v.pulse + ' /นาที' : ''], ['อุณหภูมิ', v.temp ? v.temp + ' °C' : ''], ['หายใจ', v.rr ? v.rr + ' /นาที' : ''], ['SpO₂', v.spo2 ? v.spo2 + ' %' : ''], ['น้ำหนัก', v.wt ? v.wt + ' กก.' : ''], ['DTX', v.dtx ? v.dtx + ' mg/dL' : '']].filter(x => x[1]);
+  return `<div id="vPrint" style="background:#fff;padding:6px 4px">
+    <div style="text-align:center;margin-bottom:10px"><b style="font-size:18px">แบบบันทึกการเยี่ยมผู้สูงอายุที่มีภาวะพึ่งพิง</b><div class="mu sm">${ORG.name} ${ORG.area}</div></div>
+    <dl class="dl"><dt>ผู้สูงอายุ</dt><dd><b>${esc(fullName(e))}</b> ${e.birthdate ? '(อายุ ' + age(e.birthdate) + ' ปี)' : ''} ${e.moo ? '· หมู่ ' + esc(e.moo) : ''}</dd>
+    <dt>วันที่เยี่ยม</dt><dd>${thDate(v.date)} ${esc(v.time || '')} · ${VTYPES[v.type] || ''}</dd>
+    <dt>ผู้เยี่ยม</dt><dd>CM: ${esc(nmCm(v.cmId))} · CG: ${esc(nmCg(v.cgId))}</dd>
+    <dt>ระดับ ADL</dt><dd>${v.adl !== null && v.adl !== undefined ? adlBadge(v.adl) : 'ไม่ได้ประเมิน'}</dd>
+    ${vit.length ? `<dt>สัญญาณชีพ</dt><dd>${vit.map(x => x[0] + ' ' + x[1]).join(' · ')}</dd>` : ''}
+    ${(v.problems || []).length ? `<dt>ปัญหาที่พบ</dt><dd>${(v.problems || []).map(p => `<span class="badge b-g2">${esc(p)}</span>`).join(' ')}</dd>` : ''}
+    ${(v.care || []).length ? `<dt>การดูแลที่ให้</dt><dd>${esc((v.care || []).join(', '))}</dd>` : ''}
+    ${v.note ? `<dt>รายละเอียด</dt><dd>${esc(v.note).replace(/\n/g, '<br>')}</dd>` : ''}
+    ${v.equip ? `<dt>อุปกรณ์/วัสดุ</dt><dd>${esc(v.equip)}</dd>` : ''}
+    ${v.plan ? `<dt>แผนครั้งต่อไป</dt><dd>${esc(v.plan)}</dd>` : ''}
+    ${v.nextDate ? `<dt>นัดเยี่ยม</dt><dd>${thDate(v.nextDate)}</dd>` : ''}
+    ${v.refer ? `<dt>ส่งต่อ</dt><dd><span class="badge b-g3">ส่งต่อ</span> ${esc(v.referTo || '')}</dd>` : ''}
+    ${v.lat ? `<dt>พิกัด</dt><dd>${esc(v.lat)}, ${esc(v.lng)} <a href="${mapUrl(v.lat, v.lng)}" target="_blank" rel="noopener" data-noprint>เปิดแผนที่</a></dd>` : ''}</dl>
+    ${(v.photos || []).length ? `<div class="thumbs">${v.photos.map(u => `<a href="${esc(u)}" target="_blank" rel="noopener"><img src="${esc(u)}" alt="รูปการเยี่ยม" style="width:150px;height:150px;object-fit:cover;border-radius:8px;border:1px solid var(--bd)"></a>`).join('')}</div>` : ''}
+    <div class="mu sm" style="margin-top:10px">บันทึกโดย ${esc(v.createdBy || '-')}</div></div>`;
+}
+function showVisit(id) {
+  const v = S.visits[id]; if (!v) return; v.id = id;
+  openModal('รายละเอียดการเยี่ยม', visitHtml(v),
+    `${isAdmin() ? `<button class="btn btn-d" onclick="delVisit('${id}')">ลบ</button>` : ''}<button class="btn btn-o" onclick="exportPDF($('vPrint'),'visit_${id}.pdf')">⬇ PDF</button>${canEdit() ? `<button class="btn btn-g" onclick="editVisit('${id}')">แก้ไข</button>` : ''}<button class="btn btn-o" onclick="closeModal()">ปิด</button>`, true);
+}
+async function delVisit(id) { if (!await ask('ลบบันทึกการเยี่ยมนี้ถาวร?', 'ลบ')) return; try { await dbDel('visits', id); closeModal(); toast('ลบแล้ว'); } catch (e) { toast('ลบไม่สำเร็จ: ' + e.message, 'err'); } }
+
+/* =====================================================================
+   PAGE 3 : CM / CG
+   ===================================================================== */
+let teamTab = 'cm';
+PAGES.team = { title: 'จัดการ CM และ CG', render: pTeam };
+function pTeam() {
+  const isCM = teamTab === 'cm', col = isCM ? 'cms' : 'cgs', items = list(S[col]).sort((a, b) => cmp(a.name, b.name));
+  const D = derived(), [f0, f1] = fyRange(curFY());
+  const eld = list(S.elders).filter(isActive), key = isCM ? 'cmId' : 'cgId';
+  const vf = D.vs.filter(v => v.date >= f0 && v.date <= f1);
+  return `<div class="tabs"><button class="${isCM ? 'on' : ''}" onclick="teamTab='cm';renderPage()">Care Manager (CM) · ${list(S.cms).length}</button><button class="${!isCM ? 'on' : ''}" onclick="teamTab='cg';renderPage()">Caregiver (CG) · ${list(S.cgs).length}</button></div>
+    <div class="row sp" style="margin-bottom:12px"><div class="mu sm">${isCM ? 'CM = ผู้จัดการระบบการดูแลระยะยาว (Care Manager)' : 'CG = ผู้ดูแลผู้สูงอายุ (Caregiver)'} · จำนวนเยี่ยมนับปีงบ ${curFY() + 543}</div>${canEdit() ? `<button class="btn" onclick="teamForm('${teamTab}')">＋ เพิ่ม ${isCM ? 'CM' : 'CG'}</button>` : ''}</div>
+    ${items.length ? `<div class="tw"><table><thead><tr><th>ชื่อ-สกุล</th><th>โทรศัพท์</th><th>${isCM ? 'ตำแหน่ง' : 'หมู่บ้าน'}</th>${isCM ? '' : '<th>อบรม</th>'}<th class="n">ผู้สูงอายุที่ดูแล</th><th class="n">เยี่ยม (ครั้ง)</th><th>สถานะ</th><th></th></tr></thead><tbody>${items.map(x => `<tr><td><b>${esc(pName(x))}</b></td><td>${esc(x.phone || '-')}</td><td>${esc(isCM ? x.position || '-' : x.moo ? 'หมู่ ' + x.moo : '-')}</td>${isCM ? '' : `<td>${x.trained ? '<span class="badge b-g1">ผ่านอบรม</span>' : '<span class="badge b-n">-</span>'}</td>`}<td class="n">${eld.filter(e => e[key] === x.id).length}</td><td class="n">${vf.filter(v => v[key] === x.id).length}</td><td>${isActive(x) ? '<span class="badge b-g1">ปฏิบัติงาน</span>' : '<span class="badge b-n">ไม่ได้ปฏิบัติงาน</span>'}</td><td class="n" style="white-space:nowrap">${canEdit() ? `<button class="btn btn-o btn-s" onclick="teamForm('${teamTab}','${x.id}')">แก้ไข</button> ` : ''}${isAdmin() ? `<button class="btn btn-d btn-s" onclick="teamDel('${col}','${x.id}')">ลบ</button>` : ''}</td></tr>`).join('')}</tbody></table></div>` : `<div class="card empty">ยังไม่มีข้อมูล ${isCM ? 'CM' : 'CG'}</div>`}`;
+}
+function teamForm(kind, id) {
+  if (!canEdit()) return; const isCM = kind === 'cm', x = id ? S[isCM ? 'cms' : 'cgs'][id] : {};
+  openModal((id ? 'แก้ไข ' : 'เพิ่ม ') + (isCM ? 'CM' : 'CG'), `<div class="grid g2">
+    ${field('คำนำหน้า', `<select id="t_prefix">${opts(['นาย', 'นาง', 'นางสาว', 'น.ส.', ''].map(a => [a, a || '-']), x.prefix || '')}</select>`)}
+    ${field('ชื่อ-สกุล', inp('t_name', x.name || ''), '', true)}
+    ${field('โทรศัพท์', inp('t_phone', x.phone || '', 'tel', 'inputmode="tel"'))}
+    ${isCM ? field('ตำแหน่ง/สังกัด', inp('t_pos', x.position || '', 'text', 'placeholder="เช่น พยาบาลวิชาชีพ, นักวิชาการสาธารณสุข"')) : field('หมู่บ้านที่รับผิดชอบ (หมู่ที่)', inp('t_moo', x.moo || '', 'text', 'list="mooList"') + `<datalist id="mooList">${mooList().map(m => `<option value="${esc(m)}">`).join('')}</datalist>`)}
+    ${isCM ? '' : field('ผ่านการอบรมหลักสูตร CG', `<select id="t_trained">${opts([['1', 'ผ่านการอบรม'], ['', 'ยังไม่ผ่าน / ไม่ทราบ']], x.trained ? '1' : '')}</select>`)}
+    ${field('สถานะ', `<select id="t_status">${opts([['active', 'ปฏิบัติงาน'], ['inactive', 'ไม่ได้ปฏิบัติงาน']], x.status || 'active')}</select>`)}
+    ${field('หมายเหตุ', inp('t_note', x.note || ''), 'spanall')}</div>`,
+    `<button class="btn btn-o" onclick="closeModal()">ยกเลิก</button><button class="btn" onclick="teamSave('${kind}','${id || ''}')">บันทึก</button>`);
+}
+async function teamSave(kind, id) {
+  const isCM = kind === 'cm', name = val('t_name'); if (!name) return toast('กรุณากรอกชื่อ-สกุล', 'err');
+  const data = { prefix: val('t_prefix'), name, phone: val('t_phone'), status: val('t_status'), note: val('t_note') };
+  if (isCM) data.position = val('t_pos'); else { data.moo = val('t_moo'); data.trained = val('t_trained') === '1'; }
+  try { await dbSave(isCM ? 'cms' : 'cgs', id || null, data); closeModal(); toast('บันทึกแล้ว'); } catch (e) { toast('บันทึกไม่สำเร็จ: ' + e.message, 'err'); }
+}
+async function teamDel(col, id) {
+  const key = col === 'cms' ? 'cmId' : 'cgId', used = list(S.elders).filter(e => e[key] === id).length + list(S.visits).filter(v => v[key] === id).length;
+  if (!await ask(used ? `มีข้อมูลอ้างอิงอยู่ ${used} รายการ (ผู้สูงอายุ/การเยี่ยม) ชื่อจะแสดงเป็น "-" หากลบ ลบต่อหรือไม่? (แนะนำให้เปลี่ยนสถานะเป็นไม่ได้ปฏิบัติงานแทน)` : 'ลบรายการนี้?', 'ลบ')) return;
+  try { await dbDel(col, id); toast('ลบแล้ว'); } catch (e) { toast('ลบไม่สำเร็จ: ' + e.message, 'err'); }
+}
+
+/* =====================================================================
+   PAGE 4 : ELDERS
+   ===================================================================== */
+let EF = { q: '', moo: '', grp: '', status: 'active', cm: '', cg: '' };
+PAGES.elder = { title: 'ข้อมูลผู้สูงอายุ', render: pElder, after: elderTable };
+function pElder() {
+  return `<div class="toolbar">
+    <input type="search" placeholder="ค้นหาชื่อ / HN / เลขบัตร" value="${esc(EF.q)}" oninput="EF.q=this.value.trim();elderTable()">
+    <select onchange="EF.moo=this.value;elderTable()">${opts(mooList().map(m => [m, 'หมู่ ' + m]), EF.moo, 'ทุกหมู่')}</select>
+    <select onchange="EF.grp=this.value;elderTable()">${opts([['1', 'ติดสังคม'], ['2', 'ติดบ้าน'], ['3', 'ติดเตียง'], ['0', 'ยังไม่ประเมิน']], EF.grp, 'ทุกกลุ่ม ADL')}</select>
+    <select onchange="EF.cm=this.value;elderTable()">${cmOpts(EF.cm, 'ทุก CM')}</select>
+    <select onchange="EF.cg=this.value;elderTable()">${cgOpts(EF.cg, 'ทุก CG')}</select>
+    <select onchange="EF.status=this.value;elderTable()">${opts(Object.entries(ESTATUS), EF.status, 'ทุกสถานะ')}</select>
+    <span class="grow"></span>${canEdit() ? '<button class="btn" onclick="elderForm()">＋ เพิ่มผู้สูงอายุ</button>' : ''}</div><div id="elderArea"></div>`;
+}
+function filteredElders() {
+  const D = derived();
+  return list(S.elders).filter(e => (!EF.status || (e.status || 'active') === EF.status) && (!EF.moo || String(e.moo) === EF.moo) && (!EF.cm || e.cmId === EF.cm) && (!EF.cg || e.cgId === EF.cg) &&
+    (!EF.grp || String(adlGroup(D.adlOf(e)).g) === EF.grp) && (!EF.q || (fullName(e) + ' ' + (e.hn || '') + ' ' + (e.cid || '')).includes(EF.q))).sort((a, b) => cmp(fullName(a), fullName(b))).map(e => ({ e, D }));
+}
+function elderTable() {
+  const rows = filteredElders(), D = derived();
+  $('elderArea').innerHTML = rows.length ? `<div class="tw"><table><thead><tr><th>ชื่อ-สกุล</th><th class="n">อายุ</th><th>หมู่</th><th>ADL</th><th>CM / CG</th><th>เยี่ยมล่าสุด</th><th></th></tr></thead><tbody>${rows.map(({ e }) => {
+    const lv = D.last[e.id];
+    return `<tr><td><div class="row" style="flex-wrap:nowrap;gap:10px">${e.photo ? `<img class="avatar" src="${esc(e.photo)}" alt="">` : `<span class="avatar">${esc((e.fname || '?')[0])}</span>`}<div><b>${esc(fullName(e))}</b>${(e.status || 'active') !== 'active' ? ` <span class="badge b-n">${ESTATUS[e.status]}</span>` : ''}<div class="mu sm">${esc((e.diseases || []).slice(0, 3).join(', '))}</div></div></div></td><td class="n">${e.birthdate ? age(e.birthdate) : '-'}</td><td>${esc(e.moo || '-')}</td><td>${adlBadge(D.adlOf(e))}</td><td class="sm">${esc(nmCm(e.cmId))}<br><span class="mu">${esc(nmCg(e.cgId))}</span></td><td class="sm">${lv ? thDate(lv.date) : '<span class="mu">ยังไม่เคย</span>'}</td><td class="n" style="white-space:nowrap"><button class="btn btn-o btn-s" onclick="showElder('${e.id}')">ดู</button> ${canEdit() ? `<button class="btn btn-o btn-s" onclick="elderForm('${e.id}')">แก้ไข</button>` : ''}</td></tr>`;
+  }).join('')}</tbody></table></div><div class="mu sm mt2">ทั้งหมด ${rows.length} ราย</div>` : '<div class="card empty">ไม่พบข้อมูลผู้สูงอายุตามเงื่อนไขที่เลือก</div>';
+}
+let elderPhotoFile = null;
+function elderForm(id) {
+  if (!canEdit()) return; const e = id ? S.elders[id] : {}; elderPhotoFile = null;
+  openModal(id ? 'แก้ไขข้อมูลผู้สูงอายุ' : 'เพิ่มผู้สูงอายุ', `<div class="grid g3">
+    ${field('คำนำหน้า', `<select id="e_prefix">${opts(['นาย', 'นาง', 'นางสาว', 'พระ', ''].map(a => [a, a || '-']), e.prefix || '')}</select>`)}
+    ${field('ชื่อ', inp('e_fname', e.fname || ''), '', true)}${field('สกุล', inp('e_lname', e.lname || ''))}
+    ${field('เลขบัตรประชาชน 13 หลัก', inp('e_cid', e.cid || '', 'text', 'inputmode="numeric" maxlength="13"'))}${field('HN / รหัสผู้ป่วย', inp('e_hn', e.hn || ''))}
+    ${field('เพศ', `<select id="e_sex">${opts([['ช', 'ชาย'], ['ญ', 'หญิง']], e.sex || '', '-')}</select>`)}
+    ${field('วันเกิด', inp('e_bd', e.birthdate || '', 'date', 'max="' + today() + '"'))}${field('เบอร์โทร', inp('e_phone', e.phone || '', 'tel', 'inputmode="tel"'))}${field('วันที่ขึ้นทะเบียน', inp('e_enr', e.enrolled || '', 'date'))}
+    ${field('บ้านเลขที่', inp('e_house', e.house || ''))}${field('หมู่ที่', inp('e_moo', e.moo || '', 'text', 'list="mooList2"') + `<datalist id="mooList2">${mooList().map(m => `<option value="${esc(m)}">`).join('')}</datalist>`, '', true)}${field('ตำบล/ที่อยู่เพิ่มเติม', inp('e_addr', e.addr || ''))}
+    ${field('CM ที่รับผิดชอบ', `<select id="e_cm">${cmOpts(e.cmId)}</select>`)}${field('CG ที่ดูแล', `<select id="e_cg">${cgOpts(e.cgId)}</select>`)}
+    ${field('คะแนน ADL เริ่มต้น (0-20)', inp('e_adl', e.adl ?? '', 'number', 'min="0" max="20"'))}
+  </div>
+  <div class="sec"><h4>โรคประจำตัว</h4>${chips('e_dis', DISEASES, e.diseases || [])}<div class="mt2">${field('โรค/ข้อมูลอื่น ๆ', inp('e_disx', e.diseaseOther || ''))}</div></div>
+  <div class="sec"><h4>ญาติ/ผู้ดูแลหลักในครอบครัว</h4><div class="grid g3">${field('ชื่อ', inp('e_kin', e.kin || ''))}${field('ความสัมพันธ์', inp('e_kinrel', e.kinRel || ''))}${field('โทรศัพท์', inp('e_kinph', e.kinPhone || '', 'tel'))}</div></div>
+  <div class="sec"><div class="grid g3">${field('สถานะ', `<select id="e_status">${opts(Object.entries(ESTATUS), e.status || 'active')}</select>`)}${field('รูปถ่าย', '<input type="file" id="e_photo" accept="image/*" onchange="elderPhotoFile=this.files[0]||null">', 'span2')}
+    ${field('ละติจูด', inp('e_lat', e.lat ?? '', 'text', 'inputmode="decimal"'))}${field('ลองจิจูด', inp('e_lng', e.lng ?? '', 'text', 'inputmode="decimal"'))}<div style="align-self:end"><button class="btn btn-o" onclick="gps('e_lat','e_lng')">📍 ใช้ตำแหน่งปัจจุบัน</button></div>
+    ${field('หมายเหตุ', `<textarea id="e_note">${esc(e.note || '')}</textarea>`, 'spanall')}</div></div>`,
+    `<button class="btn btn-o" onclick="closeModal()">ยกเลิก</button><button class="btn" id="e_save" onclick="elderSave('${id || ''}')">บันทึก</button>`, true);
+}
+async function elderSave(id) {
+  const fname = val('e_fname'), cid = val('e_cid'), moo = val('e_moo'), adl = numOrNull(val('e_adl'));
+  if (!fname) return toast('กรุณากรอกชื่อ', 'err'); if (!moo) return toast('กรุณากรอกหมู่ที่', 'err');
+  if (cid && !/^\d{13}$/.test(cid)) return toast('เลขบัตรประชาชนต้องเป็นตัวเลข 13 หลัก', 'err');
+  if (adl !== null && (adl < 0 || adl > 20)) return toast('คะแนน ADL ต้องอยู่ระหว่าง 0-20', 'err');
+  const btn = $('e_save'); btn.disabled = true; btn.textContent = 'กำลังบันทึก...';
+  try {
+    let photo = id && S.elders[id] ? S.elders[id].photo || '' : '';
+    if (elderPhotoFile) photo = await uploadImg(elderPhotoFile);
+    await dbSave('elders', id || null, { prefix: val('e_prefix'), fname, lname: val('e_lname'), cid, hn: val('e_hn'), sex: val('e_sex'), birthdate: val('e_bd'), phone: val('e_phone'), enrolled: val('e_enr'), house: val('e_house'), moo, addr: val('e_addr'), cmId: val('e_cm'), cgId: val('e_cg'), adl, diseases: chk('e_dis'), diseaseOther: val('e_disx'), kin: val('e_kin'), kinRel: val('e_kinrel'), kinPhone: val('e_kinph'), status: val('e_status'), photo, lat: val('e_lat'), lng: val('e_lng'), note: val('e_note') });
+    closeModal(); toast('บันทึกข้อมูลผู้สูงอายุแล้ว');
+  } catch (e) { toast('บันทึกไม่สำเร็จ: ' + e.message, 'err'); btn.disabled = false; btn.textContent = 'บันทึก'; }
+}
+function adlChart(pts) {
+  if (pts.length < 2) return '<div class="mu sm">ต้องมีการประเมิน ADL อย่างน้อย 2 ครั้งจึงแสดงกราฟแนวโน้มได้</div>';
+  const W = 560, H = 150, pl = 28, pr = 10, pt = 10, pb = 22, x = i => pl + i * (W - pl - pr) / (pts.length - 1), y = s => pt + (20 - s) * (H - pt - pb) / 20;
+  return `<svg viewBox="0 0 ${W} ${H}" style="width:100%;max-width:${W}px" role="img" aria-label="แนวโน้มคะแนน ADL">
+    <rect x="${pl}" y="${y(20)}" width="${W - pl - pr}" height="${y(12) - y(20)}" fill="#dff3e6"/><rect x="${pl}" y="${y(12)}" width="${W - pl - pr}" height="${y(5) - y(12)}" fill="#fbeccb"/><rect x="${pl}" y="${y(5)}" width="${W - pl - pr}" height="${y(0) - y(5)}" fill="#f8dcd8"/>
+    <polyline fill="none" stroke="#17362e" stroke-width="2.5" points="${pts.map((p, i) => x(i) + ',' + y(p.s)).join(' ')}"/>
+    ${pts.map((p, i) => `<circle cx="${x(i)}" cy="${y(p.s)}" r="4.5" fill="#17362e"/><text x="${x(i)}" y="${y(p.s) - 9}" font-size="11" text-anchor="middle" fill="#17362e">${p.s}</text><text x="${x(i)}" y="${H - 6}" font-size="10" text-anchor="middle" fill="#66756f">${thDate(p.d).split(' ').slice(0, 2).join(' ')}</text>`).join('')}
+    <text x="2" y="${y(20) + 4}" font-size="10" fill="#66756f">20</text><text x="6" y="${y(0) + 4}" font-size="10" fill="#66756f">0</text></svg>`;
+}
+function showElder(id) {
+  const e = S.elders[id]; if (!e) return; const D = derived();
+  const vs = D.vs.filter(v => v.elderId === id).reverse(), adlPts = D.vs.filter(v => v.elderId === id && v.adl !== null && v.adl !== undefined).map(v => ({ s: v.adl, d: v.date }));
+  const ms = list(S.txns).filter(t => t.kind === 'loan' && !t.returned && t.elderId === id);
+  openModal(esc(fullName(e)), `<div class="row" style="flex-wrap:nowrap;align-items:flex-start">${e.photo ? `<a href="${esc(e.photo)}" target="_blank" rel="noopener"><img class="avatar" style="width:84px;height:84px;border-radius:12px" src="${esc(e.photo)}" alt=""></a>` : ''}
+    <dl class="dl grow"><dt>ระดับ ADL</dt><dd>${adlBadge(D.adlOf(e))}</dd><dt>อายุ / เพศ</dt><dd>${e.birthdate ? age(e.birthdate) + ' ปี (เกิด ' + thDate(e.birthdate) + ')' : '-'} ${e.sex === 'ช' ? '· ชาย' : e.sex === 'ญ' ? '· หญิง' : ''}</dd>
+    <dt>ที่อยู่</dt><dd>${esc([e.house, e.moo ? 'หมู่ ' + e.moo : '', e.addr].filter(Boolean).join(' '))} ${e.lat ? `<a href="${mapUrl(e.lat, e.lng)}" target="_blank" rel="noopener">แผนที่</a>` : ''}</dd>
+    <dt>โทรศัพท์</dt><dd>${esc(e.phone || '-')}</dd><dt>เลขบัตร / HN</dt><dd>${esc(e.cid || '-')} / ${esc(e.hn || '-')}</dd>
+    <dt>โรคประจำตัว</dt><dd>${esc([...(e.diseases || []), e.diseaseOther].filter(Boolean).join(', ') || '-')}</dd>
+    <dt>CM / CG</dt><dd>${esc(nmCm(e.cmId))} / ${esc(nmCg(e.cgId))}</dd>
+    <dt>ญาติผู้ดูแล</dt><dd>${esc([e.kin, e.kinRel && '(' + e.kinRel + ')', e.kinPhone].filter(Boolean).join(' ') || '-')}</dd>
+    <dt>สถานะ</dt><dd>${ESTATUS[e.status || 'active']}</dd>${e.note ? `<dt>หมายเหตุ</dt><dd>${esc(e.note)}</dd>` : ''}
+    ${ms.length ? `<dt>ยืมอุปกรณ์อยู่</dt><dd>${ms.map(t => esc((S.materials[t.materialId] || {}).name || '?') + ' ×' + t.qty).join(', ')}</dd>` : ''}</dl></div>
+    <div class="sec"><h4>แนวโน้มคะแนน ADL</h4>${adlChart(adlPts)}</div>
+    <div class="sec"><h4>ประวัติการเยี่ยม (${vs.length})</h4>${vs.length ? `<div class="tw"><table><thead><tr><th>วันที่</th><th>ADL</th><th>BP</th><th>สรุป</th><th></th></tr></thead><tbody>${vs.slice(0, 15).map(v => `<tr><td>${thDate(v.date)}</td><td>${adlBadge(v.adl)}</td><td>${v.sys ? v.sys + '/' + (v.dia || '-') : '-'}</td><td class="sm">${esc((v.problems || []).join(', ') || v.note || '-')}</td><td><button class="btn btn-o btn-s" onclick="showVisit('${v.id}')">ดู</button></td></tr>`).join('')}</tbody></table></div>` : '<div class="mu">ยังไม่มีการเยี่ยม</div>'}</div>`,
+    `${isAdmin() ? `<button class="btn btn-d" onclick="elderDel('${id}')">ลบ</button>` : ''}${canEdit() ? `<button class="btn btn-o" onclick="elderForm('${id}')">แก้ไข</button><button class="btn" onclick="newVisit('${id}')">🩺 บันทึกเยี่ยม</button>` : ''}<button class="btn btn-o" onclick="closeModal()">ปิด</button>`, true);
+}
+async function elderDel(id) {
+  const n = list(S.visits).filter(v => v.elderId === id).length;
+  if (!await ask(n ? `ผู้สูงอายุรายนี้มีบันทึกการเยี่ยม ${n} ครั้ง การลบจะทำให้ประวัติแสดงชื่อ "(ถูกลบ)" แนะนำให้เปลี่ยนสถานะเป็นย้ายออก/เสียชีวิตแทน ลบต่อหรือไม่?` : 'ลบผู้สูงอายุรายนี้ถาวร?', 'ลบ')) return;
+  try { await dbDel('elders', id); closeModal(); toast('ลบแล้ว'); } catch (e) { toast('ลบไม่สำเร็จ: ' + e.message, 'err'); }
+}
+
+/* =====================================================================
+   PAGE 5 : REPORTS
+   ===================================================================== */
+const RTYPES = { summary: 'สรุปผลการเยี่ยมรายเดือน', person: 'ประวัติการเยี่ยมรายบุคคล', registry: 'ทะเบียนผู้สูงอายุ', perf: 'ผลงาน CM / CG', unvisited: 'ผู้สูงอายุที่ยังไม่ได้รับการเยี่ยม', loans: 'อุปกรณ์ที่ยืมค้างส่ง', stock: 'คลังวัสดุ อุปกรณ์' };
+let RP = { type: 'summary', from: fyRange(curFY())[0], to: today(), moo: '', cm: '', cg: '', elder: '', grp: '', status: 'active', res: null };
+PAGES.report = { title: 'รายงาน', render: pReport, after: runReport };
+function pReport() {
+  const t = RP.type, fl = k => ({ summary: ['date', 'moo', 'cm', 'cg'], person: ['date', 'elder'], registry: ['moo', 'cm', 'cg', 'grp', 'status'], perf: ['date'], unvisited: ['date', 'moo', 'cm', 'cg', 'grp'], loans: [], stock: [] }[t] || []).includes(k);
+  return `<div class="card"><div class="grid g4" style="align-items:end">
+    ${field('ประเภทรายงาน', `<select onchange="RP.type=this.value;renderPage()">${opts(Object.entries(RTYPES), RP.type)}</select>`, 'span2')}
+    ${fl('date') ? field('ตั้งแต่วันที่', inp('rp_from', RP.from, 'date', 'onchange="RP.from=this.value;runReport()"')) + field('ถึงวันที่', inp('rp_to', RP.to, 'date', 'onchange="RP.to=this.value;runReport()"')) : ''}
+    ${fl('elder') ? field('ผู้สูงอายุ', `<select onchange="RP.elder=this.value;runReport()">${opts(list(S.elders).sort((a, b) => cmp(fullName(a), fullName(b))).map(e => [e.id, fullName(e)]), RP.elder, '-- เลือก --')}</select>`, 'span2') : ''}
+    ${fl('moo') ? field('หมู่ที่', `<select onchange="RP.moo=this.value;runReport()">${opts(mooList().map(m => [m, 'หมู่ ' + m]), RP.moo, 'ทุกหมู่')}</select>`) : ''}
+    ${fl('cm') ? field('CM', `<select onchange="RP.cm=this.value;runReport()">${cmOpts(RP.cm, 'ทุก CM')}</select>`) : ''}
+    ${fl('cg') ? field('CG', `<select onchange="RP.cg=this.value;runReport()">${cgOpts(RP.cg, 'ทุก CG')}</select>`) : ''}
+    ${fl('grp') ? field('กลุ่ม ADL', `<select onchange="RP.grp=this.value;runReport()">${opts([['1', 'ติดสังคม'], ['2', 'ติดบ้าน'], ['3', 'ติดเตียง'], ['0', 'ยังไม่ประเมิน']], RP.grp, 'ทุกกลุ่ม')}</select>`) : ''}
+    ${fl('status') ? field('สถานะ', `<select onchange="RP.status=this.value;runReport()">${opts(Object.entries(ESTATUS), RP.status, 'ทุกสถานะ')}</select>`) : ''}
+  </div><div class="row mt2"><button class="btn" onclick="rpPDF()">⬇ ดาวน์โหลด PDF</button><button class="btn btn-o" onclick="rpCSV()">⬇ CSV (Excel)</button><button class="btn btn-o" onclick="window.print()">🖨 พิมพ์</button></div></div>
+  <div class="rpwrap mt"><div id="rpPaper"></div></div>`;
+}
+function repVisits() {
+  return derived().vs.filter(v => (!RP.from || v.date >= RP.from) && (!RP.to || v.date <= RP.to) && (!RP.moo || (S.elders[v.elderId] && String(S.elders[v.elderId].moo) === RP.moo)) && (!RP.cm || v.cmId === RP.cm) && (!RP.cg || v.cgId === RP.cg));
+}
+function buildReport() {
+  const D = derived(), t = today(), range = 'ช่วงวันที่ ' + thDate(RP.from) + ' – ' + thDate(RP.to);
+  const filt = [RP.moo && 'หมู่ ' + RP.moo, RP.cm && 'CM ' + nmCm(RP.cm), RP.cg && 'CG ' + nmCg(RP.cg), RP.grp !== '' && RP.type !== 'summary' && 'กลุ่ม ' + ({ 0: 'ยังไม่ประเมิน', 1: 'ติดสังคม', 2: 'ติดบ้าน', 3: 'ติดเตียง' })[RP.grp]].filter(Boolean).join(' · ');
+  const r = { title: RTYPES[RP.type], sub: '', sum: [], headers: [], rows: [], landscape: false };
+  if (RP.type === 'summary') {
+    const vs = repVisits(), months = {}; vs.forEach(v => { const k = v.date.slice(0, 7); (months[k] = months[k] || []).push(v); });
+    const act = list(S.elders).filter(isActive).filter(e => !RP.moo || String(e.moo) === RP.moo).length;
+    r.sub = range + (filt ? ' · ' + filt : ''); r.headers = ['เดือน', 'จำนวนครั้ง', 'จำนวนราย', 'ตามแผน', 'ติดตาม', 'เร่งด่วน', 'ส่งต่อ', 'ติดสังคม', 'ติดบ้าน', 'ติดเตียง'];
+    Object.keys(months).sort().forEach(k => { const a = months[k], u = new Set(a.map(v => v.elderId)), gcnt = g => new Set(a.filter(v => adlGroup(v.adl).g === g).map(v => v.elderId)).size; r.rows.push([thMonth(k), a.length, u.size, a.filter(v => v.type === 'plan').length, a.filter(v => v.type === 'follow').length, a.filter(v => v.type === 'urgent').length, a.filter(v => v.refer).length, gcnt(1), gcnt(2), gcnt(3)]); });
+    r.sum = [['จำนวนการเยี่ยมทั้งหมด', vs.length + ' ครั้ง'], ['ผู้สูงอายุที่ได้รับการเยี่ยม', new Set(vs.map(v => v.elderId)).size + ' ราย'], ['ผู้สูงอายุในความดูแล', act + ' ราย'], ['ส่งต่อ', vs.filter(v => v.refer).length + ' ครั้ง']];
+  } else if (RP.type === 'person') {
+    const e = S.elders[RP.elder]; r.landscape = true;
+    if (!e) { r.sub = 'กรุณาเลือกผู้สูงอายุ'; return r; }
+    r.sub = fullName(e) + ' · ' + range; r.headers = ['วันที่', 'ประเภท', 'BP', 'ชีพจร', 'อุณหภูมิ', 'SpO₂', 'น้ำหนัก', 'DTX', 'ADL', 'ปัญหาที่พบ', 'การดูแล / หมายเหตุ', 'นัดครั้งต่อไป'];
+    const vs = D.vs.filter(v => v.elderId === e.id && (!RP.from || v.date >= RP.from) && (!RP.to || v.date <= RP.to));
+    vs.forEach(v => r.rows.push([thDate(v.date), VTYPES[v.type] || '', v.sys ? v.sys + '/' + (v.dia ?? '') : '', v.pulse ?? '', v.temp ?? '', v.spo2 ?? '', v.wt ?? '', v.dtx ?? '', v.adl !== null && v.adl !== undefined ? v.adl + ' (' + adlGroup(v.adl).label + ')' : '', (v.problems || []).join(', '), [(v.care || []).join(', '), v.note].filter(Boolean).join(' | '), v.nextDate ? thDate(v.nextDate) : '']));
+    r.sum = [['อายุ', e.birthdate ? age(e.birthdate) + ' ปี' : '-'], ['ที่อยู่', [e.house, e.moo && 'หมู่ ' + e.moo].filter(Boolean).join(' ') || '-'], ['ADL ปัจจุบัน', adlGroup(D.adlOf(e)).label], ['โรคประจำตัว', (e.diseases || []).join(', ') || '-'], ['CM / CG', nmCm(e.cmId) + ' / ' + nmCg(e.cgId)], ['จำนวนการเยี่ยม', vs.length + ' ครั้ง']];
+  } else if (RP.type === 'registry') {
+    r.landscape = true; r.sub = 'ณ วันที่ ' + thDate(t) + (filt ? ' · ' + filt : '') + (RP.status ? ' · ' + ESTATUS[RP.status] : '');
+    r.headers = ['ชื่อ-สกุล', 'อายุ', 'บ้านเลขที่', 'หมู่', 'ADL', 'กลุ่ม', 'โรคประจำตัว', 'CG', 'CM', 'เยี่ยมล่าสุด', 'โทรศัพท์'];
+    const es = list(S.elders).filter(e => (!RP.status || (e.status || 'active') === RP.status) && (!RP.moo || String(e.moo) === RP.moo) && (!RP.cm || e.cmId === RP.cm) && (!RP.cg || e.cgId === RP.cg) && (RP.grp === '' || String(adlGroup(D.adlOf(e)).g) === RP.grp)).sort((a, b) => String(a.moo).localeCompare(String(b.moo), 'th', { numeric: true }) || cmp(fullName(a), fullName(b)));
+    es.forEach(e => { const a = D.adlOf(e); r.rows.push([fullName(e), e.birthdate ? age(e.birthdate) : '', e.house || '', e.moo || '', a ?? '', adlGroup(a).label, [...(e.diseases || []), e.diseaseOther].filter(Boolean).join(', '), nmCg(e.cgId), nmCm(e.cmId), D.last[e.id] ? thDate(D.last[e.id].date) : '-', e.phone || '']); });
+    const gc = g => es.filter(e => adlGroup(D.adlOf(e)).g === g).length; r.sum = [['ทั้งหมด', es.length + ' ราย'], ['ติดสังคม', gc(1)], ['ติดบ้าน', gc(2)], ['ติดเตียง', gc(3)], ['ยังไม่ประเมิน', gc(0)]];
+  } else if (RP.type === 'perf') {
+    r.sub = range; r.headers = ['บทบาท', 'ชื่อ', 'ผู้สูงอายุที่รับผิดชอบ (ราย)', 'จำนวนครั้งที่เยี่ยม', 'จำนวนรายที่ได้เยี่ยม', 'ความครอบคลุม (%)'];
+    const vs = repVisits(), eld = list(S.elders).filter(isActive);
+    [['CM', 'cms', 'cmId'], ['CG', 'cgs', 'cgId']].forEach(([role, col, key]) => list(S[col]).sort((a, b) => cmp(a.name, b.name)).forEach(x => {
+      const mine = eld.filter(e => e[key] === x.id), vv = vs.filter(v => v[key] === x.id), u = new Set(vv.map(v => v.elderId)), cov = mine.length ? Math.round(mine.filter(e => u.has(e.id)).length * 100 / mine.length) : '-';
+      r.rows.push([role, pName(x), mine.length, vv.length, u.size, cov]);
+    }));
+    r.sum = [['การเยี่ยมทั้งหมดในช่วง', vs.length + ' ครั้ง']];
+  } else if (RP.type === 'unvisited') {
+    r.sub = 'ไม่มีการเยี่ยมในช่วง ' + range.replace('ช่วงวันที่ ', '') + (filt ? ' · ' + filt : ''); r.headers = ['ชื่อ-สกุล', 'หมู่', 'ADL', 'CM', 'CG', 'เยี่ยมล่าสุด', 'ห่างมา (วัน)', 'โทรศัพท์'];
+    const visited = new Set(repVisits().map(v => v.elderId));
+    list(S.elders).filter(isActive).filter(e => !visited.has(e.id) && (!RP.moo || String(e.moo) === RP.moo) && (!RP.cm || e.cmId === RP.cm) && (!RP.cg || e.cgId === RP.cg) && (RP.grp === '' || String(adlGroup(D.adlOf(e)).g) === RP.grp))
+      .sort((a, b) => cmp(fullName(a), fullName(b))).forEach(e => { const lv = D.last[e.id]; r.rows.push([fullName(e), e.moo || '', adlGroup(D.adlOf(e)).label, nmCm(e.cmId), nmCg(e.cgId), lv ? thDate(lv.date) : 'ยังไม่เคยเยี่ยม', lv ? daysBetween(lv.date, t) : '-', e.phone || '']); });
+    r.sum = [['จำนวนที่ยังไม่ได้เยี่ยม', r.rows.length + ' ราย']];
+  } else if (RP.type === 'loans') {
+    r.sub = 'ณ วันที่ ' + thDate(t); r.headers = ['อุปกรณ์', 'ผู้ยืม', 'หมู่', 'จำนวน', 'วันที่ยืม', 'ยืมมาแล้ว (วัน)', 'โทรศัพท์'];
+    list(S.txns).filter(x => x.kind === 'loan' && !x.returned).sort((a, b) => a.date < b.date ? -1 : 1).forEach(x => { const e = S.elders[x.elderId] || {}; r.rows.push([(S.materials[x.materialId] || {}).name || '(ถูกลบ)', elderName(x.elderId), e.moo || '', x.qty, thDate(x.date), daysBetween(x.date, t), e.phone || '']); });
+    r.sum = [['รายการยืมค้าง', r.rows.length + ' รายการ']];
+  } else if (RP.type === 'stock') {
+    r.sub = 'ณ วันที่ ' + thDate(t); r.headers = ['รายการ', 'ประเภท', 'หน่วย', 'รับเข้า/มีทั้งหมด', 'จ่ายออก', 'ยืมอยู่', 'คงเหลือ', 'จุดสั่งซื้อ', 'สถานะ'];
+    Object.values(matStats()).sort((a, b) => cmp(a.m.name, b.m.name)).forEach(o => r.rows.push([o.m.name, o.m.type === 'equipment' ? 'อุปกรณ์ (ยืม-คืน)' : 'วัสดุสิ้นเปลือง', o.m.unit || '', o.recv, o.issued, o.loaned, o.avail, o.m.min || '', (+o.m.min || 0) > 0 && o.avail <= +o.m.min ? 'ใกล้หมด' : 'ปกติ']));
+  }
+  return r;
+}
+function runReport() {
+  const p = $('rpPaper'); if (!p) return; const r = buildReport(); RP.res = r;
+  p.style.width = (r.landscape ? 1123 : 794) + 'px';
+  p.innerHTML = `<div class="org">${ORG.name} ${ORG.area}</div><h2>${esc(r.title)}</h2><div class="rsub">${esc(r.sub)}</div>
+    ${r.sum.length ? `<div class="rsum">${r.sum.map(([a, b]) => `<span>${esc(a)}: <b>${esc(b)}</b></span>`).join('')}</div>` : ''}
+    ${r.headers.length ? (r.rows.length ? `<table><thead><tr><th style="width:34px">ที่</th>${r.headers.map(h => `<th>${esc(h)}</th>`).join('')}</tr></thead><tbody>${r.rows.map((row, i) => `<tr><td style="text-align:center">${i + 1}</td>${row.map(c => `<td>${esc(c)}</td>`).join('')}</tr>`).join('')}</tbody></table>` : '<div style="text-align:center;padding:24px;color:#666">ไม่พบข้อมูลตามเงื่อนไขที่เลือก</div>') : ''}
+    <div class="foot">พิมพ์เมื่อ ${thDate(today())} โดย ${esc(ME.name || ME.username)}</div>`;
+}
+function rpPDF() { if (!RP.res || !RP.res.headers.length) return; exportPDF($('rpPaper'), 'report_' + RP.type + '_' + today() + '.pdf', RP.res.landscape); }
+function rpCSV() {
+  const r = RP.res; if (!r || !r.rows.length) return toast('ไม่มีข้อมูลให้ส่งออก', 'err');
+  const rows = [[r.title], [r.sub], [], ['ที่', ...r.headers], ...r.rows.map((x, i) => [i + 1, ...x])];
+  const csv = '\ufeff' + rows.map(row => row.map(c => '"' + String(c ?? '').replace(/"/g, '""') + '"').join(',')).join('\r\n');
+  downloadBlob('report_' + RP.type + '_' + today() + '.csv', new Blob([csv], { type: 'text/csv;charset=utf-8' }));
+}
+
+/* =====================================================================
+   PAGE 6 : MATERIALS
+   ===================================================================== */
+let matTab = 'stock', TF = { kind: '', open: '1' };
+PAGES.mat = { title: 'วัสดุ อุปกรณ์', render: pMat };
+function matStats() {
+  const out = {}; list(S.materials).forEach(m => out[m.id] = { m, recv: +m.initial || 0, issued: 0, loaned: 0, avail: 0 });
+  list(S.txns).forEach(t => { const o = out[t.materialId]; if (!o) return; const q = +t.qty || 0; if (t.kind === 'receive') o.recv += q; else if (t.kind === 'issue') o.issued += q; else if (t.kind === 'loan' && !t.returned) o.loaned += q; });
+  Object.values(out).forEach(o => o.avail = o.recv - o.issued - o.loaned); return out;
+}
+function pMat() {
+  const tabs = `<div class="tabs"><button class="${matTab === 'stock' ? 'on' : ''}" onclick="matTab='stock';renderPage()">คลังวัสดุ/อุปกรณ์</button><button class="${matTab === 'txn' ? 'on' : ''}" onclick="matTab='txn';renderPage()">ประวัติยืม-คืน/จ่าย/รับเข้า</button></div>`;
+  if (matTab === 'stock') {
+    const ms = Object.values(matStats()).sort((a, b) => cmp(a.m.name, b.m.name));
+    return tabs + `<div class="row sp" style="margin-bottom:12px"><div class="mu sm">อุปกรณ์ = ยืม-คืนได้ (เช่น เตียงลม รถเข็น) · วัสดุสิ้นเปลือง = จ่ายออก (เช่น แผ่นรองซับ ผ้าก๊อซ)</div>${canEdit() ? '<button class="btn" onclick="matForm()">＋ เพิ่มรายการ</button>' : ''}</div>
+      ${ms.length ? `<div class="tw"><table><thead><tr><th>รายการ</th><th>ประเภท</th><th class="n">ทั้งหมด</th><th class="n">ยืมอยู่</th><th class="n">คงเหลือ</th><th>สถานะ</th><th></th></tr></thead><tbody>${ms.map(o => { const m = o.m, low = (+m.min || 0) > 0 && o.avail <= +m.min; return `<tr><td><b>${esc(m.name)}</b>${m.active === false ? ' <span class="badge b-n">ปิดใช้งาน</span>' : ''}<div class="mu sm">${esc(m.note || '')}</div></td><td>${m.type === 'equipment' ? 'อุปกรณ์' : 'วัสดุสิ้นเปลือง'}</td><td class="n">${o.recv - o.issued} ${esc(m.unit || '')}</td><td class="n">${o.loaned}</td><td class="n"><b>${o.avail}</b></td><td>${o.avail < 0 ? '<span class="badge b-g3">ติดลบ</span>' : low ? '<span class="badge b-g3">ใกล้หมด</span>' : '<span class="badge b-g1">ปกติ</span>'}</td><td class="n" style="white-space:nowrap">${canEdit() ? `<button class="btn btn-s" onclick="txnForm('${m.id}')">${m.type === 'equipment' ? 'ให้ยืม' : 'จ่าย'}</button> <button class="btn btn-o btn-s" onclick="rcvForm('${m.id}')">รับเข้า</button> <button class="btn btn-o btn-s" onclick="matForm('${m.id}')">แก้ไข</button>` : ''}${isAdmin() ? ` <button class="btn btn-d btn-s" onclick="matDel('${m.id}')">ลบ</button>` : ''}</td></tr>`; }).join('')}</tbody></table></div>` : '<div class="card empty">ยังไม่มีรายการวัสดุ/อุปกรณ์</div>'}`;
+  }
+  const tx = list(S.txns).filter(t => (!TF.kind || t.kind === TF.kind) && (TF.open !== '1' || (t.kind === 'loan' && !t.returned))).sort((a, b) => a.date < b.date ? 1 : a.date > b.date ? -1 : (b.createdAt || 0) - (a.createdAt || 0));
+  const KN = { loan: 'ยืม', issue: 'จ่าย', receive: 'รับเข้า' };
+  return tabs + `<div class="toolbar"><select onchange="TF.kind=this.value;renderPage()">${opts(Object.entries(KN), TF.kind, 'ทุกประเภท')}</select><label class="row" style="gap:6px"><input type="checkbox" ${TF.open === '1' ? 'checked' : ''} onchange="TF.open=this.checked?'1':'';renderPage()">เฉพาะยืมที่ยังไม่คืน</label></div>
+    ${tx.length ? `<div class="tw"><table><thead><tr><th>วันที่</th><th>รายการ</th><th>ประเภท</th><th>ผู้ยืม/รับ</th><th class="n">จำนวน</th><th>สถานะ</th><th></th></tr></thead><tbody>${tx.slice(0, 300).map(t => `<tr><td>${thDate(t.date)}</td><td>${esc((S.materials[t.materialId] || {}).name || '(ถูกลบ)')}</td><td><span class="badge ${t.kind === 'receive' ? 'b-g1' : t.kind === 'loan' ? 'b-g2' : 'b-p'}">${KN[t.kind]}</span></td><td>${t.elderId ? esc(elderName(t.elderId)) : '-'}<div class="mu sm">${esc(t.note || '')}</div></td><td class="n">${t.qty}</td><td>${t.kind === 'loan' ? (t.returned ? `<span class="badge b-n">คืนแล้ว ${thDate(t.returnedDate)}</span>` : '<span class="badge b-g3">ยังไม่คืน</span>') : ''}</td><td class="n" style="white-space:nowrap">${canEdit() && t.kind === 'loan' && !t.returned ? `<button class="btn btn-s" onclick="returnLoan('${t.id}')">รับคืน</button>` : ''}${isAdmin() ? ` <button class="btn btn-d btn-s" onclick="txnDel('${t.id}')">ลบ</button>` : ''}</td></tr>`).join('')}</tbody></table></div>` : '<div class="card empty">ไม่พบรายการ</div>'}`;
+}
+function matForm(id) {
+  if (!canEdit()) return; const m = id ? S.materials[id] : {};
+  openModal(id ? 'แก้ไขรายการ' : 'เพิ่มวัสดุ/อุปกรณ์', `<div class="grid g2">
+    ${field('ชื่อรายการ', inp('m_name', m.name || ''), 'spanall', true)}
+    ${field('ประเภท', `<select id="m_type">${opts([['equipment', 'อุปกรณ์ (ยืม-คืน)'], ['supply', 'วัสดุสิ้นเปลือง (จ่ายออก)']], m.type || 'equipment')}</select>`)}${field('หน่วยนับ', inp('m_unit', m.unit || '', 'text', 'placeholder="ชิ้น / เครื่อง / ห่อ"'))}
+    ${field('จำนวนตั้งต้น', inp('m_init', m.initial ?? 0, 'number', 'min="0"'))}${field('จุดเตือนใกล้หมด (คงเหลือ ≤)', inp('m_min', m.min ?? 0, 'number', 'min="0"'))}
+    ${field('สถานะ', `<select id="m_active">${opts([['1', 'ใช้งาน'], ['0', 'ปิดใช้งาน']], m.active === false ? '0' : '1')}</select>`)}${field('หมายเหตุ', inp('m_note', m.note || ''))}</div>`,
+    `<button class="btn btn-o" onclick="closeModal()">ยกเลิก</button><button class="btn" onclick="matSave('${id || ''}')">บันทึก</button>`);
+}
+async function matSave(id) {
+  const name = val('m_name'); if (!name) return toast('กรุณากรอกชื่อรายการ', 'err');
+  try { await dbSave('materials', id || null, { name, type: val('m_type'), unit: val('m_unit'), initial: numOrNull(val('m_init')) || 0, min: numOrNull(val('m_min')) || 0, active: val('m_active') === '1', note: val('m_note') }); closeModal(); toast('บันทึกแล้ว'); } catch (e) { toast('บันทึกไม่สำเร็จ: ' + e.message, 'err'); }
+}
+async function matDel(id) {
+  if (list(S.txns).some(t => t.materialId === id)) return toast('มีประวัติยืม/จ่าย/รับเข้าแล้ว ไม่สามารถลบได้ — ให้แก้ไขแล้วตั้งเป็น "ปิดใช้งาน" แทน', 'err');
+  if (!await ask('ลบรายการนี้?', 'ลบ')) return; try { await dbDel('materials', id); toast('ลบแล้ว'); } catch (e) { toast('ลบไม่สำเร็จ: ' + e.message, 'err'); }
+}
+function txnForm(mid) {
+  const o = matStats()[mid], m = o.m, isEq = m.type === 'equipment';
+  openModal((isEq ? 'ให้ยืม: ' : 'จ่ายออก: ') + esc(m.name), `<div class="infobox" style="margin:0 0 12px">คงเหลือ <b>${o.avail}</b> ${esc(m.unit || '')}</div><div class="grid g2">
+    ${field('ผู้สูงอายุ', `<select id="x_elder">${opts(list(S.elders).filter(isActive).sort((a, b) => cmp(fullName(a), fullName(b))).map(e => [e.id, fullName(e) + (e.moo ? ' (หมู่ ' + e.moo + ')' : '')]), '', '-- เลือก --')}</select>`, 'spanall', true)}
+    ${field('จำนวน', inp('x_qty', 1, 'number', 'min="1"'), '', true)}${field('วันที่', inp('x_date', today(), 'date'))}${field('หมายเหตุ', inp('x_note', ''), 'spanall')}</div>`,
+    `<button class="btn btn-o" onclick="closeModal()">ยกเลิก</button><button class="btn" onclick="txnSave('${mid}')">บันทึก</button>`);
+}
+async function txnSave(mid) {
+  const o = matStats()[mid], qty = numOrNull(val('x_qty')), elderId = val('x_elder');
+  if (!elderId) return toast('กรุณาเลือกผู้สูงอายุ', 'err'); if (!qty || qty < 1) return toast('กรุณาระบุจำนวน', 'err');
+  if (qty > o.avail) return toast('จำนวนคงเหลือไม่พอ (เหลือ ' + o.avail + ')', 'err');
+  try { await dbSave('txns', null, { materialId: mid, elderId, qty, date: val('x_date') || today(), kind: o.m.type === 'equipment' ? 'loan' : 'issue', returned: false, note: val('x_note') }); closeModal(); toast('บันทึกแล้ว'); } catch (e) { toast('บันทึกไม่สำเร็จ: ' + e.message, 'err'); }
+}
+function rcvForm(mid) {
+  openModal('รับเข้า: ' + esc(S.materials[mid].name), `<div class="grid g2">${field('จำนวน', inp('r_qty', 1, 'number', 'min="1"'), '', true)}${field('วันที่', inp('r_date', today(), 'date'))}${field('หมายเหตุ / แหล่งที่มา', inp('r_note', ''), 'spanall')}</div>`,
+    `<button class="btn btn-o" onclick="closeModal()">ยกเลิก</button><button class="btn" onclick="rcvSave('${mid}')">บันทึก</button>`);
+}
+async function rcvSave(mid) {
+  const qty = numOrNull(val('r_qty')); if (!qty || qty < 1) return toast('กรุณาระบุจำนวน', 'err');
+  try { await dbSave('txns', null, { materialId: mid, qty, date: val('r_date') || today(), kind: 'receive', note: val('r_note') }); closeModal(); toast('รับเข้าแล้ว'); } catch (e) { toast('บันทึกไม่สำเร็จ: ' + e.message, 'err'); }
+}
+async function returnLoan(id) {
+  if (!await ask('ยืนยันรับคืนอุปกรณ์รายการนี้ (วันที่คืน ' + thDate(today()) + ')?', 'รับคืน', false)) return;
+  try { await dbSave('txns', id, { returned: true, returnedDate: today() }); toast('รับคืนแล้ว'); } catch (e) { toast('บันทึกไม่สำเร็จ: ' + e.message, 'err'); }
+}
+async function txnDel(id) { if (!await ask('ลบรายการนี้? (จำนวนคงเหลือจะถูกคำนวณใหม่)', 'ลบ')) return; try { await dbDel('txns', id); toast('ลบแล้ว'); } catch (e) { toast('ลบไม่สำเร็จ: ' + e.message, 'err'); } }
+
+/* =====================================================================
+   PAGE 7 : USERS
+   ===================================================================== */
+PAGES.users = { title: 'จัดการผู้ใช้', render: pUsers };
+function pUsers() {
+  if (!isAdmin()) return noAccess();
+  const us = list(S.users).sort((a, b) => cmp(a.username, b.username));
+  return `<div class="row sp" style="margin-bottom:12px"><div class="mu sm">ผู้ดูแลระบบ = ทุกอย่าง · เจ้าหน้าที่ = บันทึก/แก้ไข · ผู้ดูข้อมูล = ดูอย่างเดียว</div><button class="btn" onclick="userForm()">＋ เพิ่มผู้ใช้</button></div>
+    <div class="tw"><table><thead><tr><th>ชื่อผู้ใช้</th><th>ชื่อ-สกุล</th><th>สิทธิ์</th><th>สถานะ</th><th></th></tr></thead><tbody>${us.map(u => `<tr><td><b>${esc(u.username)}</b>${u.id === ME.id ? ' <span class="badge b-p">คุณ</span>' : ''}</td><td>${esc(u.name || '')}</td><td>${ROLES[u.role] || u.role}</td><td>${u.active === false ? '<span class="badge b-n">ปิดใช้งาน</span>' : '<span class="badge b-g1">ใช้งาน</span>'}</td><td class="n" style="white-space:nowrap"><button class="btn btn-o btn-s" onclick="userForm('${u.id}')">แก้ไข</button>${u.id !== ME.id ? ` <button class="btn btn-d btn-s" onclick="userDel('${u.id}')">ลบ</button>` : ''}</td></tr>`).join('')}</tbody></table></div>`;
+}
+function userForm(id) {
+  const u = id ? S.users[id] : {};
+  openModal(id ? 'แก้ไขผู้ใช้' : 'เพิ่มผู้ใช้', `<div class="grid g2">
+    ${field('ชื่อผู้ใช้ (ภาษาอังกฤษ/ตัวเลข)', inp('u_user', u.username || '', 'text', 'autocapitalize="none" ' + (id ? '' : '')), '', true)}${field('ชื่อ-สกุล', inp('u_name', u.name || ''), '', true)}
+    ${field('สิทธิ์', `<select id="u_role">${opts(Object.entries(ROLES), u.role || 'staff')}</select>`)}${field('สถานะ', `<select id="u_active">${opts([['1', 'ใช้งาน'], ['0', 'ปิดใช้งาน']], u.active === false ? '0' : '1')}</select>`)}
+    ${field(id ? 'รหัสผ่านใหม่ (เว้นว่าง = ไม่เปลี่ยน)' : 'รหัสผ่าน (อย่างน้อย 6 ตัว)', '<input id="u_pw" type="password" autocomplete="new-password">', 'spanall', !id)}</div>`,
+    `<button class="btn btn-o" onclick="closeModal()">ยกเลิก</button><button class="btn" onclick="userSave('${id || ''}')">บันทึก</button>`);
+}
+const adminCount = ex => list(S.users).filter(u => u.role === 'admin' && u.active !== false && u.id !== ex).length;
+async function userSave(id) {
+  const username = val('u_user').toLowerCase(), name = val('u_name'), pw = $('u_pw').value, role = val('u_role'), active = val('u_active') === '1';
+  if (!/^[a-z0-9._-]{3,}$/.test(username)) return toast('ชื่อผู้ใช้ต้องเป็น a-z 0-9 . _ - อย่างน้อย 3 ตัว', 'err');
+  if (!name) return toast('กรุณากรอกชื่อ-สกุล', 'err');
+  if (list(S.users).some(u => u.username.toLowerCase() === username && u.id !== id)) return toast('ชื่อผู้ใช้นี้ถูกใช้แล้ว', 'err');
+  if (!id && pw.length < 6) return toast('รหัสผ่านต้องยาวอย่างน้อย 6 ตัว', 'err');
+  if (id && pw && pw.length < 6) return toast('รหัสผ่านต้องยาวอย่างน้อย 6 ตัว', 'err');
+  if (id && (role !== 'admin' || !active) && adminCount(id) === 0) return toast('ต้องมีผู้ดูแลระบบที่ใช้งานอยู่อย่างน้อย 1 คน', 'err');
+  try { const d = { username, name, role, active }; if (pw) d.pass = await hashPw(pw); await dbSave('users', id || null, d); closeModal(); toast('บันทึกผู้ใช้แล้ว'); } catch (e) { toast('บันทึกไม่สำเร็จ: ' + e.message, 'err'); }
+}
+async function userDel(id) {
+  if (S.users[id].role === 'admin' && adminCount(id) === 0) return toast('ต้องมีผู้ดูแลระบบอย่างน้อย 1 คน', 'err');
+  if (!await ask('ลบผู้ใช้ "' + S.users[id].username + '"?', 'ลบ')) return; try { await dbDel('users', id); toast('ลบแล้ว'); } catch (e) { toast('ลบไม่สำเร็จ: ' + e.message, 'err'); }
+}
+function pwModal() {
+  openModal('เปลี่ยนรหัสผ่าน', `<div class="grid">${field('รหัสผ่านเดิม', '<input id="pw0" type="password" autocomplete="current-password">')}${field('รหัสผ่านใหม่ (อย่างน้อย 6 ตัว)', '<input id="pw1" type="password" autocomplete="new-password">')}${field('ยืนยันรหัสผ่านใหม่', '<input id="pw2" type="password" autocomplete="new-password">')}</div>`,
+    '<button class="btn btn-o" onclick="closeModal()">ยกเลิก</button><button class="btn" onclick="pwSave()">เปลี่ยนรหัสผ่าน</button>');
+}
+async function pwSave() {
+  const a = $('pw0').value, b = $('pw1').value, c = $('pw2').value;
+  if (await hashPw(a) !== ME.pass) return toast('รหัสผ่านเดิมไม่ถูกต้อง', 'err');
+  if (b.length < 6) return toast('รหัสผ่านใหม่ต้องยาวอย่างน้อย 6 ตัว', 'err'); if (b !== c) return toast('ยืนยันรหัสผ่านไม่ตรงกัน', 'err');
+  try { const h = await hashPw(b); await db.ref('users/' + ME.id).update({ pass: h, updatedAt: Date.now() }); ME.pass = h; closeModal(); toast('เปลี่ยนรหัสผ่านแล้ว'); } catch (e) { toast('ไม่สำเร็จ: ' + e.message, 'err'); }
+}
+</script>
+</body>
+</html>
