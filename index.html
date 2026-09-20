@@ -275,6 +275,63 @@ label.f>span i{color:var(--g3);font-style:normal}
   #rpPaper,#rpPaper *{visibility:visible}
   #rpPaper{position:absolute;left:0;top:0;width:100%!important;padding:0}
 }
+
+/* ---------- Dashboard: ผลงานการเยี่ยมของ CG รายเดือน ---------- */
+.cgm{padding:0;overflow:hidden;border:1px solid #cfe3da;box-shadow:0 10px 30px -14px rgba(23,54,46,.35)}
+.cgm-hd{position:relative;display:flex;flex-wrap:wrap;gap:14px;align-items:center;justify-content:space-between;padding:20px 24px 0;color:#fff}
+.cgm-tt{display:flex;gap:12px;align-items:center}
+.cgm-sp{display:grid;place-items:center;width:42px;height:42px;border-radius:13px;font-size:20px;background:linear-gradient(135deg,#5fd39a,#e0a526);color:#12291f;box-shadow:0 6px 18px -6px rgba(95,211,154,.7)}
+.cgm-hd h3{color:#fff;font-size:20px;margin:0}
+.cgm-sub{color:#b8cfc7;font-size:14px;margin-top:1px}
+.cgm-sel{display:flex;align-items:center;gap:8px;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.28);backdrop-filter:blur(6px);border-radius:999px;padding:4px 6px 4px 14px;font-size:14px;color:#dcefe8}
+.cgm-sel select{width:auto;min-width:190px;border:0;border-radius:999px;padding:7px 14px;background:#fff;color:#17362e;font-weight:600;cursor:pointer}
+.cgm-sum{display:flex;flex-wrap:wrap;gap:22px;align-items:center;padding:18px 24px 20px;color:#fff}
+.cgm-top{background:radial-gradient(900px 260px at 100% -40%,rgba(95,211,154,.38),transparent 60%),radial-gradient(600px 240px at -10% 120%,rgba(224,165,38,.22),transparent 60%),linear-gradient(135deg,#12291f 0%,#17362e 40%,#1d6b57 100%)}
+.cgm-ring{--p:0;position:relative;width:104px;height:104px;border-radius:50%;display:grid;place-items:center;text-align:center;background:conic-gradient(#5fd39a calc(var(--p)*1%),rgba(255,255,255,.16) 0);flex:none}
+.cgm-ring::before{content:"";position:absolute;inset:9px;border-radius:50%;background:#17362e}
+.cgm-ring>div{position:relative;line-height:1.1}
+.cgm-ring b{font-size:26px;font-weight:700;display:block}
+.cgm-ring small{font-size:11.5px;color:#b8cfc7}
+.cgm-stats{display:grid;grid-template-columns:repeat(4,minmax(96px,1fr));gap:10px;flex:1;min-width:280px}
+.cgm-st{background:rgba(255,255,255,.09);border:1px solid rgba(255,255,255,.16);border-radius:14px;padding:10px 14px}
+.cgm-st b{display:block;font-size:26px;font-weight:700;line-height:1.15}
+.cgm-st span{font-size:13.5px;color:#b8cfc7}
+.cgm-ins{margin:16px 24px 0;padding:10px 14px;border-radius:12px;font-size:14.5px;background:linear-gradient(90deg,#eaf7f0,#f7fbf9);border:1px solid #cfe8db;color:#1d4f40}
+.cgm-ins b{color:#12291f}
+.cgm-tool{display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:space-between;padding:14px 24px 6px}
+.cgm-tool .mu{font-size:14px}
+.cgm-seg{display:inline-flex;background:#eef3f0;border-radius:999px;padding:3px}
+.cgm-seg button{border:0;background:none;padding:5px 14px;border-radius:999px;font-size:14px;cursor:pointer;color:var(--mu)}
+.cgm-seg button.on{background:#fff;color:var(--p2);font-weight:600;box-shadow:0 2px 8px -3px rgba(23,54,46,.35)}
+.cgm-tb{padding:0 14px 6px}
+.cgm-h,.cgm-r{display:grid;grid-template-columns:minmax(210px,2.3fr) repeat(4,minmax(78px,.7fr)) minmax(170px,2fr);gap:10px;align-items:center;padding:10px 10px}
+.cgm-h{font-size:13.5px;color:var(--mu);font-weight:600;border-bottom:1px solid var(--bd)}
+.cgm-h>:not(:first-child):not(:last-child){text-align:center}
+.cgm-r{border-radius:14px;transition:background .15s,transform .15s;animation:cgmIn .45s both}
+.cgm-r:hover{background:#f3f8f5;transform:translateX(2px)}
+@keyframes cgmIn{from{opacity:0;transform:translateY(6px)}}
+.cgm-nm{display:flex;gap:11px;align-items:center;min-width:0}
+.cgm-av{flex:none;width:38px;height:38px;border-radius:12px;display:grid;place-items:center;color:#fff;font-weight:700;font-size:16px}
+.cgm-nm b{display:block;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.cgm-cd{display:inline-block;margin-top:1px;font-size:12px;letter-spacing:.4px;padding:0 8px;border-radius:999px;background:#eef3f0;color:var(--mu)}
+.cgm-c{text-align:center;font-size:17px;font-weight:600;font-variant-numeric:tabular-nums}
+.cgm-c.z{color:#b3bdb8;font-weight:400}
+.cgm-pill{display:inline-block;min-width:44px;padding:1px 12px;border-radius:999px;font-size:15px;font-weight:700}
+.cgm-pg{display:flex;align-items:center;gap:10px}
+.cgm-bar{flex:1;height:12px;border-radius:999px;background:#e8eeeb;overflow:hidden}
+.cgm-bar i{display:block;height:100%;border-radius:999px;transform-origin:left;animation:cgmFill .9s cubic-bezier(.2,.8,.2,1) both}
+@keyframes cgmFill{from{transform:scaleX(0)}}
+.cgm-pc{min-width:46px;text-align:right;font-weight:700;font-size:15px;font-variant-numeric:tabular-nums}
+.cgm-ft{padding:6px 24px 16px;font-size:13.5px;color:var(--mu)}
+@media(max-width:900px){.cgm-stats{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:720px){
+  .cgm-hd,.cgm-sum,.cgm-tool,.cgm-ft{padding-left:16px;padding-right:16px}.cgm-ins{margin:14px 16px 0}
+  .cgm-h{display:none}
+  .cgm-r{grid-template-columns:repeat(4,1fr);gap:8px;border:1px solid var(--bd);margin-bottom:10px;padding:12px}
+  .cgm-r .cgm-nm,.cgm-r .cgm-pg{grid-column:1/-1}
+  .cgm-c::before{content:attr(data-l);display:block;font-size:12px;font-weight:400;color:var(--mu)}
+  .cgm-sel select{min-width:150px}
+}
 </style>
 </head>
 <body>
@@ -726,6 +783,67 @@ function tally(arr, keyFn, nameFn, top = 8) {
   const m = {}; arr.forEach(x => { const k = keyFn(x); if (k === undefined || k === null || k === '') return; m[k] = (m[k] || 0) + 1; });
   return Object.entries(m).map(([k, n]) => ({ label: nameFn ? nameFn(k) : k, n })).sort((a, b) => b.n - a.n).slice(0, top);
 }
+
+/* ---------- Dashboard: ผลงานการเยี่ยมของ CG รายเดือน ---------- */
+let dashCgMonth = null, dashCgSort = 'code';
+function cgCodes() {
+  const m = {};
+  list(S.cgs).sort((a, b) => (a.createdAt || 0) - (b.createdAt || 0) || cmp(a.name || '', b.name || '')).forEach((x, i) => { m[x.id] = x.code || 'CG' + String(i + 1).padStart(3, '0'); });
+  return m;
+}
+function cgMonthOpts() {
+  const cur = today().slice(0, 7), set = new Set([cur]);
+  derived().vs.forEach(v => { if (v.date) set.add(v.date.slice(0, 7)); });
+  let [y, m] = cur.split('-').map(Number);
+  for (let i = 0; i < 6; i++) { set.add(y + '-' + String(m).padStart(2, '0')); if (--m < 1) { m = 12; y--; } }
+  return [...set].sort().reverse().map(k => [k, thMonth(k) + (k === cur ? ' (เดือนปัจจุบัน)' : '')]);
+}
+function cgMonthData(ym) {
+  const D = derived(), mv = monthVisits(D, ym), elders = list(S.elders).filter(isActive), codes = cgCodes();
+  const rows = list(S.cgs).filter(x => isActive(x) || elders.some(e => e.cgId === x.id)).map(x => {
+    const es = elders.filter(e => e.cgId === x.id), wq = es.filter(e => depQuota(e) > 0);
+    const tgt = wq.reduce((a, e) => a + depQuota(e), 0), done = wq.reduce((a, e) => a + Math.min(mv[e.id] || 0, depQuota(e)), 0);
+    return { id: x.id, name: pName(x), first: (x.name || '?')[0], code: codes[x.id], n: es.length, tgt, done, left: tgt - done, pct: tgt ? Math.round(done * 100 / tgt) : 0 };
+  });
+  return { rows, unassigned: elders.filter(e => !e.cgId || !S.cgs[e.cgId]).length };
+}
+const cgTone = p => p >= 100 ? ['#12a36b', '#5fd39a'] : p >= 75 ? ['#1d8fa3', '#5cc6d6'] : p >= 50 ? ['#d99a12', '#f3cf6b'] : ['#d9483b', '#f2897f'];
+const CGM_AV = ['#1d6b57,#5fd39a', '#2f6fb5,#7fb3ee', '#7a5aa6,#b79ae0', '#e0a526,#f3cf6b', '#cc4b3c,#f2897f', '#1d8fa3,#5cc6d6'];
+function cgMonthInner() {
+  const cur = today().slice(0, 7), ym = dashCgMonth || cur, { rows, unassigned } = cgMonthData(ym);
+  const tgt = rows.reduce((a, r) => a + r.tgt, 0), done = rows.reduce((a, r) => a + r.done, 0), left = tgt - done;
+  const withT = rows.filter(r => r.tgt > 0), full = withT.filter(r => r.left <= 0).length, overall = tgt ? Math.round(done * 100 / tgt) : 0;
+  const behind = withT.filter(r => r.left > 0).sort((a, b) => b.left - a.left)[0];
+  const ins = !tgt ? 'ยังไม่มีเกณฑ์การเยี่ยมในเดือนนี้ (ผู้สูงอายุยังไม่ระบุ TAI)'
+    : `ภาพรวมทำได้ <b>${overall}%</b> (${done}/${tgt} ครั้ง) · CG ครบเกณฑ์ <b>${full}/${withT.length}</b> คน` + (behind ? ` · ควรเร่งติดตาม: <b>${esc(behind.name)}</b> (คงเหลือ ${behind.left} ครั้ง)` : ' · ทุกคนครบเกณฑ์แล้ว 🎉');
+  const srt = { code: (a, b) => cmp(a.code, b.code), high: (a, b) => (b.tgt > 0) - (a.tgt > 0) || b.pct - a.pct || cmp(a.code, b.code), left: (a, b) => b.left - a.left || cmp(a.code, b.code) }[dashCgSort] || (() => 0);
+  const view = rows.slice().sort(srt);
+  const seg = [['code', 'ตามรหัส'], ['high', 'ความคืบหน้าสูง→ต่ำ'], ['left', 'คงเหลือมากสุด']].map(([k, l]) => `<button class="${dashCgSort === k ? 'on' : ''}" onclick="setCgSort('${k}')">${l}</button>`).join('');
+  const body = view.length ? view.map((r, i) => {
+    const [c1, c2] = cgTone(r.pct), av = CGM_AV[i % CGM_AV.length].split(','), no = !r.tgt;
+    const lp = no ? '<span class="cgm-c z">-</span>' : r.left <= 0 ? '<span class="cgm-pill" style="background:#e3f6ec;color:#12a36b">ครบ ✓</span>' : `<span class="cgm-pill" style="background:${r.pct >= 50 ? '#fdf3d6' : '#fde6e3'};color:${r.pct >= 50 ? '#a8730a' : '#c23a2d'}">${r.left}</span>`;
+    return `<div class="cgm-r" style="animation-delay:${Math.min(i, 20) * 25}ms">
+      <div class="cgm-nm"><span class="cgm-av" style="background:linear-gradient(135deg,${av[0]},${av[1]})">${esc(r.first)}</span><div style="min-width:0"><b title="${esc(r.name)}">${esc(r.name)}</b><span class="cgm-cd">${esc(r.code)}</span></div></div>
+      <div class="cgm-c ${r.n ? '' : 'z'}" data-l="ผู้สูงอายุในดูแล">${r.n}</div>
+      <div class="cgm-c ${no ? 'z' : ''}" data-l="ต้องเยี่ยม (ครั้ง)">${r.tgt}</div>
+      <div class="cgm-c ${no ? 'z' : ''}" data-l="เยี่ยมแล้ว (ครั้ง)">${r.done}</div>
+      <div class="cgm-c" data-l="คงเหลือ (ครั้ง)">${lp}</div>
+      <div class="cgm-pg"><div class="cgm-bar"><i style="width:${r.pct}%;background:linear-gradient(90deg,${c1},${c2})"></i></div><span class="cgm-pc" style="color:${no ? '#b3bdb8' : c1}">${no ? '-' : r.pct + '%'}</span></div></div>`;
+  }).join('') : '<div class="empty" style="padding:24px">ยังไม่มีข้อมูล CG</div>';
+  return `<div class="cgm-top"><div class="cgm-hd"><div class="cgm-tt"><span class="cgm-sp">✦</span><div><h3>ผลงานการเยี่ยมของ CG รายเดือน</h3><div class="cgm-sub">ประจำเดือน ${thMonth(ym)}${ym === cur ? ' · เดือนปัจจุบัน' : ''}</div></div></div>
+      <label class="cgm-sel"><span>เลือกเดือน</span><select onchange="setCgMonth(this.value)" aria-label="เลือกเดือน">${opts(cgMonthOpts(), ym)}</select></label></div>
+    <div class="cgm-sum"><div class="cgm-ring" style="--p:${overall}"><div><b>${overall}%</b><small>สำเร็จรวม</small></div></div>
+      <div class="cgm-stats"><div class="cgm-st"><b>${tgt}</b><span>ต้องเยี่ยม (ครั้ง)</span></div><div class="cgm-st"><b>${done}</b><span>เยี่ยมแล้ว (ครั้ง)</span></div><div class="cgm-st"><b>${left}</b><span>คงเหลือ (ครั้ง)</span></div><div class="cgm-st"><b>${full}<span style="font-size:16px;font-weight:400">/${withT.length}</span></b><span>CG ครบเกณฑ์</span></div></div></div></div>
+    <div class="cgm-ins">✨ <b>สรุปอัตโนมัติ</b> · ${ins}</div>
+    <div class="cgm-tool"><span class="mu">เรียงตาม</span><div class="cgm-seg">${seg}</div></div>
+    <div class="cgm-tb"><div class="cgm-h"><div>CG</div><div>ผู้สูงอายุในดูแล</div><div>ต้องเยี่ยม (ครั้ง)</div><div>เยี่ยมแล้ว (ครั้ง)</div><div>คงเหลือ (ครั้ง)</div><div>ความคืบหน้า</div></div>${body}</div>
+    <div class="cgm-ft">นับจำนวนครั้งที่เยี่ยมของแต่ละรายไม่เกินเกณฑ์ตามกลุ่มพึ่งพิง · คำนวณจากรายชื่อผู้สูงอายุที่อยู่ในความดูแลปัจจุบัน${unassigned ? ' · ยังไม่ได้กำหนด CG ' + unassigned + ' ราย (ไม่ถูกนับ)' : ''}</div>`;
+}
+function cgMonthCard() { return `<div class="card c12 cgm" id="cgMonth">${cgMonthInner()}</div>`; }
+function refreshCgMonth() { const el = $('cgMonth'); if (el) el.innerHTML = cgMonthInner(); }
+function setCgMonth(v) { dashCgMonth = v; refreshCgMonth(); }
+function setCgSort(v) { dashCgSort = v; refreshCgMonth(); }
+
 function pDash() {
   const fy = dashFY || curFY(), [f0, f1] = fyRange(fy), t = today(), ym = t.slice(0, 7);
   const D = derived(), elders = list(S.elders).filter(isActive), mv = monthVisits(D, ym);
@@ -766,9 +884,9 @@ function pDash() {
       <div class="card c4"><h3>เกณฑ์การเยี่ยมผู้ป่วยระยะยาว (LTC)</h3><button class="ltc-thumb" onclick="showLtc()" aria-label="ดูภาพเกณฑ์การเยี่ยมขนาดเต็ม"><img src="${LTC_IMG}" alt="ภาพเกณฑ์การเยี่ยมผู้ป่วยระยะยาว (LTC)"><span>🔍 คลิกเพื่อดูภาพขนาดเต็ม</span></button></div>
       <div class="card c8"><h3>จำนวนการเยี่ยมรายเดือน<small>ปีงบประมาณ ${fy + 543}</small></h3>${colChart(monthly, ym)}</div>
       <div class="card c4"><h3>นัดเยี่ยมใน 7 วัน / เลยกำหนด</h3>${appts.length ? `<ul class="ml">${appts.slice(0, 8).map(a => { const dd = daysBetween(t, a.d); return `<li><a href="#" onclick="showElder('${a.e.id}');return false">${esc(fullName(a.e))}</a><span class="badge ${dd < 0 ? 'b-g3' : 'b-p'}">${dd < 0 ? 'เลย ' + -dd + ' วัน' : dd === 0 ? 'วันนี้' : thDate(a.d)}</span></li>`; }).join('')}</ul>` : '<div class="empty">ไม่มีรายการนัด</div>'}</div>
-      <div class="card c4"><h3>ผลงานการเยี่ยมของ CM<small>ปีงบ ${fy + 543}</small></h3>${hBars(tally(vFY, v => v.cmId, id => nmCm(id)), '')}</div>
-      <div class="card c4"><h3>ผลงานการเยี่ยมของ CG<small>ปีงบ ${fy + 543}</small></h3>${hBars(tally(vFY, v => v.cgId, id => nmCg(id)), '')}</div>
-      <div class="card c4"><h3>การเยี่ยมแยกตามหมู่บ้าน<small>ปีงบ ${fy + 543}</small></h3>${hBars(tally(vFY, v => S.elders[v.elderId] && S.elders[v.elderId].moo, m => 'หมู่ ' + m, 10))}</div>
+      <div class="card c6"><h3>ผลงานการเยี่ยมของ CM<small>ปีงบ ${fy + 543}</small></h3>${hBars(tally(vFY, v => v.cmId, id => nmCm(id)), '')}</div>
+      <div class="card c6"><h3>การเยี่ยมแยกตามหมู่บ้าน<small>ปีงบ ${fy + 543}</small></h3>${hBars(tally(vFY, v => S.elders[v.elderId] && S.elders[v.elderId].moo, m => 'หมู่ ' + m, 10))}</div>
+      ${cgMonthCard()}
       <div class="card c6"><h3>ผู้สูงอายุที่ยังเยี่ยมไม่ครบเกณฑ์เดือนนี้</h3>${need.length ? `<div class="tw"><table><thead><tr><th>ชื่อ</th><th>หมู่</th><th>กลุ่มพึ่งพิง</th><th>เยี่ยมแล้ว/เกณฑ์</th></tr></thead><tbody>${need.slice(0, 10).map(e => `<tr><td><a href="#" onclick="showElder('${e.id}');return false">${esc(fullName(e))}</a></td><td>${esc(e.moo || '-')}</td><td>${depBadge(e)}</td><td>${quotaBadge(e, mv[e.id] || 0)}</td></tr>`).join('')}</tbody></table></div>${need.length > 10 ? `<div class="mu sm mt2">และอีก ${need.length - 10} ราย — ดูทั้งหมดที่หน้ารายงาน "การเยี่ยมตามเกณฑ์รายเดือน"</div>` : ''}` : `<div class="empty">${qN ? 'ทุกรายเยี่ยมครบตามเกณฑ์เดือนนี้แล้ว 👍' : 'ยังไม่มีผู้สูงอายุที่ระบุ TAI จึงยังไม่มีเกณฑ์การเยี่ยม'}</div>`}</div>
       <div class="card c6"><h3>การเยี่ยมล่าสุด</h3>${D.vs.length ? `<ul class="ml">${D.vs.slice(-8).reverse().map(v => `<li><span><a href="#" onclick="showVisit('${v.id}');return false">${esc(elderName(v.elderId))}</a><br><span class="mu sm">${thDate(v.date)} · CM ${esc(nmCm(v.cmId))} · CG ${esc(nmCg(v.cgId))}</span></span>${adlBadge(v.adl)}</li>`).join('')}</ul>` : '<div class="empty">ยังไม่มีการบันทึกเยี่ยม</div>'}</div>
       <div class="card c12"><h3>กิจกรรมการดูแลที่ให้<small>ปีงบ ${fy + 543}</small></h3>${hBars(tally(careTally, x => x, null, 11))}</div>
@@ -1141,7 +1259,7 @@ function elderTable() {
   const rows = filteredElders(), D = derived(), mv = monthVisits(D, today().slice(0, 7));
   $('elderArea').innerHTML = rows.length ? `<div class="tw"><table><thead><tr><th>ชื่อ-สกุล</th><th class="n">อายุ</th><th>หมู่</th><th>ADL</th><th>กลุ่มพึ่งพิง</th><th>เยี่ยมเดือนนี้</th><th>CM / CG</th><th>เยี่ยมล่าสุด</th><th></th></tr></thead><tbody>${rows.map(({ e }) => {
     const lv = D.last[e.id];
-    return `<tr><td><div class="row" style="flex-wrap:nowrap;gap:10px">${e.photo ? `<img class="avatar" src="${esc(e.photo)}" alt="">` : `<span class="avatar">${esc((e.fname || '?')[0])}</span>`}<div><b>${esc(fullName(e))}</b>${(e.status || 'active') !== 'active' ? ` <span class="badge b-n">${ESTATUS[e.status]}</span>` : ''}<div class="mu sm">${esc((e.diseases || []).slice(0, 3).join(', '))}</div></div></div></td><td class="n">${e.birthdate ? age(e.birthdate) : '-'}</td><td>${esc(e.moo || '-')}</td><td>${adlBadge(D.adlOf(e))}</td><td>${depBadge(e)}</td><td>${quotaBadge(e, mv[e.id] || 0)}</td><td class="sm">${esc(nmCm(e.cmId))}<br><span class="mu">${esc(nmCg(e.cgId))}</span></td><td class="sm">${lv ? thDate(lv.date) : '<span class="mu">ยังไม่เคย</span>'}</td><td class="n" style="white-space:nowrap"><button class="btn btn-o btn-s" onclick="showElder('${e.id}')">ดู</button> ${canEdit() ? `<button class="btn btn-o btn-s" onclick="elderForm('${e.id}')">แก้ไข</button>` : ''}</td></tr>`;
+    return `<tr><td><div class="row" style="flex-wrap:nowrap;gap:10px">${e.photo ? `<img class="avatar" src="${esc(e.photo)}" alt="">` : `<span class="avatar">${esc((e.fname || '?')[0])}</span>`}<div><b>${esc(fullName(e))}</b>${(e.status || 'active') !== 'active' ? ` <span class="badge b-n">${ESTATUS[e.status]}</span>` : ''}<div class="mu sm">${esc((e.diseases || []).slice(0, 3).join(', '))}</div></div></div></td><td class="n">${e.birthdate ? age(e.birthdate) : '-'}</td><td>${esc(e.moo || '-')}</td><td>${adlBadge(D.adlOf(e))}</td><td>${depBadge(e)}</td><td>${quotaBadge(e, mv[e.id] || 0)}</td><td class="sm">${esc(nmCm(e.cmId))}<br><span class="mu">${esc(nmCg(e.cgId))}</span></td><td class="sm">${lv ? thDate(lv.date) : '<span class="mu">ยังไม่เคย</span>'}</td><td class="n" style="white-space:nowrap"><button class="btn btn-o btn-s" onclick="showElder('${e.id}')">ดู</button> ${canEdit() ? `<button class="btn btn-o btn-s" onclick="elderForm('${e.id}')">แก้ไข</button>` : ''}${isAdmin() ? ` <button class="btn btn-d btn-s" onclick="elderDel('${e.id}')">ลบ</button>` : ''}</td></tr>`;
   }).join('')}</tbody></table></div><div class="mu sm mt2">ทั้งหมด ${rows.length} ราย</div>` : '<div class="card empty">ไม่พบข้อมูลผู้สูงอายุตามเงื่อนไขที่เลือก</div>';
 }
 let elderPhotoFile = null;
@@ -1206,6 +1324,7 @@ function showElder(id) {
     `${isAdmin() ? `<button class="btn btn-d" onclick="elderDel('${id}')">ลบ</button>` : ''}${canEdit() ? `<button class="btn btn-o" onclick="elderForm('${id}')">แก้ไข</button><button class="btn" onclick="newVisit('${id}')">🩺 บันทึกเยี่ยม</button>` : ''}<button class="btn btn-o" onclick="closeModal()">ปิด</button>`, true);
 }
 async function elderDel(id) {
+  if (!isAdmin()) return toast('เฉพาะผู้ดูแลระบบ (admin) เท่านั้นที่ลบข้อมูลผู้สูงอายุได้', 'err');
   const n = list(S.visits).filter(v => v.elderId === id).length;
   if (!await ask(n ? `ผู้สูงอายุรายนี้มีบันทึกการเยี่ยม ${n} ครั้ง การลบจะทำให้ประวัติแสดงชื่อ "(ถูกลบ)" แนะนำให้เปลี่ยนสถานะเป็นย้ายออก/เสียชีวิตแทน ลบต่อหรือไม่?` : 'ลบผู้สูงอายุรายนี้ถาวร?', 'ลบ')) return;
   try { await dbDel('elders', id); closeModal(); toast('ลบแล้ว'); } catch (e) { toast('ลบไม่สำเร็จ: ' + e.message, 'err'); }
