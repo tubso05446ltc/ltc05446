@@ -259,6 +259,9 @@ const VTYPES = { plan: 'เยี่ยมตามแผน', follow: 'เย�
 const DISEASES = ['ความดันโลหิตสูง','เบาหวาน','หลอดเลือดสมอง (Stroke)','โรคหัวใจ','โรคไตเรื้อรัง','COPD/โรคปอด','สมองเสื่อม/อัลไซเมอร์','พาร์กินสัน','มะเร็ง','ข้อเสื่อม/กระดูกหัก','ซึมเศร้า'];
 const PROBLEMS = ['แผลกดทับ','สับสน/สมองเสื่อม','พลัดตกหกล้ม','ข้อติดแข็ง','สำลัก/กลืนลำบาก','ซึมเศร้า/เครียด','ผู้ดูแลเหนื่อยล้า','ขาดยา/กินยาไม่ต่อเนื่อง','ขาดอุปกรณ์','สภาพบ้านไม่เหมาะสม','ท้องผูก/ปัสสาวะติดขัด'];
 const CARE = ['ตรวจวัดสัญญาณชีพ','ทำความสะอาดร่างกาย','ดูแลแผล/แผลกดทับ','พลิกตะแคงตัว/จัดท่า','กายภาพบำบัด/ฝึกขยับ','ให้อาหารทางสายยาง','ทบทวนการใช้ยา','ให้คำแนะนำญาติ/CG','ประเมินสุขภาพจิต','ประเมินสภาพบ้าน','ให้ยืมอุปกรณ์'];
+const TAI_OPTS = ['B3', 'C2', 'C3', 'C4', 'I1', 'I2', 'I3'];
+const taiGroup = t => ({ B3: 'กลุ่มที่ 1 (B3)', C2: 'กลุ่มที่ 2 (C2-C4)', C3: 'กลุ่มที่ 2 (C2-C4)', C4: 'กลุ่มที่ 2 (C2-C4)', I3: 'กลุ่มที่ 3 (I3)', I1: 'กลุ่มที่ 4 (I1,I2)', I2: 'กลุ่มที่ 4 (I1,I2)' })[t] || '';
+function taiChange() { const g = $('e_depgrp'); if (g) g.value = taiGroup($('e_tai').value); }
 const ESTATUS = { active: 'อยู่ในความดูแล', moved: 'ย้ายออก', dead: 'เสียชีวิต', recovered: 'พ้นภาวะพึ่งพิง' };
 /* Barthel Index (ADL) ฉบับกระทรวงสาธารณสุข คะแนนเต็ม 20 */
 const BARTHEL = [
@@ -954,6 +957,8 @@ function elderForm(id) {
     ${field('บ้านเลขที่', inp('e_house', e.house || ''))}${field('หมู่ที่', inp('e_moo', e.moo || '', 'text', 'list="mooList2"') + `<datalist id="mooList2">${mooList().map(m => `<option value="${esc(m)}">`).join('')}</datalist>`, '', true)}${field('ตำบล/ที่อยู่เพิ่มเติม', inp('e_addr', e.addr || ''))}
     ${field('CM ที่รับผิดชอบ', `<select id="e_cm">${cmOpts(e.cmId)}</select>`)}${field('CG ที่ดูแล', `<select id="e_cg">${cgOpts(e.cgId)}</select>`)}
     ${field('คะแนน ADL เริ่มต้น (0-20)', inp('e_adl', e.adl ?? '', 'number', 'min="0" max="20"'))}
+    ${field('ข้อมูล TAI', `<select id="e_tai" onchange="taiChange()">${opts(TAI_OPTS.map(t => [t, t]), e.tai || '', '- ไม่ระบุ -')}</select>`)}
+    ${field('ข้อมูล กลุ่มผู้มีภาวะพึ่งพิง (กรอกอัตโนมัติจาก TAI)', inp('e_depgrp', taiGroup(e.tai), 'text', 'readonly tabindex="-1" style="background:#f1f5f3" placeholder="เลือก TAI เพื่อแสดงกลุ่ม"'), 'span2')}
   </div>
   <div class="sec"><h4>โรคประจำตัว</h4>${chips('e_dis', DISEASES, e.diseases || [])}<div class="mt2">${field('โรค/ข้อมูลอื่น ๆ', inp('e_disx', e.diseaseOther || ''))}</div></div>
   <div class="sec"><h4>ญาติ/ผู้ดูแลหลักในครอบครัว</h4><div class="grid g3">${field('ชื่อ', inp('e_kin', e.kin || ''))}${field('ความสัมพันธ์', inp('e_kinrel', e.kinRel || ''))}${field('โทรศัพท์', inp('e_kinph', e.kinPhone || '', 'tel'))}</div></div>
@@ -971,7 +976,7 @@ async function elderSave(id) {
   try {
     let photo = id && S.elders[id] ? S.elders[id].photo || '' : '';
     if (elderPhotoFile) photo = await uploadImg(elderPhotoFile);
-    await dbSave('elders', id || null, { prefix: val('e_prefix'), fname, lname: val('e_lname'), cid, hn: val('e_hn'), sex: val('e_sex'), birthdate: val('e_bd'), phone: val('e_phone'), enrolled: val('e_enr'), house: val('e_house'), moo, addr: val('e_addr'), cmId: val('e_cm'), cgId: val('e_cg'), adl, diseases: chk('e_dis'), diseaseOther: val('e_disx'), kin: val('e_kin'), kinRel: val('e_kinrel'), kinPhone: val('e_kinph'), status: val('e_status'), photo, lat: val('e_lat'), lng: val('e_lng'), note: val('e_note') });
+    await dbSave('elders', id || null, { prefix: val('e_prefix'), fname, lname: val('e_lname'), cid, hn: val('e_hn'), sex: val('e_sex'), birthdate: val('e_bd'), phone: val('e_phone'), enrolled: val('e_enr'), house: val('e_house'), moo, addr: val('e_addr'), cmId: val('e_cm'), cgId: val('e_cg'), adl, tai: val('e_tai'), depGroup: taiGroup(val('e_tai')), diseases: chk('e_dis'), diseaseOther: val('e_disx'), kin: val('e_kin'), kinRel: val('e_kinrel'), kinPhone: val('e_kinph'), status: val('e_status'), photo, lat: val('e_lat'), lng: val('e_lng'), note: val('e_note') });
     closeModal(); toast('บันทึกข้อมูลผู้สูงอายุแล้ว');
   } catch (e) { toast('บันทึกไม่สำเร็จ: ' + e.message, 'err'); btn.disabled = false; btn.textContent = 'บันทึก'; }
 }
@@ -989,7 +994,7 @@ function showElder(id) {
   const vs = D.vs.filter(v => v.elderId === id).reverse(), adlPts = D.vs.filter(v => v.elderId === id && v.adl !== null && v.adl !== undefined).map(v => ({ s: v.adl, d: v.date }));
   const ms = list(S.txns).filter(t => t.kind === 'loan' && !t.returned && t.elderId === id);
   openModal(esc(fullName(e)), `<div class="row" style="flex-wrap:nowrap;align-items:flex-start">${e.photo ? `<a href="${esc(e.photo)}" target="_blank" rel="noopener"><img class="avatar" style="width:84px;height:84px;border-radius:12px" src="${esc(e.photo)}" alt=""></a>` : ''}
-    <dl class="dl grow"><dt>ระดับ ADL</dt><dd>${adlBadge(D.adlOf(e))}</dd><dt>อายุ / เพศ</dt><dd>${e.birthdate ? age(e.birthdate) + ' ปี (เกิด ' + thDate(e.birthdate) + ')' : '-'} ${e.sex === 'ช' ? '· ชาย' : e.sex === 'ญ' ? '· หญิง' : ''}</dd>
+    <dl class="dl grow"><dt>ระดับ ADL</dt><dd>${adlBadge(D.adlOf(e))}</dd><dt>TAI / กลุ่มพึ่งพิง</dt><dd>${e.tai ? esc(e.tai) + ' · ' + esc(taiGroup(e.tai)) : '-'}</dd><dt>อายุ / เพศ</dt><dd>${e.birthdate ? age(e.birthdate) + ' ปี (เกิด ' + thDate(e.birthdate) + ')' : '-'} ${e.sex === 'ช' ? '· ชาย' : e.sex === 'ญ' ? '· หญิง' : ''}</dd>
     <dt>ที่อยู่</dt><dd>${esc([e.house, e.moo ? 'หมู่ ' + e.moo : '', e.addr].filter(Boolean).join(' '))} ${e.lat ? `<a href="${mapUrl(e.lat, e.lng)}" target="_blank" rel="noopener">แผนที่</a>` : ''}</dd>
     <dt>โทรศัพท์</dt><dd>${esc(e.phone || '-')}</dd><dt>เลขบัตร / HN</dt><dd>${esc(e.cid || '-')} / ${esc(e.hn || '-')}</dd>
     <dt>โรคประจำตัว</dt><dd>${esc([...(e.diseases || []), e.diseaseOther].filter(Boolean).join(', ') || '-')}</dd>
@@ -1117,9 +1122,9 @@ function buildReport() {
     r.sum = [['อายุ', e.birthdate ? age(e.birthdate) + ' ปี' : '-'], ['ที่อยู่', [e.house, e.moo && 'หมู่ ' + e.moo].filter(Boolean).join(' ') || '-'], ['ADL ปัจจุบัน', adlGroup(D.adlOf(e)).label], ['โรคประจำตัว', (e.diseases || []).join(', ') || '-'], ['CM / CG', nmCm(e.cmId) + ' / ' + nmCg(e.cgId)], ['จำนวนการเยี่ยม', vs.length + ' ครั้ง']];
   } else if (RP.type === 'registry') {
     r.landscape = true; r.sub = 'ณ วันที่ ' + thDate(t) + (filt ? ' · ' + filt : '') + (RP.status ? ' · ' + ESTATUS[RP.status] : '');
-    r.headers = ['ชื่อ-สกุล', 'อายุ', 'บ้านเลขที่', 'หมู่', 'ADL', 'กลุ่ม', 'โรคประจำตัว', 'CG', 'CM', 'เยี่ยมล่าสุด', 'โทรศัพท์'];
+    r.headers = ['ชื่อ-สกุล', 'อายุ', 'บ้านเลขที่', 'หมู่', 'ADL', 'กลุ่ม', 'TAI', 'กลุ่มพึ่งพิง', 'โรคประจำตัว', 'CG', 'CM', 'เยี่ยมล่าสุด', 'โทรศัพท์'];
     const es = list(S.elders).filter(e => (!RP.status || (e.status || 'active') === RP.status) && (!RP.moo || String(e.moo) === RP.moo) && (!RP.cm || e.cmId === RP.cm) && (!RP.cg || e.cgId === RP.cg) && (RP.grp === '' || String(adlGroup(D.adlOf(e)).g) === RP.grp)).sort((a, b) => String(a.moo).localeCompare(String(b.moo), 'th', { numeric: true }) || cmp(fullName(a), fullName(b)));
-    es.forEach(e => { const a = D.adlOf(e); r.rows.push([fullName(e), e.birthdate ? age(e.birthdate) : '', e.house || '', e.moo || '', a ?? '', adlGroup(a).label, [...(e.diseases || []), e.diseaseOther].filter(Boolean).join(', '), nmCg(e.cgId), nmCm(e.cmId), D.last[e.id] ? thDate(D.last[e.id].date) : '-', e.phone || '']); });
+    es.forEach(e => { const a = D.adlOf(e); r.rows.push([fullName(e), e.birthdate ? age(e.birthdate) : '', e.house || '', e.moo || '', a ?? '', adlGroup(a).label, e.tai || '', taiGroup(e.tai), [...(e.diseases || []), e.diseaseOther].filter(Boolean).join(', '), nmCg(e.cgId), nmCm(e.cmId), D.last[e.id] ? thDate(D.last[e.id].date) : '-', e.phone || '']); });
     const gc = g => es.filter(e => adlGroup(D.adlOf(e)).g === g).length; r.sum = [['ทั้งหมด', es.length + ' ราย'], ['ติดสังคม', gc(1)], ['ติดบ้าน', gc(2)], ['ติดเตียง', gc(3)], ['ยังไม่ประเมิน', gc(0)]];
   } else if (RP.type === 'perf') {
     r.sub = range; r.headers = ['บทบาท', 'ชื่อ', 'ผู้สูงอายุที่รับผิดชอบ (ราย)', 'จำนวนครั้งที่เยี่ยม', 'จำนวนรายที่ได้เยี่ยม', 'ความครอบคลุม (%)'];
