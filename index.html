@@ -229,6 +229,7 @@ label.f>span i{color:var(--g3);font-style:normal}
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 
 <script>
 /* =====================================================================
@@ -752,11 +753,11 @@ function pTeam() {
   const eld = list(S.elders).filter(isActive), key = isCM ? 'cmId' : 'cgId';
   const vf = D.vs.filter(v => v.date >= f0 && v.date <= f1);
   return `<div class="tabs"><button class="${isCM ? 'on' : ''}" onclick="teamTab='cm';renderPage()">Care Manager (CM) · ${list(S.cms).length}</button><button class="${!isCM ? 'on' : ''}" onclick="teamTab='cg';renderPage()">Caregiver (CG) · ${list(S.cgs).length}</button></div>
-    <div class="row sp" style="margin-bottom:12px"><div class="mu sm">${isCM ? 'CM = ผู้จัดการระบบการดูแลระยะยาว (Care Manager)' : 'CG = ผู้ดูแลผู้สูงอายุ (Caregiver)'} · จำนวนเยี่ยมนับปีงบ ${curFY() + 543}</div>${canEdit() ? `<button class="btn" onclick="teamForm('${teamTab}')">＋ เพิ่ม ${isCM ? 'CM' : 'CG'}</button>` : ''}</div>
-    ${items.length ? `<div class="tw"><table><thead><tr><th>ชื่อ-สกุล</th><th>โทรศัพท์</th><th>${isCM ? 'ตำแหน่ง' : 'หมู่บ้าน'}</th>${isCM ? '' : '<th>อบรม</th>'}<th class="n">ผู้สูงอายุที่ดูแล</th><th class="n">เยี่ยม (ครั้ง)</th><th>สถานะ</th><th></th></tr></thead><tbody>${items.map(x => `<tr><td><b>${esc(pName(x))}</b></td><td>${esc(x.phone || '-')}</td><td>${esc(isCM ? x.position || '-' : x.moo ? 'หมู่ ' + x.moo : '-')}</td>${isCM ? '' : `<td>${x.trained ? '<span class="badge b-g1">ผ่านอบรม</span>' : '<span class="badge b-n">-</span>'}</td>`}<td class="n">${eld.filter(e => e[key] === x.id).length}</td><td class="n">${vf.filter(v => v[key] === x.id).length}</td><td>${isActive(x) ? '<span class="badge b-g1">ปฏิบัติงาน</span>' : '<span class="badge b-n">ไม่ได้ปฏิบัติงาน</span>'}</td><td class="n" style="white-space:nowrap">${canEdit() ? `<button class="btn btn-o btn-s" onclick="teamForm('${teamTab}','${x.id}')">แก้ไข</button> ` : ''}${isAdmin() ? `<button class="btn btn-d btn-s" onclick="teamDel('${col}','${x.id}')">ลบ</button>` : ''}</td></tr>`).join('')}</tbody></table></div>` : `<div class="card empty">ยังไม่มีข้อมูล ${isCM ? 'CM' : 'CG'}</div>`}`;
+    <div class="row sp" style="margin-bottom:12px"><div class="mu sm">${isCM ? 'CM = ผู้จัดการระบบการดูแลระยะยาว (Care Manager)' : 'CG = ผู้ดูแลผู้สูงอายุ (Caregiver)'} ${isCM ? ' · จำนวนเยี่ยมนับปีงบ ' + (curFY() + 543) : ''}</div><div class="row">${isCM ? '' : cgImportBtn()}${canEdit() ? `<button class="btn" onclick="teamForm('${teamTab}')">＋ เพิ่ม ${isCM ? 'CM' : 'CG'}</button>` : ''}</div></div>
+    ${!isCM ? cgTable(items, eld) : items.length ? `<div class="tw"><table><thead><tr><th>ชื่อ-สกุล</th><th>โทรศัพท์</th><th>${isCM ? 'ตำแหน่ง' : 'หมู่บ้าน'}</th>${isCM ? '' : '<th>อบรม</th>'}<th class="n">ผู้สูงอายุที่ดูแล</th><th class="n">เยี่ยม (ครั้ง)</th><th>สถานะ</th><th></th></tr></thead><tbody>${items.map(x => `<tr><td><b>${esc(pName(x))}</b></td><td>${esc(x.phone || '-')}</td><td>${esc(isCM ? x.position || '-' : x.moo ? 'หมู่ ' + x.moo : '-')}</td>${isCM ? '' : `<td>${x.trained ? '<span class="badge b-g1">ผ่านอบรม</span>' : '<span class="badge b-n">-</span>'}</td>`}<td class="n">${eld.filter(e => e[key] === x.id).length}</td><td class="n">${vf.filter(v => v[key] === x.id).length}</td><td>${isActive(x) ? '<span class="badge b-g1">ปฏิบัติงาน</span>' : '<span class="badge b-n">ไม่ได้ปฏิบัติงาน</span>'}</td><td class="n" style="white-space:nowrap">${canEdit() ? `<button class="btn btn-o btn-s" onclick="teamForm('${teamTab}','${x.id}')">แก้ไข</button> ` : ''}${isAdmin() ? `<button class="btn btn-d btn-s" onclick="teamDel('${col}','${x.id}')">ลบ</button>` : ''}</td></tr>`).join('')}</tbody></table></div>` : `<div class="card empty">ยังไม่มีข้อมูล ${isCM ? 'CM' : 'CG'}</div>`}`;
 }
 function teamForm(kind, id) {
-  if (!canEdit()) return; const isCM = kind === 'cm', x = id ? S[isCM ? 'cms' : 'cgs'][id] : {};
+  if (!canEdit()) return; if (kind === 'cg') return cgForm(id); const isCM = kind === 'cm', x = id ? S[isCM ? 'cms' : 'cgs'][id] : {};
   openModal((id ? 'แก้ไข ' : 'เพิ่ม ') + (isCM ? 'CM' : 'CG'), `<div class="grid g2">
     ${field('คำนำหน้า', `<select id="t_prefix">${opts(['นาย', 'นาง', 'นางสาว', 'น.ส.', ''].map(a => [a, a || '-']), x.prefix || '')}</select>`)}
     ${field('ชื่อ-สกุล', inp('t_name', x.name || ''), '', true)}
@@ -772,6 +773,119 @@ async function teamSave(kind, id) {
   const data = { prefix: val('t_prefix'), name, phone: val('t_phone'), status: val('t_status'), note: val('t_note') };
   if (isCM) data.position = val('t_pos'); else { data.moo = val('t_moo'); data.trained = val('t_trained') === '1'; }
   try { await dbSave(isCM ? 'cms' : 'cgs', id || null, data); closeModal(); toast('บันทึกแล้ว'); } catch (e) { toast('บันทึกไม่สำเร็จ: ' + e.message, 'err'); }
+}
+
+/* ---------- CG: แบบฟอร์มตามไฟล์ CG.xlsx ---------- */
+const NAME_PRE = /^(นางสาว|น\.ส\.|ด\.ญ\.|ด\.ช\.|นาง|นาย|พระ)/;
+const cgKey = s => String(s || '').replace(/\s+/g, '').replace(NAME_PRE, '').replace(/บุตรวร/g, 'บุตวร');
+const splitPrefix = n => { n = String(n || '').replace(/\s+/g, ' ').trim(); const m = n.match(NAME_PRE), p = m ? m[1] : ''; return [p, n.slice(p.length).trim()]; };
+const maskId = s => { s = String(s || ''); return s.length > 4 ? '•'.repeat(s.length - 4) + s.slice(-4) : s; };
+const cidFmt = s => /^\d{13}$/.test(s) ? s.replace(/^(\d)(\d{4})(\d{5})(\d{2})(\d)$/, '$1-$2-$3-$4-$5') : s;
+function cgImportBtn() {
+  return isAdmin() ? '<button class="btn btn-o" onclick="$(\'cgFile\').click()">⬆ นำเข้า CG จากไฟล์ Excel</button><input type="file" id="cgFile" accept=".xlsx,.xls" class="hide" onchange="cgFileChosen(this)">' : '';
+}
+function cgTable(items, eld) {
+  if (!items.length) return '<div class="card empty">ยังไม่มีข้อมูล CG</div>';
+  const priv = ME.role === 'viewer', mk = s => !s ? '-' : esc(priv ? maskId(s) : s);
+  return `<div class="tw"><table><thead><tr><th class="n">ที่</th><th>CG</th><th class="n">จำนวน Pt ที่ดูแล</th><th>บ้านเลขที่</th><th>หมู่ที่</th><th>ตำบล</th><th>อำเภอ จังหวัด</th><th>เลขบัตรประชาชน</th><th>วันออกบัตร</th><th>วันหมดอายุ</th><th>เลขบัญชี ธกส</th><th>สาขา</th><th>ปีที่อบรม</th><th>สถานะ</th><th></th></tr></thead><tbody>${items.map((x, i) => `<tr><td class="n">${i + 1}</td><td><b>${esc(pName(x))}</b>${x.phone ? `<div class="mu sm">${esc(x.phone)}</div>` : ''}</td><td class="n">${eld.filter(e => e.cgId === x.id).length}</td><td>${esc(x.house || '-')}</td><td>${esc(x.moo || '-')}</td><td>${esc(x.tambon || '-')}</td><td>${esc(x.district || '-')}</td><td style="white-space:nowrap">${x.cid ? esc(priv ? maskId(x.cid) : cidFmt(x.cid)) : '-'}</td><td style="white-space:nowrap">${x.idIssue ? thDate(x.idIssue) : '-'}</td><td style="white-space:nowrap">${x.idLifetime ? 'ตลอดชีพ' : x.idExpire ? thDate(x.idExpire) : '-'}</td><td style="white-space:nowrap">${mk(x.bank)}</td><td>${esc(x.branch || '-')}</td><td>${esc(x.trainYear || '-')}</td><td>${isActive(x) ? '<span class="badge b-g1">ปฏิบัติงาน</span>' : '<span class="badge b-n">ไม่ได้ปฏิบัติงาน</span>'}</td><td class="n" style="white-space:nowrap">${canEdit() ? `<button class="btn btn-o btn-s" onclick="teamForm('cg','${x.id}')">แก้ไข</button> ` : ''}${isAdmin() ? `<button class="btn btn-d btn-s" onclick="teamDel('cgs','${x.id}')">ลบ</button>` : ''}</td></tr>`).join('')}</tbody></table></div>`;
+}
+function cgForm(id) {
+  if (!canEdit()) return; const x = id ? S.cgs[id] : {}, n = id ? list(S.elders).filter(e => e.cgId === id && isActive(e)).length : 0;
+  openModal(id ? 'แก้ไข CG' : 'เพิ่ม CG', `${id ? `<div class="infobox" style="margin:0 0 12px">จำนวน Pt ที่ดูแล: <b>${n}</b> ราย (นับจากทะเบียนผู้สูงอายุอัตโนมัติ)</div>` : ''}
+    <div class="grid g3">
+      ${field('คำนำหน้า', `<select id="c_prefix">${opts(['นาย', 'นาง', 'นางสาว', 'น.ส.', ''].map(a => [a, a || '-']), x.prefix || '')}</select>`)}
+      ${field('CG (ชื่อ-สกุล)', inp('c_name', x.name || ''), 'span2', true)}
+      ${field('โทรศัพท์', inp('c_phone', x.phone || '', 'tel', 'inputmode="tel"'))}
+      ${field('ปีที่อบรม (พ.ศ.)', inp('c_train', x.trainYear || '', 'text', 'inputmode="numeric" maxlength="4" placeholder="เช่น 2568"'))}
+      ${field('สถานะ', `<select id="c_status">${opts([['active', 'ปฏิบัติงาน'], ['inactive', 'ไม่ได้ปฏิบัติงาน']], x.status || 'active')}</select>`)}
+    </div>
+    <div class="sec"><h4>ที่อยู่</h4><div class="grid g4">
+      ${field('บ้านเลขที่', inp('c_house', x.house || ''))}${field('หมู่ที่', inp('c_moo', x.moo || ''))}${field('ตำบล', inp('c_tambon', x.tambon || ''))}${field('อำเภอ จังหวัด', inp('c_district', x.district || '', 'text', 'placeholder="อ.เมืองสกลนคร จ.สกลนคร"'))}
+    </div></div>
+    <div class="sec"><h4>บัตรประจำตัวประชาชน</h4><div class="grid g4">
+      ${field('เลขบัตรประชาชน (13 หลัก)', inp('c_cid', x.cid || '', 'text', 'inputmode="numeric" maxlength="17"'), 'span2')}
+      ${field('วันออกบัตร', inp('c_iss', x.idIssue || '', 'date'))}
+      ${field('วันหมดอายุ', inp('c_exp', x.idExpire || '', 'date', x.idLifetime ? 'disabled' : ''))}
+      <label class="f" style="display:flex;gap:8px;align-items:center"><input type="checkbox" id="c_life" ${x.idLifetime ? 'checked' : ''} onchange="$('c_exp').disabled=this.checked"><span style="margin:0">บัตรตลอดชีพ</span></label>
+    </div></div>
+    <div class="sec"><h4>บัญชีธนาคาร</h4><div class="grid g2">${field('เลขบัญชี ธกส', inp('c_bank', x.bank || '', 'text', 'inputmode="numeric"'))}${field('สาขา', inp('c_branch', x.branch || ''))}</div></div>
+    <div class="mt2">${field('หมายเหตุ', inp('c_note', x.note || ''))}</div>`,
+    `<button class="btn btn-o" onclick="closeModal()">ยกเลิก</button><button class="btn" onclick="cgSave('${id || ''}')">บันทึก</button>`, true);
+}
+async function cgSave(id) {
+  const name = val('c_name'); if (!name) return toast('กรุณากรอกชื่อ-สกุล', 'err');
+  const cid = val('c_cid').replace(/[\s-]/g, ''); if (cid && !/^\d{13}$/.test(cid)) return toast('เลขบัตรประชาชนต้องเป็นตัวเลข 13 หลัก', 'err');
+  const life = $('c_life').checked, iss = val('c_iss'), exp = life ? '' : val('c_exp'), ty = val('c_train');
+  if (iss && exp && exp < iss) return toast('วันหมดอายุบัตรต้องไม่ก่อนวันออกบัตร', 'err');
+  if (ty && !/^\d{4}$/.test(ty)) return toast('ปีที่อบรมให้กรอกเป็น พ.ศ. 4 หลัก เช่น 2568', 'err');
+  const data = { prefix: val('c_prefix'), name, phone: val('c_phone'), trainYear: ty, trained: !!ty, status: val('c_status'), house: val('c_house'), moo: val('c_moo'), tambon: val('c_tambon'), district: val('c_district'), cid, idIssue: iss, idExpire: exp, idLifetime: life, bank: val('c_bank'), branch: val('c_branch'), note: val('c_note') };
+  try { await dbSave('cgs', id || null, data); closeModal(); toast('บันทึกแล้ว'); } catch (e) { toast('บันทึกไม่สำเร็จ: ' + e.message, 'err'); }
+}
+/* นำเข้าจากไฟล์ Excel (อ่านในเบราว์เซอร์ ไม่มีข้อมูลส่วนบุคคลฝังอยู่ในโค้ด) */
+function parseThaiDate(v) {
+  if (v instanceof Date && !isNaN(v)) return { iso: new Date(v - v.getTimezoneOffset() * 60000).toISOString().slice(0, 10) };
+  const s = String(v ?? '').replace(/\s+/g, ' ').trim(); if (!s) return {};
+  if (s.includes('ตลอดชีพ')) return { life: true };
+  const m = s.match(/^(\d{1,2}) (\S+) (\d{4})$/), mi = m ? MONTHS_F.indexOf(m[2]) : -1;
+  if (m && mi >= 0) { let y = +m[3]; if (y > 2400) y -= 543; return { iso: y + '-' + String(mi + 1).padStart(2, '0') + '-' + String(+m[1]).padStart(2, '0') }; }
+  return { bad: s };
+}
+function cgParseRows(rows) {
+  const norm = v => String(v ?? '').replace(/\s+/g, ' ').trim();
+  const hi = rows.findIndex(r => r.some(c => norm(c) === 'CG') && r.some(c => norm(c) === 'เลขบัตรประชาชน'));
+  if (hi < 0) return null;
+  const H = {}; rows[hi].forEach((c, i) => { const k = norm(c); if (k && !(k in H)) H[k] = i; });
+  const g = (r, k) => k in H ? r[H[k]] : '';
+  const out = [];
+  rows.slice(hi + 1).forEach(r => {
+    const nm = norm(g(r, 'CG')); if (typeof g(r, 'ที่') !== 'number' || !nm) return;
+    const [p, name] = splitPrefix(nm), warns = [], iss = parseThaiDate(g(r, 'วันออกบัตร')), exp = parseThaiDate(g(r, 'วันหมดอายุ'));
+    const cid = String(g(r, 'เลขบัตรประชาชน') ?? '').replace(/\D/g, ''), st = norm(g(r, 'สถานะ'));
+    if (iss.bad) warns.push('อ่านวันออกบัตรไม่ได้: ' + iss.bad); if (exp.bad) warns.push('อ่านวันหมดอายุไม่ได้: ' + exp.bad);
+    if (cid && cid.length !== 13) warns.push('เลขบัตรไม่ครบ 13 หลัก'); if (!cid) warns.push('ไม่มีเลขบัตร');
+    if (iss.iso && exp.iso && exp.iso < iss.iso) warns.push('วันหมดอายุบัตรก่อนวันออกบัตร (' + thDate(exp.iso) + ') ตรวจสอบต้นฉบับ');
+    const bank = norm(g(r, 'เลขบัญชี ธกส')); if (!bank) warns.push('ไม่มีเลขบัญชี');
+    out.push({ p, name, house: norm(g(r, 'บ้านเลขที่')), moo: norm(g(r, 'หมู่ที่')), tambon: norm(g(r, 'ตำบล')), district: norm(g(r, 'อำเภอ จังหวัด')), cid, idIssue: iss.iso || '', idExpire: exp.iso || '', idLifetime: !!exp.life, bank, branch: norm(g(r, 'สาขา')), trainYear: norm(g(r, 'ปีที่อบรม')), status: /ไม่|ออก|พ้น|ลาออก/.test(st) ? 'inactive' : 'active', warns });
+  });
+  return out;
+}
+let CG_IMPORT = [];
+async function cgFileChosen(inputEl) {
+  const f = inputEl.files[0]; inputEl.value = ''; if (!f || !isAdmin()) return;
+  if (!window.XLSX) return toast('โหลดตัวอ่าน Excel ไม่สำเร็จ ตรวจสอบอินเทอร์เน็ตแล้วรีเฟรชหน้า', 'err');
+  try {
+    const wb = XLSX.read(await f.arrayBuffer(), { type: 'array', cellDates: true });
+    const recs = cgParseRows(XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]], { header: 1, raw: true, defval: '' }));
+    if (!recs) return toast('ไม่พบหัวตาราง "CG" และ "เลขบัตรประชาชน" ในชีตแรก', 'err');
+    if (!recs.length) return toast('ไม่พบแถวข้อมูล CG ในไฟล์', 'err');
+    const byKey = {}, dups = [], cnt = c => list(S.elders).filter(e => e.cgId === c.id).length;
+    list(S.cgs).forEach(c => { const k = cgKey(pName(c)); if (!byKey[k]) byKey[k] = c; else { const keep = cnt(c) > cnt(byKey[k]) ? c : byKey[k], drop = keep === c ? byKey[k] : c; byKey[k] = keep; dups.push(pName(drop) + ' (ผู้สูงอายุ ' + cnt(drop) + ' ราย)'); } });
+    CG_IMPORT = recs.map(rec => ({ rec, ex: byKey[cgKey(rec.p + rec.name)] || null }));
+    const nNew = CG_IMPORT.filter(x => !x.ex).length, nWarn = CG_IMPORT.filter(x => x.rec.warns.length).length;
+    openModal('ตรวจสอบก่อนนำเข้า CG', `<p style="margin-top:0">พบ CG ${recs.length} คน · เพิ่มใหม่ <b>${nNew}</b> · อัปเดตคนที่มีอยู่แล้ว <b>${recs.length - nNew}</b>${nWarn ? ` · มีข้อสังเกต <b>${nWarn}</b> คน` : ''}</p>
+      <div class="tw"><table><thead><tr><th>CG</th><th>ที่อยู่</th><th>เลขบัตร</th><th>บัญชี ธกส</th><th>อบรม</th><th>ดำเนินการ</th></tr></thead><tbody>${CG_IMPORT.map(({ rec, ex }) => `<tr><td><b>${esc(rec.p + rec.name)}</b>${rec.warns.length ? `<div class="sm" style="color:var(--g3)">⚠ ${esc(rec.warns.join(' · '))}</div>` : ''}</td><td class="sm">${esc([rec.house, rec.moo && 'หมู่ ' + rec.moo, rec.tambon].filter(Boolean).join(' '))}</td><td class="sm">${esc(maskId(rec.cid) || '-')}</td><td class="sm">${esc(maskId(rec.bank) || '-')}</td><td>${esc(rec.trainYear || '-')}</td><td>${ex ? '<span class="badge b-g2">อัปเดต</span>' : '<span class="badge b-g1">เพิ่มใหม่</span>'}</td></tr>`).join('')}</tbody></table></div>
+      <div class="mu sm mt2">คนที่มีอยู่แล้วจะถูกเติม/แก้เฉพาะช่องที่ไฟล์มีข้อมูล ช่องว่างในไฟล์จะไม่ลบข้อมูลเดิม</div>${dups.length ? `<div class="infobox">พบ CG ชื่อซ้ำในระบบ: ${esc(dups.join(', '))} — หลังนำเข้าให้ลบรายการซ้ำที่ไม่มีผู้สูงอายุ (ถ้ามีผู้สูงอายุผูกอยู่ ให้เปิดแก้ไขผู้สูงอายุเปลี่ยน CG ก่อน)</div>` : ''}`,
+      `<button class="btn btn-o" onclick="closeModal()">ยกเลิก</button><button class="btn" id="cgGo" onclick="cgImportRun()">นำเข้า ${recs.length} คน</button>`, true);
+  } catch (e) { toast('อ่านไฟล์ไม่สำเร็จ: ' + e.message, 'err'); }
+}
+function cgImportBuild(items, keyGen, now, user) {
+  const upd = {};
+  items.forEach(({ rec, ex }) => {
+    const f = { prefix: rec.p, name: rec.name, house: rec.house, moo: rec.moo, tambon: rec.tambon, district: rec.district, cid: rec.cid, idIssue: rec.idIssue, idExpire: rec.idExpire, bank: rec.bank, branch: rec.branch, trainYear: rec.trainYear, status: rec.status };
+    if (rec.idLifetime) f.idLifetime = true; if (rec.trainYear) f.trained = true;
+    Object.keys(f).forEach(k => { if (f[k] === '' || f[k] === undefined) delete f[k]; });
+    if (ex) {
+      Object.entries(f).forEach(([k, v]) => upd['cgs/' + ex.id + '/' + k] = v);
+      if (rec.idLifetime) upd['cgs/' + ex.id + '/idExpire'] = '';
+      upd['cgs/' + ex.id + '/updatedAt'] = now; upd['cgs/' + ex.id + '/updatedBy'] = user;
+    } else upd['cgs/' + keyGen()] = { ...f, createdAt: now, createdBy: user, updatedAt: now };
+  });
+  return upd;
+}
+async function cgImportRun() {
+  if (!isAdmin() || !CG_IMPORT.length) return; const b = $('cgGo'); if (b) { b.disabled = true; b.textContent = 'กำลังนำเข้า...'; }
+  try { await db.ref().update(clean(cgImportBuild(CG_IMPORT, () => db.ref().push().key, Date.now(), ME.username))); const n = CG_IMPORT.length; CG_IMPORT = []; closeModal(); toast('นำเข้า CG เรียบร้อย ' + n + ' คน'); }
+  catch (e) { toast('นำเข้าไม่สำเร็จ: ' + e.message, 'err'); if (b) { b.disabled = false; b.textContent = 'ลองอีกครั้ง'; } }
 }
 async function teamDel(col, id) {
   const key = col === 'cms' ? 'cmId' : 'cgId', used = list(S.elders).filter(e => e[key] === id).length + list(S.visits).filter(v => v[key] === id).length;
@@ -792,7 +906,7 @@ function pElder() {
     <select onchange="EF.cm=this.value;elderTable()">${cmOpts(EF.cm, 'ทุก CM')}</select>
     <select onchange="EF.cg=this.value;elderTable()">${cgOpts(EF.cg, 'ทุก CG')}</select>
     <select onchange="EF.status=this.value;elderTable()">${opts(Object.entries(ESTATUS), EF.status, 'ทุกสถานะ')}</select>
-    <span class="grow"></span>${canEdit() ? '<button class="btn" onclick="elderForm()">＋ เพิ่มผู้สูงอายุ</button>' : ''}</div><div id="elderArea"></div>`;
+    <span class="grow"></span>${isAdmin() ? '<button class="btn btn-o" onclick="seedImport()">⬆ นำเข้าจากไฟล์ทะเบียน (' + SEED_ELDERS.length + ' ราย)</button>' : ''}${canEdit() ? '<button class="btn" onclick="elderForm()">＋ เพิ่มผู้สูงอายุ</button>' : ''}</div><div id="elderArea"></div>`;
 }
 function filteredElders() {
   const D = derived();
@@ -810,7 +924,7 @@ let elderPhotoFile = null;
 function elderForm(id) {
   if (!canEdit()) return; const e = id ? S.elders[id] : {}; elderPhotoFile = null;
   openModal(id ? 'แก้ไขข้อมูลผู้สูงอายุ' : 'เพิ่มผู้สูงอายุ', `<div class="grid g3">
-    ${field('คำนำหน้า', `<select id="e_prefix">${opts(['นาย', 'นาง', 'นางสาว', 'พระ', ''].map(a => [a, a || '-']), e.prefix || '')}</select>`)}
+    ${field('คำนำหน้า', `<select id="e_prefix">${opts(['นาย', 'นาง', 'นางสาว', 'น.ส.', 'ด.ญ.', 'ด.ช.', 'พระ', ''].map(a => [a, a || '-']), e.prefix || '')}</select>`)}
     ${field('ชื่อ', inp('e_fname', e.fname || ''), '', true)}${field('สกุล', inp('e_lname', e.lname || ''))}
     ${field('เลขบัตรประชาชน 13 หลัก', inp('e_cid', e.cid || '', 'text', 'inputmode="numeric" maxlength="13"'))}${field('HN / รหัสผู้ป่วย', inp('e_hn', e.hn || ''))}
     ${field('เพศ', `<select id="e_sex">${opts([['ช', 'ชาย'], ['ญ', 'หญิง']], e.sex || '', '-')}</select>`)}
@@ -869,6 +983,40 @@ async function elderDel(id) {
   const n = list(S.visits).filter(v => v.elderId === id).length;
   if (!await ask(n ? `ผู้สูงอายุรายนี้มีบันทึกการเยี่ยม ${n} ครั้ง การลบจะทำให้ประวัติแสดงชื่อ "(ถูกลบ)" แนะนำให้เปลี่ยนสถานะเป็นย้ายออก/เสียชีวิตแทน ลบต่อหรือไม่?` : 'ลบผู้สูงอายุรายนี้ถาวร?', 'ลบ')) return;
   try { await dbDel('elders', id); closeModal(); toast('ลบแล้ว'); } catch (e) { toast('ลบไม่สำเร็จ: ' + e.message, 'err'); }
+}
+
+const SEED_ELDERS = [{"p":"นาย","f":"จำลอง","l":"มุลน้อยสุ","h":"178","m":"1","cg":"นางสาวโสภารัตน์ มิตรแสง","st":"active","n":"ขึ้นทะเบียนปี 2569 · กลุ่ม 10"},{"p":"นาง","f":"ละทม","l":"อ่อนก้อน","h":"96","m":"1","cg":"นางสาวมนธิดา มังธิสานต์","st":"active","n":"ขึ้นทะเบียนปี 2569 · กลุ่ม 10"},{"p":"นาง","f":"บุญลพ","l":"พิมพ์สมแดง","h":"120","m":"1","cg":"นางสาวมนธิดา มังธิสานต์","st":"active","n":"ขึ้นทะเบียนปี 2569 · กลุ่ม 10"},{"p":"นาง","f":"ถนอม","l":"ผลมะลี","h":"113","m":"1","cg":"นางสาวมนธิดา มังธิสานต์","st":"active","n":"ขึ้นทะเบียนปี 2569 · กลุ่ม 10"},{"p":"นาย","f":"วิลาพงษ์","l":"ศรีคำดอน","h":"229","m":"1","cg":"นางสาวโสภารัตน์ มิตรแสง","st":"active","n":"ขึ้นทะเบียนปี 2569 · กลุ่ม 10"},{"p":"นาย","f":"ไพรวัน","l":"กรพันธ์","h":"153","m":"1","cg":"นางสาวมนธิดา มังธิสานต์","st":"active","n":"ขึ้นทะเบียนปี 2569 · กลุ่ม 11"},{"p":"นาง","f":"ถนอม","l":"นนท์ภายวัน","h":"170","m":"1","cg":"นางสาวมนธิดา มังธิสานต์","st":"active","n":"ขึ้นทะเบียนปี 2569 · กลุ่ม 10"},{"p":"นาย","f":"ทูน","l":"มนตรีสา","h":"213","m":"1","cg":"นางสาวโสภารัตน์ มิตรแสง","st":"active","n":"ขึ้นทะเบียนปี 2569 · กลุ่ม 10"},{"p":"นาง","f":"นิตยา","l":"มนตรีสา","h":"215","m":"1","cg":"นางสาวโสภารัตน์ มิตรแสง","st":"active","n":"ขึ้นทะเบียนปี 2569 · กลุ่ม 10"},{"p":"นาย","f":"วิบูลย์","l":"จูมศรีสิงห์","h":"301","m":"1","cg":"นางสาวมนธิดา มังธิสานต์","st":"active","n":"ขึ้นทะเบียนปี 2569 · กลุ่ม 10"},{"p":"นาย","f":"ถวิล","l":"มิตรแสง","h":"171","m":"1","cg":"นางสาวโสภารัตน์ มิตรแสง","st":"active","n":"ขึ้นทะเบียนปี 2569 · กลุ่ม 10"},{"p":"นาง","f":"แสงจันทร์","l":"สาขันโคตร","h":"233","m":"1","cg":"นางสาวโสภารัตน์ มิตรแสง","st":"active","n":"ขึ้นทะเบียนปี 2569 · กลุ่ม 10"},{"p":"นาย","f":"ปรีดา","l":"วันดีราช","h":"321","m":"1","cg":"นางสาววารุณี ติศรี","st":"active","n":"ขึ้นทะเบียนปี 2569 · กลุ่ม 10"},{"p":"นาง","f":"สังกา","l":"วันดีราช","h":"199","m":"1","cg":"นางสาววารุณี ติศรี","st":"active","n":"ขึ้นทะเบียนปี 2569 · กลุ่ม 10"},{"p":"นาง","f":"บุญวาส","l":"นนท์ภายวัน","h":"137","m":"1","cg":"นางสาวโสภารัตน์ มิตรแสง","st":"active","n":"ขึ้นทะเบียนปี 2569 · กลุ่ม 10"},{"p":"นาง","f":"ประสิทธิ์","l":"ทาวะรัตน์","h":"182","m":"1","cg":"นางสาวมนธิดา มังธิสานต์","st":"active","n":"ขึ้นทะเบียนปี 2569 · กลุ่ม 10"},{"p":"นาง","f":"บัวสอน","l":"ประทุมทอง","h":"123","m":"1","cg":"นางสาวมนธิดา มังธิสานต์","st":"active","n":"ขึ้นทะเบียนปี 2569 · กลุ่ม 10"},{"p":"นาง","f":"สิรินธร","l":"ยตะโคตร","h":"306","m":"1","cg":"นางสาวมนธิดา มังธิสานต์","st":"active","n":"ขึ้นทะเบียนปี 2569 · กลุ่ม 10"},{"p":"นาง","f":"ชวนพิศ","l":"นนท์ไพวัลย์","h":"160","m":"1","cg":"นางสาวมนธิดา มังธิสานต์","st":"active","n":"ขึ้นทะเบียนปี 2569 · กลุ่ม 10"},{"p":"นาง","f":"วันพงค์","l":"ไชยสุพรรณ","h":"88","m":"1","cg":"นางสุพัตรา โคตรธรรม","st":"active","n":"ขึ้นทะเบียนปี 2569 · กลุ่ม 10"},{"p":"นาง","f":"วารี","l":"โคตรธรรม","h":"97","m":"1","cg":"นางสุพัตรา โคตรธรรม","st":"active","n":"ขึ้นทะเบียนปี 2569 · กลุ่ม 10"},{"p":"นาง","f":"กรมลี","l":"บุตรจันทร์","h":"36","m":"1","cg":"นางสาวมนธิดา มังธิสานต์","st":"active","n":"ขึ้นทะเบียนปี 2569 · กลุ่ม 10"},{"p":"นาย","f":"ยู้","l":"แซ่เจียง","h":"304","m":"1","cg":"นางสุพัตรา โคตรธรรม","st":"active","n":"ขึ้นทะเบียนปี 2569 · กลุ่ม 10"},{"p":"นาย","f":"อภิสิทธิ์","l":"โก๊ะเค้า","h":"222","m":"1","cg":"นางสาวมนธิดา มังธิสานต์","st":"active","n":"ขึ้นทะเบียนปี 2569 · กลุ่ม 10"},{"p":"นาง","f":"กินรี","l":"โคตรผาย","h":"4","m":"2","cg":"นางสุพัตรา โคตรธรรม","st":"active","n":"ขึ้นทะเบียนปี 2569 · กลุ่ม 10"},{"p":"น.ส.","f":"วิระพร","l":"โคตรผาย","h":"4","m":"2","cg":"นางสุพัตรา โคตรธรรม","st":"active","n":"ขึ้นทะเบียนปี 2569 · กลุ่ม 10"},{"p":"นาง","f":"บัวสอน","l":"ประทุมทอง","h":"19","m":"2","cg":"นางสุพัตรา โคตรธรรม","st":"active","n":"ขึ้นทะเบียนปี 2569 · กลุ่ม 10"},{"p":"นาง","f":"บุญทอน","l":"กรพันธ์","h":"22","m":"2","cg":"นางสุพัตรา โคตรธรรม","st":"active","n":"ขึ้นทะเบียนปี 2569 · กลุ่ม 10"},{"p":"นาง","f":"อำ","l":"จันแอ","h":"27","m":"2","cg":"นางสุพัตรา โคตรธรรม","st":"active","n":"ขึ้นทะเบียนปี 2569 · กลุ่ม 10"},{"p":"นาย","f":"สว่าง","l":"กรพันธ์","h":"30","m":"2","cg":"นางสาวโสภารัตน์ มิตรแสง","st":"active","n":"ขึ้นทะเบียนปี 2569 · กลุ่ม 10"},{"p":"นาง","f":"มนิต","l":"กรพันธ์","h":"30","m":"2","cg":"นางสาวโสภารัตน์ มิตรแสง","st":"active","n":"ขึ้นทะเบียนปี 2569 · กลุ่ม 10"},{"p":"นาย","f":"สมรักษ์","l":"ประทุมทอง","h":"19","m":"2","cg":"นางสาวโสภารัตน์ มิตรแสง","st":"active","n":"ขึ้นทะเบียนปี 2569 · กลุ่ม 10"},{"p":"นาง","f":"สุพิน","l":"ผาใต้","h":"37","m":"2","cg":"นางสุพัตรา โคตรธรรม","st":"active","n":"ขึ้นทะเบียนปี 2569 · กลุ่ม 10"},{"p":"นาง","f":"สมบัติ","l":"ดงภูยาว","h":"31","m":"2","cg":"นางสุพัตรา โคตรธรรม","st":"active","n":"ขึ้นทะเบียนปี 2569 · กลุ่ม 10"},{"p":"นาย","f":"เรืองยศ","l":"กรพันธุ์","h":"48","m":"2","cg":"นางสาวโสภารัตน์ มิตรแสง","st":"active","n":"ขึ้นทะเบียนปี 2569 · กลุ่ม 10"},{"p":"นาง","f":"พอดี","l":"สร้อยมาลัย","h":"3","m":"2","cg":"นางสาววารุณี ติศรี","st":"active","n":"ขึ้นทะเบียนปี 2569 · กลุ่ม 10"},{"p":"นาย","f":"สมคิด","l":"กรพันธ์","h":"22","m":"2","cg":"นางสาววารุณี ติศรี","st":"active","n":"ขึ้นทะเบียนปี 2569 · กลุ่ม 10"},{"p":"ด.ช.","f":"ตะวัน","l":"อ่อนชื่นชม","h":"8","m":"4","cg":"นางสาววารุณี ติศรี","st":"active","n":"ขึ้นทะเบียนปี 2569 · กลุ่ม 9"},{"p":"น.ส.","f":"ยาวะดี","l":"กรพันธ์","h":"15","m":"4","cg":"นางสาววารุณี ติศรี","st":"active","n":"ขึ้นทะเบียนปี 2569 · กลุ่ม 11"},{"p":"นาง","f":"วาสนา","l":"ศรีสวัสดิ์","h":"178","m":"4","cg":"นางอุไร นามวงค์ชัย","st":"active","n":"ขึ้นทะเบียนปี 2569 · กลุ่ม 10"},{"p":"นาย","f":"สมเพชร์","l":"แสงวงค์","h":"151","m":"4","cg":"นางสาวพรนิภา ตอนสุข","st":"active","n":"ขึ้นทะเบียนปี 2569 · กลุ่ม 4"},{"p":"นาง","f":"เจริญศรี","l":"งอยภูธร","h":"7","m":"10","cg":"นางกัลยานี แพงศรี","st":"active","n":"ขึ้นทะเบียนปี 2569 · กลุ่ม 10"},{"p":"นาง","f":"สุภาพร","l":"คำชมภู","h":"31","m":"10","cg":"นางสาวจารุณี คำชมภู","st":"active","n":"ขึ้นทะเบียนปี 2569 · กลุ่ม 9"},{"p":"นาง","f":"สมจิต","l":"โคตรผาย","h":"47","m":"10","cg":"นางกัลยานี แพงศรี","st":"active","n":"ขึ้นทะเบียนปี 2569 · กลุ่ม 10"},{"p":"นาง","f":"จันทร์เพ็ญ","l":"ฤาชัยสา","h":"62","m":"10","cg":"นางสาวจารุณี คำชมภู","st":"active","n":"ขึ้นทะเบียนปี 2569 · กลุ่ม 8"},{"p":"นาง","f":"เบ็ญจะวัน","l":"งิ้วพรม","h":"66","m":"10","cg":"นางสาวจารุณี คำชมภู","st":"active","n":"ขึ้นทะเบียนปี 2569 · กลุ่ม 10"},{"p":"ด.ช.","f":"ศักดิธัช","l":"ลีลาชัย","h":"73","m":"10","cg":"นายสมหมาย พรมมา","st":"active","n":"ขึ้นทะเบียนปี 2569 · กลุ่ม 0"},{"p":"นาย","f":"สุระชัย","l":"ศรีนารัตน์","h":"91","m":"10","cg":"นางสาวจารุณี คำชมภู","st":"active","n":"ขึ้นทะเบียนปี 2569 · กลุ่ม 10"},{"p":"นาง","f":"วราภรณ์","l":"ศิริสานต์","h":"131","m":"10","cg":"นางสาวพรนิภา ตอนสุข","st":"active","n":"ขึ้นทะเบียนปี 2569 · กลุ่ม 10"},{"p":"น.ส.","f":"เพียงใจ","l":"ฤาชัยสา","h":"148","m":"10","cg":"นางสาวพรนิภา ตอนสุข","st":"active","n":"ขึ้นทะเบียนปี 2569 · กลุ่ม 9"},{"p":"นาย","f":"วิโรจน์","l":"พุ่มพิบูลย์","h":"179","m":"10","cg":"นางสาวพรนิภา ตอนสุข","st":"active","n":"ขึ้นทะเบียนปี 2569 · กลุ่ม 8"},{"p":"น.ส.","f":"พรสิริ","l":"ผายป้องนา","h":"227","m":"10","cg":"นางสาวพรนิภา ตอนสุข","st":"active","n":"ขึ้นทะเบียนปี 2569 · กลุ่ม 10"},{"p":"นาย","f":"ไพศาล","l":"เหมะธุรินทร์","h":"14","m":"11","cg":"นางกัลยานี แพงศรี","st":"active","n":"ขึ้นทะเบียนปี 2569 · กลุ่ม 4"},{"p":"นาง","f":"ยุพิน","l":"ทาวะลุน","h":"50","m":"11","cg":"นางกัลยานี แพงศรี","st":"active","n":"ขึ้นทะเบียนปี 2569 · กลุ่ม 11"},{"p":"นาย","f":"วิรัตน์","l":"ลาแสดง","h":"58","m":"11","cg":"นางกัลยานี แพงศรี","st":"active","n":"ขึ้นทะเบียนปี 2569 · กลุ่ม 3"},{"p":"นาง","f":"นุ่ม","l":"ลาแสดง","h":"58","m":"11","cg":"นางกัลยานี แพงศรี","st":"active","n":"ขึ้นทะเบียนปี 2569 · กลุ่ม 2"},{"p":"น.ส.","f":"ปี่ยา","l":"ชาทา","h":"20","m":"12","cg":"นางสาวจารุณี คำชมภู","st":"active","n":"ขึ้นทะเบียนปี 2569 · กลุ่ม 10"},{"p":"นาย","f":"เพียรศักดิ์","l":"จักรเสน","h":"84","m":"12","cg":"นางสาวจารุณี คำชมภู","st":"active","n":"ขึ้นทะเบียนปี 2569 · กลุ่ม 4"},{"p":"นาง","f":"ราตรี","l":"วงศ์กาฬสินธุ์","h":"125","m":"12","cg":"นางสาวจารุณี คำชมภู","st":"active","n":"ขึ้นทะเบียนปี 2569 · กลุ่ม 10"},{"p":"นาง","f":"ไกษร","l":"จูมศรีสิงห์","h":"108","m":"12","cg":"นางสาวจารุณี คำชมภู","st":"active","n":"ขึ้นทะเบียนปี 2569 · กลุ่ม 4"},{"p":"นาง","f":"ฉลาด","l":"ยศทอง","h":"72","m":"14","cg":"นายสมหมาย พรมมา","st":"active","n":"ขึ้นทะเบียนปี 2569 · กลุ่ม 10"},{"p":"นาง","f":"บุญส่ง","l":"พรหมโคตร","h":"118","m":"14","cg":"นายสมหมาย พรมมา","st":"active","n":"ขึ้นทะเบียนปี 2569 · กลุ่ม 10"},{"p":"นาย","f":"สมชาย","l":"เพ็งสว่าง","h":"166","m":"16","cg":"นางสาววารุณี ติศรี","st":"active","n":"ขึ้นทะเบียนปี 2569 · กลุ่ม 4"},{"p":"นาง","f":"วิลัย","l":"เภารังค์","h":"86","m":"10","cg":"นางกัลยานี แพงศรี","st":"active","n":"ขึ้นทะเบียนปี 2569 · กลุ่ม 10"},{"p":"นาย","f":"สมเด็จ","l":"แสนมี","h":"34","m":"15","cg":"นางกอบกุล บุตวร","st":"active","n":"ขึ้นทะเบียนปี 2569 · กลุ่ม 10"},{"p":"นาย","f":"ธวัชชัย","l":"สุวรรรสิงห์","h":"11","m":"15","cg":"นางสาวศิราวดี ศรีษะเกษ","st":"active","n":"ขึ้นทะเบียนปี 2569 · กลุ่ม 4"},{"p":"นาง","f":"หลง","l":"ภารสงวน","h":"26","m":"15","cg":"นางกอบกุล บุตวร","st":"active","n":"ขึ้นทะเบียนปี 2569 · กลุ่ม 4"},{"p":"นาง","f":"สมสมร","l":"ยศทอง","h":"285","m":"14","cg":"นายสมหมาย พรมมา","st":"active","n":"ขึ้นทะเบียนปี 2569 · กลุ่ม 9"},{"p":"น.ส.","f":"กนลรัตน์","l":"เพลพกุล","h":"91","m":"11","cg":"นางกัลยานี แพงศรี","st":"active","n":"ขึ้นทะเบียนปี 2569 · กลุ่ม 4"},{"p":"น.ส.","f":"วันเพ็ญ","l":"ทัศคร","h":"16","m":"15","cg":"นางกอบกุล บุตวร","st":"active","n":"ขึ้นทะเบียนปี 2569 · กลุ่ม 10"},{"p":"นาง","f":"ทองแปน","l":"โมรา","h":"17","m":"15","cg":"นางกอบกุล บุตวร","st":"active","n":"ขึ้นทะเบียนปี 2569 · กลุ่ม 10"},{"p":"นาย","f":"จำรัส","l":"พุทธจง","h":"17","m":"15","cg":"นางกอบกุล บุตวร","st":"active","n":"ขึ้นทะเบียนปี 2569 · กลุ่ม 10"},{"p":"นาง","f":"สมจิต","l":"ใบอุดม","h":"36","m":"15","cg":"นางสาวศิราวดี ศรีษะเกษ","st":"active","n":"ขึ้นทะเบียนปี 2569 · กลุ่ม 10"},{"p":"นาย","f":"ประสิทธิ์","l":"พันจิอะ","h":"28","m":"15","cg":"นางกอบกุล บุตวร","st":"active","n":"ขึ้นทะเบียนปี 2569 · กลุ่ม 10"},{"p":"นาง","f":"สุภานุช","l":"พันจิอะ","h":"28","m":"15","cg":"นางกอบกุล บุตวร","st":"active","n":"ขึ้นทะเบียนปี 2569 · กลุ่ม 10"},{"p":"นาง","f":"สมนึก","l":"พรหมสาขา ณ สกลนคร","h":"49","m":"15","cg":"นางสาวศิราวดี ศรีษะเกษ","st":"active","n":"ขึ้นทะเบียนปี 2569 · กลุ่ม 10"},{"p":"นาย","f":"วิมล","l":"พีระธรรม","h":"71","m":"15","cg":"นางสาวศิราวดี ศรีษะเกษ","st":"active","n":"ขึ้นทะเบียนปี 2569 · กลุ่ม 10"},{"p":"นาย","f":"สุวัฒน์","l":"ตินอาษา","h":"77","m":"15","cg":"นางกอบกุล บุตวร","st":"active","n":"ขึ้นทะเบียนปี 2569 · กลุ่ม 10"},{"p":"นาง","f":"สิริรำไพ","l":"สุปะตา","h":"80","m":"15","cg":"นางสาวศิราวดี ศรีษะเกษ","st":"active","n":"ขึ้นทะเบียนปี 2569 · กลุ่ม 10"},{"p":"นาย","f":"ศราวุธ","l":"ขมเล็ก","h":"80","m":"15","cg":"นางสาวศิราวดี ศรีษะเกษ","st":"active","n":"ขึ้นทะเบียนปี 2569 · กลุ่ม 10"},{"p":"นาย","f":"วัลลภ","l":"นนท์ไพรวัลย์","h":"92","m":"16","cg":"นางสาวศิราวดี ศรีษะเกษ","st":"active","n":"ขึ้นทะเบียนปี 2569 · กลุ่ม 9"},{"p":"นาง","f":"สุจิตรา","l":"กัลยาบาล","h":"94","m":"15","cg":"นางสาวศิราวดี ศรีษะเกษ","st":"active","n":"ขึ้นทะเบียนปี 2569 · กลุ่ม 10"},{"p":"นาง","f":"วันทา","l":"เมธาวี","h":"97","m":"15","cg":"นางกอบกุล บุตวร","st":"active","n":"ขึ้นทะเบียนปี 2569 · กลุ่ม 10"},{"p":"นาย","f":"เลียบ","l":"พลวัล","h":"173","m":"15","cg":"นางสาวศิราวดี ศรีษะเกษ","st":"active","n":"ขึ้นทะเบียนปี 2569 · กลุ่ม 10"},{"p":"นาง","f":"ทองพูน","l":"หนูอุดม","h":"211","m":"15","cg":"นางกอบกุล บุตวร","st":"active","n":"ขึ้นทะเบียนปี 2569 · กลุ่ม 10"},{"p":"นาง","f":"นิภาภรณ์","l":"จุ้ยศิริ","h":"226","m":"15","cg":"นางสาวศิราวดี ศรีษะเกษ","st":"active","n":"ขึ้นทะเบียนปี 2569 · กลุ่ม 10"},{"p":"น.ส.","f":"จุฑามาศ","l":"คำอ้อ","h":"169","m":"15","cg":"นางสาวพรนิภา ตอนสุข","st":"active","n":"ขึ้นทะเบียนปี 2569 · กลุ่ม 10"},{"p":"นาย","f":"สมบัติ","l":"จุ้ยศิริ","h":"226","m":"15","cg":"นางสาวศิราวดี ศรีษะเกษ","st":"active","n":"ขึ้นทะเบียนปี 2569 · กลุ่ม 10"},{"p":"ด.ญ.","f":"อนุสรา","l":"นนท์ไพวัลย์","h":"137","m":"16","cg":"นางสุพัตรา โคตรธรรม","st":"active","n":"ขึ้นทะเบียนปี 2569 · กลุ่ม 10"},{"p":"นาย","f":"วิไล","l":"ศรีดาแก้ว","h":"233","m":"16","cg":"นางสาวอุไร นามวงค์ชัย","st":"active","n":"ขึ้นทะเบียนปี 2569 · กลุ่ม 10"},{"p":"นาง","f":"ผอย","l":"ประทุมทอง","h":"233","m":"16","cg":"นางสาวอุไร นามวงค์ชัย","st":"active","n":"ขึ้นทะเบียนปี 2569 · กลุ่ม 10"},{"p":"นาย","f":"วงเดือน","l":"นนท์ภายวัน","h":"306","m":"16","cg":"นางสาวอุไร นามวงค์ชัย","st":"active","n":"ขึ้นทะเบียนปี 2569 · กลุ่ม 10"},{"p":"นาง","f":"นิลาวรรณ","l":"ศรีดาแก้ว","h":"168","m":"16","cg":"นางสาวอุไร นามวงค์ชัย","st":"dead","n":"ขึ้นทะเบียนปี 2569 · กลุ่ม 10"},{"p":"นาย","f":"รำไฟ","l":"ประทุมทอง","h":"152","m":"16","cg":"นางสาวพรนิภา ตอนสุข","st":"active","n":"ขึ้นทะเบียนปี 2569 · กลุ่ม 10"},{"p":"นาง","f":"พร","l":"กลิ่นน้อย","h":"41","m":"16","cg":"นางสาววารุณี ติศรี","st":"active","n":"ขึ้นทะเบียนปี 2569 · กลุ่ม 10"},{"p":"นาง","f":"สำลี","l":"นามวงศ์ชัย","h":"22","m":"16","cg":"นางสาวอุไร นามวงค์ชัย","st":"active","n":"ขึ้นทะเบียนปี 2569 · กลุ่ม 10"},{"p":"นาง","f":"สะเทือน","l":"โคตรธรรม","h":"285","m":"16","cg":"นางสาวอุไร นามวงค์ชัย","st":"active","n":"ขึ้นทะเบียนปี 2569 · กลุ่ม 10"},{"p":"น.ส.","f":"กองทรัพย์","l":"โคตรธรรม","h":"62","m":"16","cg":"นางสาวอุไร นามวงค์ชัย","st":"active","n":"ขึ้นทะเบียนปี 2569 · กลุ่ม 10"},{"p":"นาย","f":"พุดทา","l":"กลิ่นน้อย","h":"56","m":"16","cg":"นางสาววารุณี ติศรี","st":"active","n":"ขึ้นทะเบียนปี 2569 · กลุ่ม 4"},{"p":"นาย","f":"ทองปอนด์","l":"เพ็งสว่าง","h":"46","m":"16","cg":"นางสาวอุไร นามวงค์ชัย","st":"active","n":"ขึ้นทะเบียนปี 2569 · กลุ่ม 10"},{"p":"นาง","f":"สุพรรณา","l":"หาญมนตรี","h":"220","m":"16","cg":"นางสุพัตรา โคตรธรรม","st":"active","n":"ขึ้นทะเบียนปี 2569 · กลุ่ม 10"},{"p":"นาง","f":"บุญนะ","l":"บรรลือหาญ","h":"163","m":"16","cg":"นางสาวอุไร นามวงค์ชัย","st":"active","n":"ขึ้นทะเบียนปี 2569 · กลุ่ม 10"},{"p":"นาง","f":"วารี","l":"โคตรธรรม","h":"40","m":"16","cg":"นางสาวอุไร นามวงค์ชัย","st":"active","n":"ขึ้นทะเบียนปี 2569 · กลุ่ม 10"},{"p":"นาย","f":"จรัญ","l":"ศรีคำดอน","h":"276","m":"16","cg":"นางสาวอุไร นามวงค์ชัย","st":"active","n":"ขึ้นทะเบียนปี 2569 · กลุ่ม 10"},{"p":"นาย","f":"สมศักดิ์","l":"งิ้วพรหม","h":"118","m":"1","cg":"นางสาววารุณี ติศรี","st":"active","n":"ขึ้นทะเบียนปี 2569 · กลุ่ม 10"},{"p":"นาย","f":"สมภพ","l":"วงศ์กาฬสินธุ์","h":"169","m":"14","cg":"นายสมหมาย พรมมา","st":"active","n":"ขึ้นทะเบียนปี 2569 · กลุ่ม 4"},{"p":"นาง","f":"สมคิด","l":"มุลน้อยสุ","h":"289","m":"1","cg":"นางสาวโสภารัตน์ มิตรแสง","st":"active","n":"ขึ้นทะเบียนปี 2569 · กลุ่ม 10"},{"p":"ด.ญ.","f":"ทัศมาลี","l":"ชาแสน","h":"55","m":"11","cg":"นางกัลยานี แพงศรี","st":"active","n":"ขึ้นทะเบียนปี 2569 · กลุ่ม 10"},{"p":"นาง","f":"ขวัญตา","l":"ขวัญพุทธา","h":"87","m":"10","cg":"นางสาวพรนิภา ตอนสุข","st":"active","n":"ขึ้นทะเบียนปี 2569 · กลุ่ม 10"},{"p":"นาย","f":"บุญมี","l":"ปิระนันท์","h":"179","m":"14","cg":"นายสมหมาย พรมมา","st":"active","n":"ขึ้นทะเบียนปี 2569 · กลุ่ม 10"},{"p":"นาย","f":"มานพ","l":"คำสงค์","h":"128","m":"14","cg":"นายสมหมาย พรมมา","st":"active","n":"ขึ้นทะเบียนปี 2569 · กลุ่ม 4"},{"p":"นาย","f":"สุรศักดิ์","l":"บุตราช","h":"22","m":"15","cg":"นางกอบกุล บุตวร","st":"active","n":"ขึ้นทะเบียนปี 2569 · กลุ่ม 3"},{"p":"ด.ญ.","f":"ธิดารัตน์","l":"จิตตุนัง","h":"22","m":"15","cg":"นางสาวศิราวดี ศรีษะเกษ","st":"active","n":"ขึ้นทะเบียนปี 2569 · กลุ่ม 4"},{"p":"นาย","f":"ชัยยันต์","l":"พรมกาวงค์","h":"115","m":"14","cg":"นายสมหมาย พรมมา","st":"active","n":"ขึ้นทะเบียนปี 2569 · กลุ่ม 10"},{"p":"นาง","f":"จินทอน","l":"บุตราช","h":"22","m":"15","cg":"นางกอบกุล บุตวร","st":"active","n":"ขึ้นทะเบียนปี 2569 · กลุ่ม 10"},{"p":"นาย","f":"สุวรรณ","l":"โคตรผาย","h":"45","m":"10","cg":"นายสมหมาย พรมมา","st":"active","n":"ขึ้นทะเบียนปี 2569 · กลุ่ม 9"},{"p":"น.ส.","f":"อินตอง","l":"คำผิว","h":"5","m":"11","cg":"นางกัลยานี แพงศรี","st":"active","n":"ขึ้นทะเบียนปี 2569 · กลุ่ม 10"},{"p":"นาง","f":"เรียน","l":"กรพันธุ์","h":"17","m":"2","cg":"นางสาวจารุณี คำชมภู","st":"active","n":"ขึ้นทะเบียนปี 2569 · กลุ่ม 10"},{"p":"นาง","f":"ก่อง","l":"สร้อยมาลัย","h":"58","m":"12","cg":"นางสาวจารุณี คำชมภู","st":"active","n":"ขึ้นทะเบียนปี 2569 · กลุ่ม 10"},{"p":"นาง","f":"รัชนีกร","l":"ทาศรีภู","h":"98","m":"12","cg":"นางสาวจารุณี คำชมภู","st":"active","n":"ขึ้นทะเบียนปี 2569 · กลุ่ม 10"},{"p":"นาง","f":"นิรมล","l":"จ่มโสภณ","h":"111","m":"12","cg":"นางสาวจารุณี คำชมภู","st":"active","n":"ขึ้นทะเบียนปี 2569 · กลุ่ม 10"},{"p":"นาย","f":"ธนากร","l":"ทาศรีภู","h":"93","m":"14","cg":"นายสมหมาย พรมมา","st":"active","n":"ขึ้นทะเบียนปี 2569 · กลุ่ม 10"},{"p":"น.ส.","f":"ถวิล","l":"พังแสงสุ","h":"22","m":"11","cg":"นางกัลยานี แพงศรี","st":"active","n":"ขึ้นทะเบียนปี 2569 · กลุ่ม 10"},{"p":"นาย","f":"หนูพัน","l":"พังแสงสุ","h":"59","m":"11","cg":"นางกัลยานี แพงศรี","st":"active","n":"ขึ้นทะเบียนปี 2569 · กลุ่ม 9"},{"p":"นาง","f":"อ่อนตา","l":"โคตรผาย","h":"81","m":"4","cg":"นางสาวจารุณี คำชมภู","st":"active","n":"ขึ้นทะเบียนปี 2569 · กลุ่ม 10"},{"p":"นาง","f":"เลื่อน","l":"ทานวน","h":"74","m":"14","cg":"นายสมหมาย พรมมา","st":"active","n":"ขึ้นทะเบียนปี 2569 · กลุ่ม 9"},{"p":"นาง","f":"มะลีจันทร์","l":"ฮ่มป่า","h":"62","m":"4","cg":"นางสาววารุณี ติศรี","st":"active","n":"ขึ้นทะเบียนปี 2569 · กลุ่ม 10"}];
+const SEED_CGS = [{"p":"นางสาว","n":"โสภารัตน์ มิตรแสง","full":"นางสาวโสภารัตน์ มิตรแสง"},{"p":"นางสาว","n":"มนธิดา มังธิสานต์","full":"นางสาวมนธิดา มังธิสานต์"},{"p":"นางสาว","n":"วารุณี ติศรี","full":"นางสาววารุณี ติศรี"},{"p":"นาง","n":"สุพัตรา โคตรธรรม","full":"นางสุพัตรา โคตรธรรม"},{"p":"นาง","n":"อุไร นามวงค์ชัย","full":"นางอุไร นามวงค์ชัย"},{"p":"นางสาว","n":"พรนิภา ตอนสุข","full":"นางสาวพรนิภา ตอนสุข"},{"p":"นาง","n":"กัลยานี แพงศรี","full":"นางกัลยานี แพงศรี"},{"p":"นางสาว","n":"จารุณี คำชมภู","full":"นางสาวจารุณี คำชมภู"},{"p":"นาย","n":"สมหมาย พรมมา","full":"นายสมหมาย พรมมา"},{"p":"นาง","n":"กอบกุล บุตวร","full":"นางกอบกุล บุตวร"},{"p":"นางสาว","n":"ศิราวดี ศรีษะเกษ","full":"นางสาวศิราวดี ศรีษะเกษ"},{"p":"นางสาว","n":"อุไร นามวงค์ชัย","full":"นางสาวอุไร นามวงค์ชัย"}];
+
+/* ---------- นำเข้าข้อมูลผู้สูงอายุจากไฟล์ทะเบียน (ผู้สูงอายุ.xlsx) ---------- */
+const seedKey = (f, l, h, m) => [f, l, h, m].map(x => String(x || '').replace(/\s+/g, '').trim()).join('|');
+function seedPlan() {
+  const have = new Set(list(S.elders).map(e => seedKey(e.fname, e.lname, e.house, e.moo)));
+  const cgIdByName = {}; list(S.cgs).forEach(c => cgIdByName[cgKey(pName(c))] = c.id);
+  const seen = new Set(), newCgs = SEED_CGS.filter(c => { const k = cgKey(c.full); if (cgIdByName[k] || seen.has(k)) return false; seen.add(k); return true; });
+  const newElders = SEED_ELDERS.filter(e => !have.has(seedKey(e.f, e.l, e.h, e.m)));
+  return { newCgs, newElders, skipped: SEED_ELDERS.length - newElders.length, cgIdByName };
+}
+function seedBuild(plan, keyGen, now, user) {
+  const upd = {}, ids = { ...plan.cgIdByName };
+  plan.newCgs.forEach(c => { const k = keyGen(); ids[cgKey(c.full)] = k; upd['cgs/' + k] = { prefix: c.p, name: c.n, status: 'active', createdAt: now, createdBy: user, updatedAt: now }; });
+  plan.newElders.forEach(e => {
+    const k = keyGen(), o = { prefix: e.p, fname: e.f, lname: e.l, house: e.h, moo: e.m, status: e.st, createdAt: now, createdBy: user, updatedAt: now };
+    const cg = ids[cgKey(e.cg)]; if (cg) o.cgId = cg; if (e.n) o.note = e.n;
+    upd['elders/' + k] = o;
+  });
+  return upd;
+}
+async function seedImport() {
+  if (!isAdmin()) return;
+  const p = seedPlan();
+  if (!p.newElders.length) return toast('ผู้สูงอายุในไฟล์ทะเบียนมีอยู่ในระบบครบแล้ว (ข้าม ' + p.skipped + ' ราย)', 'warn');
+  const msg = 'นำเข้าผู้สูงอายุใหม่ ' + p.newElders.length + ' ราย' + (p.newCgs.length ? ' และสร้าง CG ใหม่ ' + p.newCgs.length + ' คน' : '') + (p.skipped ? ' (ข้ามรายที่มีอยู่แล้ว ' + p.skipped + ' ราย)' : '') + ' ?';
+  if (!await ask(msg, 'นำเข้า', false)) return;
+  try {
+    await db.ref().update(clean(seedBuild(p, () => db.ref().push().key, Date.now(), ME.username)));
+    toast('นำเข้าข้อมูลเรียบร้อย ' + p.newElders.length + ' ราย');
+  } catch (e) { toast('นำเข้าไม่สำเร็จ: ' + e.message, 'err'); }
 }
 
 /* =====================================================================
