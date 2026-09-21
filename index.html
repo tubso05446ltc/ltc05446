@@ -135,19 +135,6 @@ label.f>span i{color:var(--g3);font-style:normal}
 .avatar{width:38px;height:38px;border-radius:50%;object-fit:cover;background:var(--pl);display:inline-flex;align-items:center;justify-content:center;color:var(--p2);font-weight:600;flex:none}
 
 /* ---------- dashboard ---------- */
-.vinfo{background:#e6f2ef;color:var(--p2);border-radius:10px;padding:9px 14px;margin-top:12px;font-size:15px}
-.vquota{background:#fbe4e1;color:#a3362a;border-radius:10px;padding:9px 14px;margin-top:8px;font-size:15px;font-weight:600}
-.vquota.ok{background:#dff3e6;color:#1d7040}.vquota.none{background:#f1f3f2;color:var(--mu);font-weight:500}
-.vrep{border:1px solid var(--bd);border-radius:12px;padding:14px 16px;margin-top:12px;background:#fff}
-.vrep h4{font-size:16px;margin-bottom:10px}
-.vtiles{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
-.vtiles>div{border-radius:10px;padding:10px 6px;text-align:center}
-.vtiles b{display:block;font-size:28px;line-height:1.2}.vtiles span{font-size:13px;color:var(--mu)}
-.vtiles .t1{background:#fbe9ee}.vtiles .t1 b{color:#a8325a}
-.vtiles .t2{background:#e3f5e9}.vtiles .t2 b{color:#1d7040}
-.vtiles .t3{background:#fbe4e1}.vtiles .t3 b{color:#a3362a}
-.vbar{height:12px;border-radius:6px;background:#e9eeeb;overflow:hidden;margin:12px 0 8px}
-.vbar i{display:block;height:100%;background:var(--p);border-radius:6px;transition:width .3s}
 .pub{min-height:100vh;display:flex;flex-direction:column}
 .pub-h{background:var(--pine);color:#fff;padding:12px 24px;display:flex;justify-content:space-between;align-items:center;gap:12px;position:sticky;top:0;z-index:30}
 .pub-h b{display:block;font-size:18px}.pub-h small{color:#e8c56a}
@@ -196,11 +183,6 @@ label.f>span i{color:var(--g3);font-style:normal}
 @media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 
 /* ---------- visit form / detail ---------- */
-.adlrow{display:grid;grid-template-columns:1fr 1.2fr;gap:8px;align-items:center;padding:6px 0;border-bottom:1px dashed var(--bd)}
-.adlrow:last-child{border:0}
-.adltot{position:sticky;bottom:0;background:var(--pl);border-radius:10px;padding:10px 14px;display:flex;gap:12px;align-items:center;margin-top:10px;flex-wrap:wrap}
-.adltot b{font-size:24px}
-@media(max-width:600px){.adlrow{grid-template-columns:1fr}}
 .thumbs{display:flex;gap:10px;flex-wrap:wrap;margin-top:8px}
 .thumb{position:relative;width:96px;height:96px;border-radius:9px;overflow:hidden;border:1px solid var(--bd)}
 .thumb img{width:100%;height:100%;object-fit:cover;display:block}
@@ -209,7 +191,6 @@ label.f>span i{color:var(--g3);font-style:normal}
 .dl{display:grid;grid-template-columns:150px 1fr;gap:6px 14px;font-size:15px}
 .dl dt{color:var(--mu)}.dl dd{margin:0}
 @media(max-width:560px){.dl{grid-template-columns:1fr}.dl dt{margin-top:6px}}
-.sticky-actions{position:sticky;bottom:0;background:linear-gradient(transparent,var(--bg) 30%);padding:18px 0 4px;display:flex;gap:10px;justify-content:flex-end}
 
 /* ---------- report ---------- */
 .rpwrap{overflow-x:auto;border:1px solid var(--bd);border-radius:var(--r);background:#e4e9e6;padding:14px}
@@ -464,6 +445,216 @@ label.f>span i{color:var(--g3);font-style:normal}
   .d-grid{gap:12px}
   .d-card{padding:14px 14px 16px;border-radius:16px}
   .d-list .r{max-width:52%}
+}
+
+/* =====================================================================
+   VISIT FORM v2 — บันทึกการเยี่ยมใหม่ / แก้ไข (mobile-first)
+   ===================================================================== */
+.vf{--vf-line:#e2e9e5;--vf-soft:#f4f8f6;--vf-fld:#d3dcd7;--vf-sh:0 1px 2px rgba(18,41,31,.05),0 12px 30px -18px rgba(18,41,31,.30);max-width:860px;margin:0 auto;padding-bottom:104px;display:flex;flex-direction:column;gap:14px;font-variant-numeric:tabular-nums}
+.vf-ic{width:20px;height:20px;flex:none}
+body:has(.vf) #toast-root{bottom:calc(88px + env(safe-area-inset-bottom,0px))}
+
+/* ----- header ----- */
+.vf-hd{position:relative;overflow:hidden;display:flex;align-items:center;gap:12px;padding:14px 18px 14px 14px;border-radius:22px;color:#fff;box-shadow:var(--vf-sh);
+  background:radial-gradient(520px 220px at 100% -40%,rgba(95,211,154,.36),transparent 60%),radial-gradient(360px 200px at -8% 130%,rgba(224,165,38,.14),transparent 60%),linear-gradient(135deg,#0f2219 0%,#17362e 50%,#1d6b57 130%)}
+.vf-back{flex:none;display:grid;place-items:center;width:46px;height:46px;border-radius:15px;border:1px solid rgba(255,255,255,.24);background:rgba(255,255,255,.1);color:#fff;cursor:pointer}
+.vf-back:hover{background:rgba(255,255,255,.2)}
+.vf-hd h2{font-size:20px;font-weight:700;line-height:1.25}
+.vf-hd p{margin:2px 0 0;font-size:13.5px;line-height:1.4;color:#b8cfc7}
+
+/* ----- section nav ----- */
+.vf-navw{position:sticky;top:var(--topH,61px);z-index:25;margin:-6px 0;padding:8px 0 6px;background:linear-gradient(var(--bg) 75%,rgba(238,241,238,0))}
+.vf-nav{display:flex;gap:4px;overflow-x:auto;padding:5px;border-radius:18px;background:rgba(255,255,255,.88);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);border:1px solid var(--vf-line);box-shadow:var(--vf-sh);scrollbar-width:none}
+.vf-nav::-webkit-scrollbar{display:none}
+.vf-nav button{flex:none;min-height:40px;padding:0 15px;border:0;border-radius:13px;background:none;color:#4a5b54;font-size:14.5px;cursor:pointer;white-space:nowrap}
+.vf-nav button.on{background:var(--pine);color:#fff;font-weight:600}
+
+/* ----- cards ----- */
+.vf-card{scroll-margin-top:calc(var(--topH,61px) + 72px);padding:16px;border-radius:20px;background:#fff;border:1px solid var(--vf-line);box-shadow:var(--vf-sh)}
+.vf-ch{display:flex;align-items:center;gap:12px;margin-bottom:14px}
+.vf-ci{flex:none;display:grid;place-items:center;width:40px;height:40px;border-radius:13px;background:var(--pl);color:var(--p2)}
+.vf-ct{min-width:0}
+.vf-ct h3{font-size:17px;line-height:1.3}
+.vf-ct small{display:block;margin-top:1px;font-size:13px;line-height:1.35;color:var(--mu)}
+.vf-stp{margin-left:auto;flex:none;padding:2px 11px;border-radius:999px;font-size:12.5px;white-space:nowrap;color:var(--mu);background:var(--vf-soft);border:1px solid var(--vf-line)}
+.vf-stp.ok{color:#1d7040;background:#e3f5e9;border-color:#bfe4cb;font-weight:600}
+.vf-sub{display:flex;align-items:center;gap:8px;margin:16px 0 8px;font-size:15px}
+.vf-sub:first-of-type{margin-top:0}
+.vf-cnt{padding:0 9px;border-radius:999px;font-size:12.5px;background:var(--pl);color:var(--p2)}
+
+/* ----- fields ----- */
+.vf-g{display:grid;grid-template-columns:1fr 1fr;gap:14px 12px}
+.vf-g .full{grid-column:1/-1}
+.vf-g.two{grid-template-columns:1fr}
+.vf .f{display:block;min-width:0}
+.vf label.f>span,.vf .vf-lb{display:block;margin:0 0 6px;font-size:14px;font-weight:500;color:#3d4d47}
+.vf .vf-in,.vf select,.vf textarea,.vf .dp-v{width:100%;min-height:50px;padding:10px 14px;border:1.5px solid var(--vf-fld);border-radius:14px;background-color:#f8faf9;font-size:16px;transition:border-color .15s,background-color .15s,box-shadow .15s}
+.vf textarea{min-height:88px;resize:vertical;line-height:1.5}
+.vf .vf-in:focus,.vf select:focus,.vf textarea:focus,.vf .dp-v:focus{outline:0;background-color:#fff;border-color:var(--p);box-shadow:0 0 0 4px rgba(29,107,87,.16)}
+.vf select{-webkit-appearance:none;appearance:none;padding-right:42px;background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='18' height='18' viewBox='0 0 24 24' fill='none' stroke='%2366756f' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'><path d='m6 9 6 6 6-6'/></svg>");background-repeat:no-repeat;background-position:right 14px center}
+.vf .dp-v{padding-right:42px}
+.vf .dp{display:block}
+.vf .f.vf-err select,.vf .f.vf-err .dp-v,.vf .f.vf-err .vf-in{border-color:var(--g3);box-shadow:0 0 0 4px rgba(204,75,60,.15)}
+.vf .vf-in[type=number]{-moz-appearance:textfield}
+.vf .vf-in[type=number]::-webkit-outer-spin-button,.vf .vf-in[type=number]::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
+
+/* ----- ประเภทการเยี่ยม ----- */
+.vf-seg{display:grid;grid-template-columns:repeat(3,1fr);gap:4px;padding:4px;border-radius:16px;background:#e9efec}
+.vf-seg button{min-height:46px;padding:4px 6px;border:0;border-radius:12px;background:none;color:#4a5b54;font-size:15px;line-height:1.2;cursor:pointer}
+.vf-seg button[aria-checked=true]{background:#fff;color:var(--p2);font-weight:600;box-shadow:0 2px 8px -3px rgba(23,54,46,.45)}
+.vf-seg button[data-v=urgent][aria-checked=true]{color:#a3362a}
+
+/* ----- ผู้สูงอายุที่เลือก ----- */
+.vf-el{margin-top:14px;padding:14px;border-radius:18px;background:linear-gradient(135deg,#eaf6f1,#f7fbf9);border:1px solid #cfe3da}
+.vf-el-top{display:flex;align-items:center;gap:12px}
+.vf-av{flex:none;display:grid;place-items:center;width:48px;height:48px;border-radius:16px;color:#fff;background:var(--c,#1d6b57)}
+.vf-av .vf-ic{width:24px;height:24px}
+.vf-el-nm{min-width:0}
+.vf-el-nm b{display:block;font-size:17px;line-height:1.3}
+.vf-tags{display:flex;flex-wrap:wrap;gap:6px;margin-top:5px}
+.vf-tags .badge{background:#fff;border:1px solid rgba(0,0,0,.06)}
+.vf-tags .b-g1{background:#dff3e6}.vf-tags .b-g2{background:#fbeccb}.vf-tags .b-g3{background:#f8dcd8}
+.vf-q{margin-top:12px;padding:12px 14px;border-radius:14px;background:#fff;border:1px solid var(--vf-line)}
+.vf-q-h{display:flex;align-items:baseline;justify-content:space-between;gap:10px;font-size:14.5px}
+.vf-q-h b{font-size:20px}
+.vf-q-h strong{font-size:14px;color:#8a5f05}
+.vf-q.ok .vf-q-h strong{color:#1d7040}
+.vf-q.none{font-size:14px;color:var(--mu);background:#f1f3f2}
+.vf-pb{height:10px;margin:10px 0 6px;border-radius:999px;background:#e5ece8;overflow:hidden}
+.vf-pb i{display:block;height:100%;border-radius:999px;background:linear-gradient(90deg,#e0a526,#f3cf6b);transition:width .3s}
+.vf-q.ok .vf-pb i,.vf-rep .vf-pb i{background:linear-gradient(90deg,#1d6b57,#5fd39a)}
+.vf-cap{font-size:12.5px;color:var(--mu)}
+.vf-rows{display:grid;gap:8px;margin:12px 0 0;font-size:14.5px}
+.vf-rows div{display:grid;grid-template-columns:92px minmax(0,1fr);gap:8px}
+.vf-rows dt{color:var(--mu)}
+.vf-rows dd{margin:0;overflow-wrap:anywhere}
+.vf-rep{margin-top:12px;border-radius:16px;border:1px solid var(--vf-line);background:#fff}
+.vf-rep summary{display:flex;align-items:center;gap:12px;min-height:60px;padding:10px 14px;cursor:pointer;list-style:none}
+.vf-rep summary::-webkit-details-marker{display:none}
+.vf-rep .vf-ci{width:36px;height:36px;border-radius:12px}
+.vf-rs{flex:1;min-width:0;line-height:1.35}
+.vf-rs b{display:block;font-size:15px}
+.vf-rs small{display:block;font-size:12.5px;color:var(--mu)}
+.vf-pct{flex:none;font-size:20px;font-weight:700;color:var(--p2)}
+.vf-chev{color:var(--mu);transition:transform .2s}
+.vf-rep[open] .vf-chev{transform:rotate(180deg)}
+.vf-rep>:not(summary){margin-left:14px;margin-right:14px}
+.vf-tiles{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.vf-tiles>div{padding:10px 4px;border-radius:12px;text-align:center}
+.vf-tiles b{display:block;font-size:26px;line-height:1.2}
+.vf-tiles span{font-size:12.5px;color:var(--mu)}
+.vf-tiles .t1{background:#e8f0fb}.vf-tiles .t1 b{color:#2a5ea8}
+.vf-tiles .t2{background:#e3f5e9}.vf-tiles .t2 b{color:#1d7040}
+.vf-tiles .t3{background:#fbeccb}.vf-tiles .t3 b{color:#8a5f05}
+.vf-note{margin:0 14px 12px;font-size:13px;color:var(--mu)}
+.vf-rep>.vf-pb{margin-bottom:10px}
+.vf-rep>.vf-tiles{margin-top:2px}
+.vf-rep[open]{padding-bottom:4px}
+
+/* ----- สัญญาณชีพ ----- */
+.vf-vit{grid-template-columns:1fr 1fr}
+.vf-w{position:relative}
+.vf label.f>.vf-w{margin:0;font-size:inherit;font-weight:inherit;color:inherit}
+.vf-w .vf-in{padding-right:66px}
+.vf-w em{position:absolute;right:14px;top:50%;transform:translateY(-50%);font-style:normal;font-size:13px;color:var(--mu);pointer-events:none}
+.vf-bpw em{flex:none;font-style:normal;font-size:13px;color:var(--mu)}
+.vf-bpw{position:relative;display:flex;align-items:center;gap:10px}
+.vf-bpw .vf-in{flex:1;min-width:0;text-align:center;font-size:20px;font-weight:600}
+.vf-bpw i{font-style:normal;font-size:24px;color:var(--mu)}
+.vf-bpw .vf-in::placeholder{font-size:15px;font-weight:400;color:#93a29b}
+
+/* ----- ADL ----- */
+.vf-adl-sum{display:flex;align-items:center;gap:16px;margin-bottom:12px;padding:12px 14px;border-radius:16px;background:var(--vf-soft);border:1px solid var(--vf-line)}
+.vf-mini{font-size:12.5px;color:var(--mu)}
+.vf-adl-sum #adlTot{display:block;font-size:26px;line-height:1.15;white-space:nowrap}
+.vf-adl-r{flex:1;min-width:0}
+.vf-adl-r #adlGrp{min-height:24px;font-size:14px}
+.vf-dots{display:grid;grid-template-columns:repeat(10,1fr);gap:3px;margin-top:6px}
+.vf-dots i{height:6px;border-radius:999px;background:#dbe4df;transition:background-color .2s}
+.vf-dots i.on{background:var(--p)}
+.vf-lnk{flex:none;min-height:40px;padding:0 12px;border:0;border-radius:12px;background:none;color:#a3362a;font-size:14px;cursor:pointer}
+.vf-lnk:hover{background:#fbe4e1}
+.vf-ai{scroll-margin-top:calc(var(--topH,61px) + 150px);border:1.5px solid var(--vf-line);border-radius:16px;background:#fff;overflow:hidden;transition:border-color .15s,box-shadow .15s}
+.vf-ai+.vf-ai{margin-top:8px}
+.vf-ai.open{border-color:#9fcdbd;box-shadow:0 0 0 4px rgba(29,107,87,.08)}
+.vf-ai-h{display:flex;align-items:center;gap:12px;width:100%;min-height:62px;padding:10px 14px;border:0;background:none;text-align:left;cursor:pointer;color:inherit}
+.vf-ai-n{flex:none;display:grid;place-items:center;width:30px;height:30px;border-radius:50%;background:#e9efec;color:#4a5b54;font-size:13.5px;font-weight:700}
+.vf-ai.done .vf-ai-n{background:var(--p);color:#fff}
+.vf-ai-t{flex:1;min-width:0;line-height:1.3}
+.vf-ai-t b{display:block;font-size:15.5px;font-weight:600}
+.vf-ai-t small{display:block;font-size:13px;color:var(--mu)}
+.vf-ai-v{display:none;margin-top:2px;font-size:13.5px;color:var(--p2);font-weight:500}
+.vf-ai.done .vf-ai-v{display:block}
+.vf-ai.done .vf-ai-t small{display:none}
+.vf-ai-s{flex:none;font-size:13px;font-weight:700;color:var(--p2)}
+.vf-ai-s:empty{display:none}
+.vf-ai.open .vf-chev{transform:rotate(180deg)}
+.vf-ai-o{display:none;flex-direction:column;gap:8px;padding:2px 12px 12px}
+.vf-ai.open .vf-ai-o{display:flex}
+.vf-op{display:flex;align-items:center;gap:12px;width:100%;min-height:54px;padding:8px 12px;border:1.5px solid var(--vf-fld);border-radius:14px;background:#fff;color:inherit;text-align:left;font-size:15px;line-height:1.35;cursor:pointer}
+.vf-op b{flex:none;display:grid;place-items:center;width:32px;height:32px;border-radius:10px;background:#e9efec;color:#3d4d47;font-size:15px}
+.vf-op[aria-checked=true]{border-color:var(--p);background:var(--pl);font-weight:600}
+.vf-op[aria-checked=true] b{background:var(--p);color:#fff}
+
+/* ----- chips ----- */
+.vf .chips{gap:8px}
+.vf .chip{position:relative}
+.vf .chip span{display:inline-flex;align-items:center;gap:6px;min-height:44px;padding:0 15px;border:1.5px solid var(--vf-fld);border-radius:999px;background:#fff;font-size:15px;line-height:1.25;transition:background-color .15s,border-color .15s}
+.vf .chip input:checked+span{background:var(--pl);border-color:var(--p);color:var(--p2);font-weight:600}
+.vf .chip input:checked+span::before{content:"";width:16px;height:16px;flex:none;background:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%231d6b57' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'><path d='M20 6 9 17l-5-5'/></svg>") center/contain no-repeat}
+.vf .warn .chip input:checked+span{background:var(--gold-l);border-color:var(--gold);color:#6f4d04}
+.vf .warn .chip input:checked+span::before{background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%236f4d04' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'><path d='M20 6 9 17l-5-5'/></svg>")}
+
+/* ----- สวิตช์ส่งต่อ ----- */
+.vf-sw{position:relative;display:flex;align-items:center;gap:12px;min-height:62px;padding:10px 14px;border:1.5px solid var(--vf-fld);border-radius:16px;background:#fff;cursor:pointer}
+.vf-sw input{position:absolute;opacity:0;pointer-events:none}
+.vf-sw .tr{flex:none;position:relative;width:48px;height:28px;border-radius:999px;background:#c5d0ca;transition:background-color .2s}
+.vf-sw .tr::after{content:"";position:absolute;left:3px;top:3px;width:22px;height:22px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.3);transition:transform .2s}
+.vf-sw input:checked~.tr{background:var(--p)}
+.vf-sw input:checked~.tr::after{transform:translateX(20px)}
+.vf-sw input:focus-visible~.tr{outline:3px solid var(--gold);outline-offset:2px}
+.vf-sw:has(input:checked){border-color:var(--p);background:var(--pl)}
+.vf-sw .tx{line-height:1.3}
+.vf-sw .tx b{display:block;font-weight:600}
+.vf-sw .tx small{display:block;font-size:13px;color:var(--mu)}
+
+/* ----- รูปภาพ + พิกัด ----- */
+.vf-ph{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.vf-th{position:relative;aspect-ratio:1;overflow:hidden;border-radius:14px;border:1px solid var(--vf-line);background:var(--vf-soft)}
+.vf-th img{display:block;width:100%;height:100%;object-fit:cover}
+.vf-th button{position:absolute;top:4px;right:4px;display:grid;place-items:center;width:32px;height:32px;border:0;border-radius:50%;background:rgba(15,34,25,.72);color:#fff;cursor:pointer}
+.vf-th button .vf-ic{width:16px;height:16px}
+.vf-add{aspect-ratio:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;border:2px dashed #aebfb7;border-radius:14px;background:var(--vf-soft);color:var(--p2);font-size:13px;cursor:pointer}
+.vf-add:hover{background:var(--pl)}
+.vf-add .vf-ic{width:24px;height:24px}
+.vf-btn2{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;min-height:50px;border:1.5px solid var(--p);border-radius:14px;background:#fff;color:var(--p2);font-weight:600;cursor:pointer}
+.vf-btn2:hover{background:var(--pl)}
+
+/* ----- แถบบันทึกด้านล่าง ----- */
+.vf-bar{position:fixed;left:0;right:0;bottom:0;z-index:28;padding:10px 14px calc(10px + env(safe-area-inset-bottom,0px));background:rgba(255,255,255,.9);-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);border-top:1px solid var(--vf-line);box-shadow:0 -12px 30px -20px rgba(18,41,31,.45)}
+.vf-bar-in{display:flex;gap:10px;max-width:860px;margin:0 auto}
+.vf-bar .btn{justify-content:center;min-height:54px;border-radius:16px;font-size:16.5px}
+.vf-bar .btn-o{flex:0 0 auto;padding:0 22px}
+.vf-bar #vSave{flex:1;font-weight:600;gap:8px}
+.vf-bar #vSave .vf-ic{width:22px;height:22px}
+
+@media(max-width:720px){
+  .vf:has(.vf-in:focus,textarea:focus) .vf-bar{display:none}
+}
+@media(min-width:721px){
+  .vf-card{padding:20px 22px}
+  .vf-g.two{grid-template-columns:1fr 1fr}
+  .vf-vit{grid-template-columns:repeat(4,1fr)}
+  .vf-vit .full{grid-column:span 2}
+  .vf-ph{grid-template-columns:repeat(4,120px)}
+  .vf-hd{padding:16px 22px 16px 16px}
+}
+@media(min-width:961px){
+  .vf-bar{left:250px;padding-left:28px;padding-right:28px}
+}
+@media(max-width:360px){
+  .vf-seg button{font-size:14px}
+  .vf-rows div{grid-template-columns:78px minmax(0,1fr)}
 }
 </style>
 </head>
@@ -1077,7 +1268,7 @@ function pDash() {
    ===================================================================== */
 let visitView = 'list', visitEditing = null, visitPre = null, VFL = { month: today().slice(0, 7), q: '', cm: '', type: '' };
 let VPH = { keep: [], files: [] };
-PAGES.visit = { title: 'บันทึกการเยี่ยม', render: () => visitView === 'form' ? visitForm() : pVisitList(), after: () => { if (visitView === 'form') { vElderChange(!!visitEditing); adlCalc(); photoPreview(); } else visitTable(); } };
+PAGES.visit = { title: 'บันทึกการเยี่ยม', render: () => visitView === 'form' ? visitForm() : pVisitList(), after: () => { if (visitView === 'form') { vfInit(); vElderChange(!!visitEditing); adlCalc(); photoPreview(); vfCount(); } else visitTable(); } };
 function pVisitList() {
   return `<div class="toolbar">
     ${inp('vfl_month', VFL.month, 'month', 'onchange="VFL.month=this.value;visitTable()"')}
@@ -1104,50 +1295,137 @@ function elderOptions(cgId, sel) {
   const es = list(S.elders).filter(e => e.id === sel || (isActive(e) && (!cgId || e.cgId === cgId))).sort((a, b) => cmp(fullName(a), fullName(b)));
   return '<option value="">-- เลือกผู้สูงอายุ' + (cgId ? ' (' + es.length + ' คน)' : '') + ' --</option>' + es.map(e => `<option value="${e.id}" ${e.id === sel ? 'selected' : ''}>${esc(fullName(e))}${e.moo ? ' (หมู่ ' + esc(e.moo) + ')' : ''}</option>`).join('');
 }
+/* ---------- ฟอร์มบันทึกการเยี่ยม v2 (mobile-first) ---------- */
+const VF_IC = {
+  user: '<path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>',
+  activity: '<path d="M22 12h-4l-3 9L9 3l-3 9H2"/>',
+  clip: '<rect x="8" y="2" width="8" height="4" rx="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><path d="m9 14 2 2 4-4"/>',
+  heart: '<path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/>',
+  cal: '<rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/><path d="m9 16 2 2 4-4"/>',
+  camera: '<path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z"/><circle cx="12" cy="13" r="3"/>',
+  pin: '<path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/>',
+  back: '<path d="m12 19-7-7 7-7M19 12H5"/>',
+  plus: '<path d="M12 5v14M5 12h14"/>',
+  x: '<path d="M18 6 6 18M6 6l12 12"/>',
+  chev: '<path d="m6 9 6 6 6-6"/>',
+  save: '<path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><path d="M17 21v-8H7v8M7 3v5h8"/>',
+  chart: '<path d="M3 3v18h18"/><path d="m7 15 4-4 3 3 5-6"/>'
+};
+const vfIc = (n, c = '') => `<svg class="vf-ic ${c}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${VF_IC[n]}</svg>`;
+const vfHead = (ic, t, sub, st) => `<div class="vf-ch"><span class="vf-ci">${vfIc(ic)}</span><div class="vf-ct"><h3>${t}</h3>${sub ? `<small>${sub}</small>` : ''}</div>${st ? `<span class="vf-stp" id="${st}"></span>` : ''}</div>`;
+const vfSaveHtml = () => vfIc('save') + '<span>' + (visitEditing ? 'บันทึกการแก้ไข' : 'บันทึกการเยี่ยม') + '</span>';
+const VF_NAV = [['vf-s1', 'ผู้สูงอายุ'], ['vf-s2', 'สัญญาณชีพ'], ['vf-s3', 'ADL'], ['vf-s4', 'ปัญหา/การดูแล'], ['vf-s5', 'แผน/ส่งต่อ'], ['vf-s6', 'รูป/พิกัด']];
+const vfScroll = el => { if (el) el.scrollIntoView({ behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block: 'start' }); };
+const vfGo = id => vfScroll($(id));
+
 function visitForm() {
   const v = visitEditing ? { ...S.visits[visitEditing], id: visitEditing } : {};
   const sel = v.elderId || visitPre || '', defCg = v.cgId || (!visitEditing && ((visitPre && S.elders[visitPre] && S.elders[visitPre].cgId) || (ME.role === 'cg' ? ME.cgId : ''))) || '';
-  return `<div class="card"><div class="row sp"><h3 style="margin:0">${visitEditing ? 'แก้ไขบันทึกการเยี่ยม' : 'บันทึกการเยี่ยมใหม่'}</h3><button class="btn btn-o btn-s" onclick="cancelVisit()">← กลับรายการ</button></div>
-    <div class="sec"><h4>1. เลือก CG และผู้สูงอายุ</h4>
-      <div class="grid g2">
-        ${field('1. เลือก CG', `<select id="vCg" onchange="vCgChange()">${cgOpts(defCg, '-- ทุก CG / ไม่ระบุ --')}</select>`)}
-        ${field('2. เลือกผู้สูงอายุ', `<select id="vElder" onchange="vElderChange(false)">${elderOptions(defCg, sel)}</select>`, '', true)}
+  const type = v.type || 'plan';
+  const vit = (id, label, val, unit, extra) => `<label class="f"><span>${label}</span><span class="vf-w">${inp(id, val ?? '', 'number', 'class="vf-in" autocomplete="off" ' + extra)}<em>${unit}</em></span></label>`;
+  return `<div class="vf" id="vfRoot">
+    <header class="vf-hd">
+      <button type="button" class="vf-back" onclick="cancelVisit()" aria-label="กลับไปรายการ">${vfIc('back')}</button>
+      <div><h2>${visitEditing ? 'แก้ไขบันทึกการเยี่ยม' : 'บันทึกการเยี่ยมใหม่'}</h2><p>${visitEditing ? esc(fullName(S.elders[v.elderId])) + ' · ' + thDate(v.date) : 'ข้อมูลการเยี่ยมบ้านผู้สูงอายุที่มีภาวะพึ่งพิง'}</p></div>
+    </header>
+    <div class="vf-navw"><nav class="vf-nav" id="vfNav" aria-label="ข้ามไปยังส่วนต่าง ๆ ของแบบฟอร์ม">${VF_NAV.map(([id, t]) => `<button type="button" data-t="${id}" onclick="vfGo('${id}')">${t}</button>`).join('')}</nav></div>
+
+    <section class="vf-card" id="vf-s1">
+      ${vfHead('user', 'ผู้สูงอายุและการเยี่ยม', 'เลือกผู้สูงอายุที่ไปเยี่ยมครั้งนี้')}
+      <div class="vf-g">
+        ${field('CG', `<select id="vCg" onchange="vCgChange()">${cgOpts(defCg, '-- ทุก CG / ไม่ระบุ --')}</select>`, 'full')}
+        ${field('ผู้สูงอายุ', `<select id="vElder" onchange="vElderChange(false)">${elderOptions(defCg, sel)}</select>`, 'full', true)}
       </div>
       <div id="vInfo"></div>
-      <div class="grid g4 mt2">
-        ${field('ประเภทการเยี่ยม', `<select id="vType">${opts(Object.entries(VTYPES), v.type || 'plan')}</select>`)}
+      <div class="vf-g" style="margin-top:16px">
+        <div class="f full"><span class="vf-lb" id="vTypeL">ประเภทการเยี่ยม</span>
+          <input type="hidden" id="vType" value="${esc(type)}">
+          <div class="vf-seg" role="radiogroup" aria-labelledby="vTypeL">${Object.entries(VTYPES).map(([k, l]) => `<button type="button" role="radio" data-v="${k}" aria-checked="${k === type}" onclick="vfType('${k}')">${esc(l.replace(/^เยี่ยม/, ''))}</button>`).join('')}</div></div>
         ${field('วันที่เยี่ยม', inp('vDate', v.date || today(), 'date', 'max="' + today() + '" onchange="vElderChange(true)"'), '', true)}
-        ${field('เวลา', inp('vTime', v.time || new Date().toTimeString().slice(0, 5), 'time'))}
-        ${field('CM ผู้เยี่ยม', `<select id="vCm">${cmOpts(v.cmId)}</select>`)}
-      </div></div>
-    <div class="sec"><h4>2. สัญญาณชีพ</h4><div class="grid g6">
-      ${field('BP บน', inp('vSys', v.sys ?? '', 'number', 'inputmode="numeric" min="0" max="300"'))}${field('BP ล่าง', inp('vDia', v.dia ?? '', 'number', 'inputmode="numeric" min="0" max="200"'))}
-      ${field('ชีพจร/นาที', inp('vPulse', v.pulse ?? '', 'number', 'inputmode="numeric"'))}${field('อุณหภูมิ °C', inp('vTemp', v.temp ?? '', 'number', 'step="0.1" inputmode="decimal"'))}
-      ${field('หายใจ/นาที', inp('vRr', v.rr ?? '', 'number', 'inputmode="numeric"'))}${field('SpO₂ %', inp('vSpo2', v.spo2 ?? '', 'number', 'inputmode="numeric" max="100"'))}
-      ${field('น้ำหนัก กก.', inp('vWt', v.wt ?? '', 'number', 'step="0.1" inputmode="decimal"'))}${field('DTX mg/dL', inp('vDtx', v.dtx ?? '', 'number', 'inputmode="numeric"'))}
-    </div></div>
-    <div class="sec"><h4>3. ประเมิน ADL (Barthel Index เต็ม 20)</h4><div class="mu sm" style="margin-bottom:6px">เว้นว่างทั้งหมดได้หากครั้งนี้ไม่ได้ประเมิน · ถ้าประเมินต้องครบ 10 ข้อ</div>
-      ${BARTHEL.map(b => `<div class="adlrow"><div>${b.t}</div><select id="adl_${b.k}" onchange="adlCalc()"><option value="">-</option>${b.o.map(o => `<option value="${o[0]}" ${v.adlItems && v.adlItems[b.k] === o[0] ? 'selected' : ''}>${o[0]} = ${o[1]}</option>`).join('')}</select></div>`).join('')}
-      <div class="adltot"><span>คะแนนรวม</span><b id="adlTot">-</b><span id="adlGrp"></span></div></div>
-    <div class="sec"><h4>4. ปัญหาที่พบและการดูแลที่ให้</h4>
-      <div style="margin-bottom:12px"><div class="sm mu" style="margin-bottom:4px">ปัญหาที่พบ</div>${chips('vProb', PROBLEMS, v.problems || [])}</div>
-      <div style="margin-bottom:12px"><div class="sm mu" style="margin-bottom:4px">การดูแลที่ให้</div>${chips('vCare', CARE, v.care || [])}</div>
-      <div class="grid g2">${field('สภาพทั่วไป / รายละเอียดที่พบ', `<textarea id="vNote">${esc(v.note || '')}</textarea>`)}${field('อุปกรณ์/วัสดุที่ให้หรือยืม', `<textarea id="vEquip">${esc(v.equip || '')}</textarea>`)}</div></div>
-    <div class="sec"><h4>5. แผนและการส่งต่อ</h4><div class="grid g3">
-      ${field('แผนการดูแลครั้งต่อไป', `<textarea id="vPlan">${esc(v.plan || '')}</textarea>`, 'span2')}
-      ${field('นัดเยี่ยมครั้งถัดไป', inp('vNext', v.nextDate || '', 'date'))}
-      <label class="f span2" style="display:flex;gap:8px;align-items:center"><input type="checkbox" id="vRefer" ${v.refer ? 'checked' : ''} onchange="$('vReferWrap').classList.toggle('hide',!this.checked)"><span style="margin:0">ส่งต่อ/ปรึกษาแพทย์</span></label>
-      <label id="vReferWrap" class="f spanall ${v.refer ? '' : 'hide'}"><span>ส่งต่อไปที่ / เหตุผล</span><input id="vReferTxt" type="text" value="${esc(v.referTo || '')}"></label>
-    </div></div>
-    <div class="sec"><h4>6. รูปภาพและพิกัด</h4>
-      <input type="file" id="vFiles" accept="image/*" multiple onchange="photoAdd(this)" style="max-width:420px"><span class="mu sm"> สูงสุด 4 รูป (ระบบย่อรูปก่อนอัปโหลดไป ImgBB)</span>
-      <div class="thumbs" id="vThumbs"></div>
-      <div class="grid g4 mt2" style="align-items:end">${field('ละติจูด', inp('vLat', v.lat ?? '', 'text', 'inputmode="decimal"'))}${field('ลองจิจูด', inp('vLng', v.lng ?? '', 'text', 'inputmode="decimal"'))}<button class="btn btn-o" onclick="gps('vLat','vLng')">📍 ใช้ตำแหน่งปัจจุบัน</button></div></div>
-    <div class="sticky-actions"><button class="btn btn-o" onclick="cancelVisit()">ยกเลิก</button><button class="btn" id="vSave" onclick="saveVisit()">💾 บันทึกการเยี่ยม</button></div></div>`;
+        ${field('เวลา', inp('vTime', v.time || new Date().toTimeString().slice(0, 5), 'time', 'class="vf-in"'))}
+        ${field('CM ผู้เยี่ยม', `<select id="vCm">${cmOpts(v.cmId)}</select>`, 'full')}
+      </div>
+    </section>
+
+    <section class="vf-card" id="vf-s2">
+      ${vfHead('activity', 'สัญญาณชีพ', 'กรอกเท่าที่วัดได้ เว้นว่างได้')}
+      <div class="vf-g vf-vit">
+        <div class="f full" role="group" aria-label="ความดันโลหิต"><span class="vf-lb">ความดันโลหิต (บน / ล่าง)</span>
+          <div class="vf-bpw">${inp('vSys', v.sys ?? '', 'number', 'class="vf-in" placeholder="บน" aria-label="ความดันตัวบน" inputmode="numeric" min="0" max="300"')}<i>/</i>${inp('vDia', v.dia ?? '', 'number', 'class="vf-in" placeholder="ล่าง" aria-label="ความดันตัวล่าง" inputmode="numeric" min="0" max="200"')}<em>mmHg</em></div></div>
+        ${vit('vPulse', 'ชีพจร', v.pulse, '/นาที', 'inputmode="numeric"')}
+        ${vit('vTemp', 'อุณหภูมิ', v.temp, '°C', 'step="0.1" inputmode="decimal"')}
+        ${vit('vRr', 'หายใจ', v.rr, '/นาที', 'inputmode="numeric"')}
+        ${vit('vSpo2', 'SpO₂', v.spo2, '%', 'inputmode="numeric" max="100"')}
+        ${vit('vWt', 'น้ำหนัก', v.wt, 'กก.', 'step="0.1" inputmode="decimal"')}
+        ${vit('vDtx', 'DTX', v.dtx, 'mg/dL', 'inputmode="numeric"')}
+      </div>
+    </section>
+
+    <section class="vf-card" id="vf-s3">
+      ${vfHead('clip', 'ประเมิน ADL', 'Barthel Index เต็ม 20', 'vfSt3')}
+      <div class="vf-adl-sum">
+        <div><div class="vf-mini">คะแนนรวม</div><b id="adlTot">-</b></div>
+        <div class="vf-adl-r"><div id="adlGrp"></div><div class="vf-dots" aria-hidden="true">${BARTHEL.map(() => '<i></i>').join('')}</div></div>
+        <button type="button" class="vf-lnk hide" id="adlClr" onclick="adlClear()">ล้าง</button>
+      </div>
+      ${BARTHEL.map((b, i) => {
+        const m = b.t.match(/^\d+\.\s*([^(]+?)\s*\((.+)\)\s*$/), en = m ? m[1] : b.t, th = m ? m[2] : '';
+        const cur = v.adlItems ? v.adlItems[b.k] : null, has = cur !== undefined && cur !== null;
+        return `<div class="vf-ai" id="adlI_${b.k}">
+        <button type="button" class="vf-ai-h" aria-expanded="false" onclick="adlToggle('${b.k}')">
+          <span class="vf-ai-n">${i + 1}</span>
+          <span class="vf-ai-t"><b>${esc(en)}</b><small>${esc(th)}</small><span class="vf-ai-v" id="adlV_${b.k}"></span></span>
+          <span class="vf-ai-s" id="adlS_${b.k}"></span>${vfIc('chev', 'vf-chev')}
+        </button>
+        <div class="vf-ai-o" role="radiogroup" aria-label="${esc(en)}">${b.o.map(o => `<button type="button" class="vf-op" role="radio" aria-checked="false" data-s="${o[0]}" onclick="adlPick('${b.k}',${o[0]})"><b>${o[0]}</b><span>${esc(o[1])}</span></button>`).join('')}</div>
+        <input type="hidden" id="adl_${b.k}" value="${has ? cur : ''}">
+      </div>`;
+      }).join('')}
+    </section>
+
+    <section class="vf-card" id="vf-s4">
+      ${vfHead('heart', 'ปัญหาและการดูแล', 'แตะเลือกได้หลายข้อ', 'vfSt4')}
+      <div class="vf-sub" style="margin-top:0"><b>ปัญหาที่พบ</b><span class="vf-cnt hide" id="vProbN"></span></div>
+      <div class="warn" onchange="vfCount()">${chips('vProb', PROBLEMS, v.problems || [])}</div>
+      <div class="vf-sub"><b>การดูแลที่ให้</b><span class="vf-cnt hide" id="vCareN"></span></div>
+      <div onchange="vfCount()">${chips('vCare', CARE, v.care || [])}</div>
+      <div class="vf-g two" style="margin-top:18px">
+        ${field('สภาพทั่วไป / รายละเอียดที่พบ', `<textarea id="vNote">${esc(v.note || '')}</textarea>`)}
+        ${field('อุปกรณ์/วัสดุที่ให้หรือยืม', `<textarea id="vEquip">${esc(v.equip || '')}</textarea>`)}
+      </div>
+    </section>
+
+    <section class="vf-card" id="vf-s5">
+      ${vfHead('cal', 'แผนและการส่งต่อ', 'สิ่งที่ต้องทำต่อในการเยี่ยมครั้งถัดไป')}
+      <div class="vf-g">
+        ${field('แผนการดูแลครั้งต่อไป', `<textarea id="vPlan">${esc(v.plan || '')}</textarea>`, 'full')}
+        ${field('นัดเยี่ยมครั้งถัดไป', inp('vNext', v.nextDate || '', 'date'), 'full')}
+        <label class="vf-sw full"><input type="checkbox" id="vRefer" ${v.refer ? 'checked' : ''} onchange="$('vReferWrap').classList.toggle('hide',!this.checked)"><span class="tr"></span><span class="tx"><b>ส่งต่อ / ปรึกษาแพทย์</b><small>เปิดเพื่อระบุสถานที่และเหตุผล</small></span></label>
+        <label id="vReferWrap" class="f full ${v.refer ? '' : 'hide'}"><span>ส่งต่อไปที่ / เหตุผล</span><input id="vReferTxt" class="vf-in" type="text" value="${esc(v.referTo || '')}"></label>
+      </div>
+    </section>
+
+    <section class="vf-card" id="vf-s6">
+      ${vfHead('camera', 'รูปภาพและพิกัด', 'ระบบย่อรูปก่อนอัปโหลดอัตโนมัติ', 'vfSt6')}
+      <input type="file" id="vFiles" accept="image/*" multiple hidden onchange="photoAdd(this)">
+      <div class="vf-ph" id="vThumbs"></div>
+      <div class="vf-sub" style="margin-top:20px"><b>พิกัดบ้าน</b></div>
+      <button type="button" class="vf-btn2" onclick="gps('vLat','vLng')">${vfIc('pin')}<span>ใช้ตำแหน่งปัจจุบัน</span></button>
+      <div class="vf-g" style="margin-top:12px">
+        ${field('ละติจูด', inp('vLat', v.lat ?? '', 'text', 'class="vf-in" inputmode="decimal"'))}${field('ลองจิจูด', inp('vLng', v.lng ?? '', 'text', 'class="vf-in" inputmode="decimal"'))}
+      </div>
+    </section>
+
+    <div class="vf-bar"><div class="vf-bar-in"><button type="button" class="btn btn-o" onclick="cancelVisit()">ยกเลิก</button><button type="button" class="btn" id="vSave" onclick="saveVisit()">${vfSaveHtml()}</button></div></div>
+  </div>`;
 }
 function cancelVisit() { visitView = 'list'; visitEditing = null; pending = false; renderPage(); }
 function vCgChange() {
   const cur = $('vElder').value; $('vElder').innerHTML = elderOptions($('vCg').value, cur); vElderChange(true);
+}
+function vfType(k) {
+  $('vType').value = k;
+  document.querySelectorAll('.vf-seg button').forEach(b => b.setAttribute('aria-checked', String(b.dataset.v === k)));
 }
 function vElderChange(keep) {
   const id = $('vElder').value, e = S.elders[id], box = $('vInfo'); if (!box) return;
@@ -1155,45 +1433,130 @@ function vElderChange(keep) {
     if (e.cmId && S.cms[e.cmId]) $('vCm').value = e.cmId;
     if (!$('vCg').value && e.cgId && S.cgs[e.cgId]) { $('vCg').value = e.cgId; $('vElder').innerHTML = elderOptions(e.cgId, id); }
   }
-  const D = derived(), ym = (val('vDate') || today()).slice(0, 7), mv = monthVisits(D, ym), cgId = $('vCg').value;
+  const D = derived(), ym = (val('vDate') || today()).slice(0, 7), mv = monthVisits(D, ym), cgId = $('vCg').value, wasOpen = !!($('vfRep') && $('vfRep').open);
   let h = '';
   if (e) {
-    const q = depQuota(e), n = mv[id] || 0, left = Math.max(0, q - n), lv = D.last[id], sc = D.adlOf(e), g = depNo(e);
-    h += `<div class="vinfo">ℹ️ <b>${esc(fullName(e))}</b> — ${g ? DEP[g].label : 'ยังไม่ระบุ TAI'}${e.birthdate ? ' | อายุ ' + age(e.birthdate) + ' ปี' : ''} | ADL ${adlGroup(sc).label}${sc !== null && sc !== undefined ? ' (' + sc + ')' : ''}</div>`;
-    h += q ? `<div class="vquota ${left ? '' : 'ok'}">● ต้องเยี่ยม ${q} ครั้ง/เดือน | เยี่ยมแล้ว ${n} ครั้ง | คงเหลือ ${left} ครั้ง</div>` : '<div class="vquota none">● ยังไม่ระบุ TAI จึงยังไม่มีเกณฑ์การเยี่ยม (แก้ไขที่หน้าข้อมูลผู้สูงอายุ)</div>';
-    const more = [(e.diseases || []).length ? 'โรคประจำตัว: ' + e.diseases.join(', ') : '', lv ? 'เยี่ยมล่าสุด ' + thDate(lv.date) + (lv.plan ? ' · แผน: ' + lv.plan : '') : 'ยังไม่เคยบันทึกการเยี่ยม'].filter(Boolean).join(' · ');
-    h += `<div class="mu sm" style="margin:6px 2px 0">${esc(more)}</div>`;
+    const q = depQuota(e), n = mv[id] || 0, left = Math.max(0, q - n), lv = D.last[id], sc = D.adlOf({ ...e, id }), g = depNo(e), ag = adlGroup(sc), qp = q ? Math.min(100, Math.round(n * 100 / q)) : 0;
+    const rows = [];
+    if ((e.diseases || []).length) rows.push(['โรคประจำตัว', e.diseases.join(', ')]);
+    rows.push(['เยี่ยมล่าสุด', lv ? thDate(lv.date) : 'ยังไม่เคยบันทึกการเยี่ยม']);
+    if (lv && lv.plan) rows.push(['แผนครั้งก่อน', lv.plan]);
+    h += `<div class="vf-el"><div class="vf-el-top"><span class="vf-av" style="--c:${g ? DEP[g].color : '#1d6b57'}">${vfIc('user')}</span>
+      <div class="vf-el-nm"><b>${esc(fullName(e))}</b><div class="vf-tags"><span class="badge b-p">${g ? DEP[g].label : 'ยังไม่ระบุ TAI'}</span>${e.birthdate ? `<span class="badge b-p">อายุ ${age(e.birthdate)} ปี</span>` : ''}<span class="badge ${ag.cls}">ADL ${ag.label}${sc !== null && sc !== undefined ? ' · ' + sc : ''}</span></div></div></div>
+      ${q ? `<div class="vf-q ${left ? '' : 'ok'}"><div class="vf-q-h"><span>เยี่ยมแล้ว <b>${n}</b> / ${q} ครั้ง</span><strong>${left ? 'เหลืออีก ' + left + ' ครั้ง' : 'ครบตามเกณฑ์'}</strong></div><div class="vf-pb"><i style="width:${qp}%"></i></div><div class="vf-cap">เกณฑ์ต่อเดือน · ${thMonth(ym)}</div></div>`
+        : '<div class="vf-q none">ยังไม่ระบุ TAI จึงยังไม่มีเกณฑ์การเยี่ยม (แก้ไขที่หน้าข้อมูลผู้สูงอายุ)</div>'}
+      <dl class="vf-rows">${rows.map(([k, t]) => `<div><dt>${k}</dt><dd>${esc(t)}</dd></div>`).join('')}</dl></div>`;
   }
   const es = list(S.elders).filter(x => isActive(x) && (!cgId || x.cgId === cgId)), wq = es.filter(x => depQuota(x) > 0);
   const tgt = wq.reduce((a, x) => a + depQuota(x), 0), done = wq.reduce((a, x) => a + Math.min(mv[x.id] || 0, depQuota(x)), 0), pct = tgt ? Math.round(done * 100 / tgt) : 0;
-  h += `<div class="vrep"><h4>📊 รายงานผลการเยี่ยมประจำเดือน ${thMonth(ym)}</h4>
-    <div class="vtiles"><div class="t1"><b>${tgt}</b><span>ต้องเยี่ยม (ครั้ง)</span></div><div class="t2"><b>${done}</b><span>เยี่ยมแล้ว (ครั้ง)</span></div><div class="t3"><b>${Math.max(0, tgt - done)}</b><span>คงเหลือ (ครั้ง)</span></div></div>
-    <div class="vbar"><i style="width:${pct}%"></i></div>
-    <div class="mu sm">ขอบเขต: ${cgId ? 'CG: ' + esc(nmCg(cgId)) : 'ทุก CG'} · ผู้สูงอายุ ${es.length} คน · ความคืบหน้า ${pct}%${es.length > wq.length ? ' · ยังไม่ระบุ TAI ' + (es.length - wq.length) + ' คน (ไม่นับ)' : ''}</div></div>`;
+  h += `<details class="vf-rep" id="vfRep"${wasOpen ? ' open' : ''}><summary><span class="vf-ci">${vfIc('chart')}</span><span class="vf-rs"><b>สรุปผล ${MONTHS_S[+ym.slice(5, 7) - 1]} ${+ym.slice(0, 4) + 543}</b><small>${cgId ? esc(nmCg(cgId)) : 'ทุก CG'} · ${es.length} คน</small></span><span class="vf-pct">${pct}%</span>${vfIc('chev', 'vf-chev')}</summary>
+    <div class="vf-tiles"><div class="t1"><b>${tgt}</b><span>ต้องเยี่ยม (ครั้ง)</span></div><div class="t2"><b>${done}</b><span>เยี่ยมแล้ว (ครั้ง)</span></div><div class="t3"><b>${Math.max(0, tgt - done)}</b><span>คงเหลือ (ครั้ง)</span></div></div>
+    <div class="vf-pb"><i style="width:${pct}%"></i></div>
+    ${es.length > wq.length ? `<p class="vf-note">ยังไม่ระบุ TAI ${es.length - wq.length} คน (ไม่นับในเกณฑ์)</p>` : ''}</details>`;
   box.innerHTML = h;
 }
+
+/* ---------- ADL: เลือกทีละข้อ แตะแล้วเลื่อนไปข้อถัดไปอัตโนมัติ ---------- */
 function adlCalc() {
   const vals = BARTHEL.map(b => $('adl_' + b.k).value), n = vals.filter(x => x !== '').length, sum = vals.reduce((a, x) => a + (x === '' ? 0 : +x), 0);
-  $('adlTot').textContent = n === 0 ? '-' : sum + ' / 20'; $('adlGrp').innerHTML = n === 10 ? adlBadge(sum) : n ? `<span class="mu">ตอบแล้ว ${n}/10 ข้อ</span>` : '';
+  $('adlTot').textContent = n === 0 ? '-' : sum + ' / 20'; $('adlGrp').innerHTML = n === 10 ? adlBadge(sum) : n ? `<span class="mu">ตอบแล้ว ${n}/10 ข้อ · ต้องครบทุกข้อ</span>` : '<span class="mu">ยังไม่ได้ประเมิน · เว้นว่างได้</span>';
+  BARTHEL.forEach((b, i) => {
+    const el = $('adlI_' + b.k), x = vals[i], has = x !== '', o = b.o.find(o => String(o[0]) === x);
+    el.classList.toggle('done', has);
+    el.querySelectorAll('.vf-op').forEach(p => p.setAttribute('aria-checked', String(has && p.dataset.s === x)));
+    $('adlV_' + b.k).textContent = o ? o[1] : '';
+    $('adlS_' + b.k).textContent = has ? x + '/' + b.o[b.o.length - 1][0] : '';
+  });
+  document.querySelectorAll('.vf-dots i').forEach((d, i) => d.classList.toggle('on', vals[i] !== ''));
+  $('adlClr').classList.toggle('hide', n === 0);
+  const st = $('vfSt3'); if (st) { st.textContent = n === 10 ? 'ครบ 10 ข้อ' : n ? n + '/10 ข้อ' : 'ไม่บังคับ'; st.className = 'vf-stp' + (n === 10 ? ' ok' : ''); }
 }
+function adlToggle(k, force) {
+  BARTHEL.forEach(b => {
+    const el = $('adlI_' + b.k), open = b.k === k ? (force !== undefined ? force : !el.classList.contains('open')) : false;
+    el.classList.toggle('open', open); el.querySelector('.vf-ai-h').setAttribute('aria-expanded', String(open));
+  });
+}
+function adlPick(k, s) {
+  const h = $('adl_' + k); h.value = h.value === String(s) ? '' : String(s); adlCalc();
+  if (h.value === '') return;
+  const i = BARTHEL.findIndex(b => b.k === k), nx = BARTHEL.slice(i + 1).concat(BARTHEL.slice(0, i)).find(b => $('adl_' + b.k).value === '');
+  setTimeout(() => { if (nx) { adlToggle(nx.k, true); vfScroll($('adlI_' + nx.k)); } else adlToggle(k, false); }, 180);
+}
+async function adlClear() {
+  if (!await ask('ล้างคะแนน ADL ทั้ง 10 ข้อ?', 'ล้างคะแนน')) return;
+  BARTHEL.forEach(b => { $('adl_' + b.k).value = ''; }); adlCalc(); adlToggle(BARTHEL[0].k, true);
+}
+function vfCount() {
+  const p = chk('vProb').length, c = chk('vCare').length;
+  [['vProbN', p], ['vCareN', c]].forEach(([id, n]) => { const el = $(id); if (el) { el.textContent = 'เลือก ' + n; el.classList.toggle('hide', !n); } });
+  const st = $('vfSt4'); if (st) { st.textContent = p + c ? (p + c) + ' รายการ' : 'ไม่บังคับ'; st.className = 'vf-stp' + (p + c ? ' ok' : ''); }
+}
+
+/* ---------- เมนูลัดส่วนต่าง ๆ (ไฮไลต์ตามการเลื่อนหน้า) ---------- */
+let vfScrollBound = false, vfTick = false;
+function vfActive(id) {
+  const nav = $('vfNav'); if (!nav) return;
+  nav.querySelectorAll('button').forEach(b => {
+    const on = b.dataset.t === id;
+    if (on && !b.classList.contains('on')) nav.scrollTo({ left: b.offsetLeft - (nav.clientWidth - b.offsetWidth) / 2, behavior: 'smooth' });
+    b.classList.toggle('on', on); b.setAttribute('aria-current', on ? 'true' : 'false');
+  });
+}
+function vfOnScroll() {
+  if (vfTick) return; vfTick = true;
+  requestAnimationFrame(() => {
+    vfTick = false; if (!$('vfNav')) return;
+    const secs = [...document.querySelectorAll('.vf-card[id^="vf-s"]')]; if (!secs.length) return;
+    const lim = (parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--topH')) || 61) + 90;
+    let cur = secs[0]; secs.forEach(s => { if (s.getBoundingClientRect().top <= lim) cur = s; });
+    if (window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 6) cur = secs[secs.length - 1];
+    vfActive(cur.id);
+  });
+}
+function vfInit() {
+  const top = document.querySelector('.top'); if (top) document.documentElement.style.setProperty('--topH', top.offsetHeight + 'px');
+  if (!vfScrollBound) { window.addEventListener('scroll', vfOnScroll, { passive: true }); window.addEventListener('resize', vfOnScroll); vfScrollBound = true; }
+  const root = $('vfRoot');
+  ['input', 'change'].forEach(ev => root.addEventListener(ev, e => { const b = e.target.closest && e.target.closest('.vf-err'); if (b) b.classList.remove('vf-err'); }));
+  vfOnScroll();
+}
+function vfFail(msg, id) {
+  toast(msg, 'err');
+  const el = $(id); if (!el) return;
+  const box = el.closest('.f') || el; box.classList.add('vf-err');
+  box.scrollIntoView({ behavior: 'smooth', block: 'center' }); if (el.type !== 'hidden') el.focus({ preventScroll: true });
+}
+function vfAdlFail() {
+  toast('กรุณาประเมิน ADL ให้ครบ 10 ข้อ หรือเว้นว่างทั้งหมด', 'err');
+  const miss = BARTHEL.find(b => $('adl_' + b.k).value === ''); if (!miss) return;
+  adlToggle(miss.k, true); vfScroll($('adlI_' + miss.k));
+}
+
 function photoAdd(inputEl) {
   const room = 4 - VPH.keep.length - VPH.files.length;
   [...inputEl.files].slice(0, Math.max(0, room)).forEach(f => VPH.files.push(f));
   if (inputEl.files.length > room) toast('เพิ่มได้สูงสุด 4 รูป', 'warn');
   inputEl.value = ''; photoPreview();
 }
+const VF_URL = new WeakMap();
 function photoPreview() {
   const t = $('vThumbs'); if (!t) return;
-  t.innerHTML = VPH.keep.map((u, i) => `<div class="thumb"><img src="${esc(u)}" alt=""><button onclick="VPH.keep.splice(${i},1);photoPreview()" aria-label="ลบรูป">✕</button></div>`).join('') +
-    VPH.files.map((f, i) => `<div class="thumb"><img src="${URL.createObjectURL(f)}" alt=""><button onclick="VPH.files.splice(${i},1);photoPreview()" aria-label="ลบรูป">✕</button></div>`).join('');
+  const url = f => { let u = VF_URL.get(f); if (!u) { u = URL.createObjectURL(f); VF_URL.set(f, u); } return u; };
+  const th = (src, act, i) => `<div class="vf-th"><img src="${src}" alt="รูปที่ ${i}"><button type="button" onclick="${act}" aria-label="ลบรูปที่ ${i}">${vfIc('x')}</button></div>`;
+  const k = VPH.keep.length, tot = k + VPH.files.length;
+  t.innerHTML = VPH.keep.map((u, i) => th(esc(u), `VPH.keep.splice(${i},1);photoPreview()`, i + 1)).join('') +
+    VPH.files.map((f, i) => th(url(f), `VPH.files.splice(${i},1);photoPreview()`, k + i + 1)).join('') +
+    (tot < 4 ? `<button type="button" class="vf-add" onclick="$('vFiles').click()">${vfIc('plus')}<span>เพิ่มรูป</span></button>` : '');
+  const st = $('vfSt6'); if (st) { st.textContent = tot + '/4 รูป'; st.className = 'vf-stp' + (tot ? ' ok' : ''); }
 }
 async function saveVisit() {
   if (!canEdit()) return;
   const elderId = val('vElder'), date = val('vDate');
-  if (!elderId) return toast('กรุณาเลือกผู้สูงอายุ', 'err');
-  if (!date) return toast('กรุณาระบุวันที่เยี่ยม', 'err');
+  if (!elderId) return vfFail('กรุณาเลือกผู้สูงอายุ', 'vElder');
+  if (!date) return vfFail('กรุณาระบุวันที่เยี่ยม', 'vDate__v');
   const vals = BARTHEL.map(b => $('adl_' + b.k).value), n = vals.filter(x => x !== '').length;
-  if (n > 0 && n < 10) return toast('กรุณาประเมิน ADL ให้ครบ 10 ข้อ หรือเว้นว่างทั้งหมด', 'err');
+  if (n > 0 && n < 10) return vfAdlFail();
   const adlItems = {}; if (n === 10) BARTHEL.forEach((b, i) => adlItems[b.k] = +vals[i]);
   const adl = n === 10 ? vals.reduce((a, x) => a + +x, 0) : null;
   const btn = $('vSave'); btn.disabled = true; btn.textContent = 'กำลังบันทึก...';
@@ -1211,7 +1574,7 @@ async function saveVisit() {
     };
     await dbSave('visits', visitEditing, data);
     toast('บันทึกการเยี่ยมเรียบร้อย'); visitView = 'list'; visitEditing = null; pending = false; renderPage(); window.scrollTo(0, 0);
-  } catch (e) { toast('บันทึกไม่สำเร็จ: ' + e.message, 'err'); btn.disabled = false; btn.textContent = '💾 บันทึกการเยี่ยม'; }
+  } catch (e) { toast('บันทึกไม่สำเร็จ: ' + e.message, 'err'); btn.disabled = false; btn.innerHTML = vfSaveHtml(); }
 }
 function visitHtml(v) {
   const e = S.elders[v.elderId] || {}, g = adlGroup(v.adl);
