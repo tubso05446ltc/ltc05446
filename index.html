@@ -635,6 +635,10 @@ body:has(.vf) #toast-root{bottom:calc(88px + env(safe-area-inset-bottom,0px))}
 .vf-bar-in{display:flex;gap:10px;max-width:860px;margin:0 auto}
 .vf-bar .btn{justify-content:center;min-height:54px;border-radius:16px;font-size:16.5px}
 .vf-bar .btn-o{flex:0 0 auto;padding:0 22px}
+.vf-bar .btn-d{flex:0 0 auto;padding:0 18px;gap:6px}
+.vf-bar .btn-d .vf-ic{width:20px;height:20px}
+.v-act{white-space:nowrap;position:sticky;right:0;background:#fff;box-shadow:-8px 0 10px -8px rgba(18,41,31,.25)}
+th.v-act{background:#f4f8f6}
 .vf-bar #vSave{flex:1;font-weight:600;gap:8px}
 .vf-bar #vSave .vf-ic{width:22px;height:22px}
 
@@ -764,6 +768,7 @@ const nmCm = id => id && S.cms[id] ? pName(S.cms[id]) : '-';
 const nmCg = id => id && S.cgs[id] ? pName(S.cgs[id]) : '-';
 const isAdmin = () => ME && ME.role === 'admin';
 const canEdit = () => ME && ME.role !== 'viewer';
+const canDelVisit = () => isAdmin(); /* ลบบันทึกการเยี่ยม: เฉพาะผู้ดูแลระบบ (เปลี่ยนเป็น canEdit() หากต้องการให้เจ้าหน้าที่ลบได้ด้วย) */
 const cmp = (a, b) => String(a).localeCompare(String(b), 'th');
 const mapUrl = (la, ln) => 'https://www.google.com/maps?q=' + la + ',' + ln;
 
@@ -1282,9 +1287,9 @@ function pVisitList() {
 }
 function visitTable() {
   const rows = derived().vs.filter(v => (!VFL.month || v.date.startsWith(VFL.month)) && (!VFL.cm || v.cmId === VFL.cm) && (!VFL.type || v.type === VFL.type) && (!VFL.q || elderName(v.elderId).includes(VFL.q))).reverse();
-  $('visitArea').innerHTML = rows.length ? `<div class="tw"><table><thead><tr><th>วันที่</th><th>ผู้สูงอายุ</th><th>หมู่</th><th>ประเภท</th><th>ADL</th><th>BP</th><th>CM / CG</th><th></th></tr></thead><tbody>${rows.slice(0, 300).map(v => {
+  $('visitArea').innerHTML = rows.length ? `<div class="tw"><table><thead><tr><th>วันที่</th><th>ผู้สูงอายุ</th><th>หมู่</th><th>ประเภท</th><th>ADL</th><th>BP</th><th>CM / CG</th><th class="v-act"></th></tr></thead><tbody>${rows.slice(0, 300).map(v => {
     const e = S.elders[v.elderId] || {};
-    return `<tr><td>${thDate(v.date)}</td><td><b>${esc(elderName(v.elderId))}</b></td><td>${esc(e.moo || '-')}</td><td>${VTYPES[v.type] || '-'}${v.refer ? ' <span class="badge b-g3">ส่งต่อ</span>' : ''}</td><td>${adlBadge(v.adl)}</td><td>${v.sys ? v.sys + '/' + (v.dia || '-') : '-'}</td><td class="sm">${esc(nmCm(v.cmId))}<br><span class="mu">${esc(nmCg(v.cgId))}</span></td><td class="n"><button class="btn btn-o btn-s" onclick="showVisit('${v.id}')">ดู</button></td></tr>`;
+    return `<tr><td>${thDate(v.date)}</td><td><b>${esc(elderName(v.elderId))}</b></td><td>${esc(e.moo || '-')}</td><td>${VTYPES[v.type] || '-'}${v.refer ? ' <span class="badge b-g3">ส่งต่อ</span>' : ''}</td><td>${adlBadge(v.adl)}</td><td>${v.sys ? v.sys + '/' + (v.dia || '-') : '-'}</td><td class="sm">${esc(nmCm(v.cmId))}<br><span class="mu">${esc(nmCg(v.cgId))}</span></td><td class="n v-act"><button class="btn btn-o btn-s" onclick="showVisit('${v.id}')">ดู</button>${canEdit() ? ` <button class=\"btn btn-o btn-s\" onclick=\"editVisit('${v.id}')\">แก้ไข</button>` : ''}${canDelVisit() ? ` <button class=\"btn btn-d btn-s\" onclick=\"delVisit('${v.id}')\">ลบ</button>` : ''}</td></tr>`;
   }).join('')}</tbody></table></div><div class="mu sm mt2">แสดง ${Math.min(rows.length, 300)} จาก ${rows.length} รายการ</div>` : '<div class="card empty">ไม่พบบันทึกการเยี่ยมตามเงื่อนไขที่เลือก</div>';
 }
 function newVisit(elderId) {
@@ -1305,6 +1310,7 @@ const VF_IC = {
   camera: '<path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z"/><circle cx="12" cy="13" r="3"/>',
   pin: '<path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/>',
   back: '<path d="m12 19-7-7 7-7M19 12H5"/>',
+  trash: '<path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2m3 0-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6M14 11v6"/>',
   plus: '<path d="M12 5v14M5 12h14"/>',
   x: '<path d="M18 6 6 18M6 6l12 12"/>',
   chev: '<path d="m6 9 6 6 6-6"/>',
@@ -1416,7 +1422,7 @@ function visitForm() {
       </div>
     </section>
 
-    <div class="vf-bar"><div class="vf-bar-in"><button type="button" class="btn btn-o" onclick="cancelVisit()">ยกเลิก</button><button type="button" class="btn" id="vSave" onclick="saveVisit()">${vfSaveHtml()}</button></div></div>
+    <div class="vf-bar"><div class="vf-bar-in"><button type="button" class="btn btn-o" onclick="cancelVisit()">ยกเลิก</button>${visitEditing && canDelVisit() ? `<button type="button" class="btn btn-d" onclick="delVisit('${visitEditing}')">${vfIc('trash')}<span>ลบ</span></button>` : ''}<button type="button" class="btn" id="vSave" onclick="saveVisit()">${vfSaveHtml()}</button></div></div>
   </div>`;
 }
 function cancelVisit() { visitView = 'list'; visitEditing = null; pending = false; renderPage(); }
@@ -1600,9 +1606,16 @@ function visitHtml(v) {
 function showVisit(id) {
   const v = S.visits[id]; if (!v) return; v.id = id;
   openModal('รายละเอียดการเยี่ยม', visitHtml(v),
-    `${isAdmin() ? `<button class="btn btn-d" onclick="delVisit('${id}')">ลบ</button>` : ''}<button class="btn btn-o" onclick="exportPDF($('vPrint'),'visit_${id}.pdf')">⬇ PDF</button>${canEdit() ? `<button class="btn btn-g" onclick="editVisit('${id}')">แก้ไข</button>` : ''}<button class="btn btn-o" onclick="closeModal()">ปิด</button>`, true);
+    `${canDelVisit() ? `<button class="btn btn-d" onclick="delVisit('${id}')">ลบ</button>` : ''}<button class="btn btn-o" onclick="exportPDF($('vPrint'),'visit_${id}.pdf')">⬇ PDF</button>${canEdit() ? `<button class="btn btn-g" onclick="editVisit('${id}')">แก้ไข</button>` : ''}<button class="btn btn-o" onclick="closeModal()">ปิด</button>`, true);
 }
-async function delVisit(id) { if (!await ask('ลบบันทึกการเยี่ยมนี้ถาวร?', 'ลบ')) return; try { await dbDel('visits', id); closeModal(); toast('ลบแล้ว'); } catch (e) { toast('ลบไม่สำเร็จ: ' + e.message, 'err'); } }
+async function delVisit(id) {
+  const v = S.visits[id]; if (!v || !canDelVisit()) return;
+  if (!await ask('ลบบันทึกการเยี่ยมของ ' + elderName(v.elderId) + ' วันที่ ' + thDate(v.date) + ' ถาวร? (กู้คืนไม่ได้)', 'ลบ')) return;
+  try {
+    await dbDel('visits', id); closeModal(); toast('ลบบันทึกการเยี่ยมแล้ว');
+    if (visitEditing === id) { visitView = 'list'; visitEditing = null; pending = false; renderPage(); window.scrollTo(0, 0); }
+  } catch (e) { toast('ลบไม่สำเร็จ: ' + e.message, 'err'); }
+}
 
 /* =====================================================================
    PAGE 3 : CM / CG
