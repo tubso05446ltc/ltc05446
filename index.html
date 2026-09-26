@@ -1881,7 +1881,7 @@ function elderForm(id) {
     ${field('เลขบัตรประชาชน 13 หลัก', inp('e_cid', e.cid || '', 'text', 'inputmode="numeric" maxlength="13"'))}${field('HN / รหัสผู้ป่วย', inp('e_hn', e.hn || ''))}
     ${field('เพศ', `<select id="e_sex">${opts([['ช', 'ชาย'], ['ญ', 'หญิง']], e.sex || '', '-')}</select>`)}
     ${field('วันเกิด', inp('e_bd', e.birthdate || '', 'date', 'max="' + today() + '"'))}${field('เบอร์โทร', inp('e_phone', e.phone || '', 'tel', 'inputmode="tel"'))}${field('วันที่ขึ้นทะเบียน', inp('e_enr', e.enrolled || '', 'date'))}
-    ${field('บ้านเลขที่', inp('e_house', e.house || ''))}${field('หมู่ที่', inp('e_moo', e.moo || '', 'text', 'list="mooList2"') + `<datalist id="mooList2">${mooList().map(m => `<option value="${esc(m)}">`).join('')}</datalist>`, '', true)}${field('ตำบล/ที่อยู่เพิ่มเติม', inp('e_addr', e.addr || (id ? '' : 'ตำบล' + ORG.tambon)))}
+    ${field('บ้านเลขที่', inp('e_house', e.house || ''))}${field('หมู่ที่', inp('e_moo', e.moo || '', 'text', 'list="mooList2"') + `<datalist id="mooList2">${mooList().map(m => `<option value="${esc(m)}">`).join('')}</datalist>`, '', true)}${field('ตำบล/ที่อยู่เพิ่มเติม', inp('e_addr', e.addr || (id ? '' : ORG.tambon)))}
     ${field('CM ที่รับผิดชอบ', `<select id="e_cm">${cmOpts(e.cmId)}</select>`)}${field('CG ที่ดูแล', `<select id="e_cg">${cgOpts(e.cgId)}</select>`)}
     ${field('คะแนน ADL เริ่มต้น (0-20)', inp('e_adl', e.adl ?? '', 'number', 'min="0" max="20"'))}
     ${field('ข้อมูล TAI', `<select id="e_tai" onchange="taiChange()">${opts(TAI_OPTS.map(t => [t, t]), e.tai || '', '- ไม่ระบุ -')}</select>`)}
