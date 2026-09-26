@@ -2237,7 +2237,8 @@ function cgpRun() {
 }
 function cgpPDF() {
   const cg = S.cgs[CGP.cg]; if (!cg) return toast('กรุณาเลือก CG', 'err');
-  const pre = { att: 'เอกสารเบิกเงิน_CG_', monthly: 'บันทึกปฏิบัติงานรายเดือน_CG_', visits: 'ผลงานการเยี่ยม_CG_' }[CGP.doc] || 'เอกสาร_CG_';
+  if (CGP.doc === 'visits') return exportPDF($('rpPaper'), 'report_CG_' + cgFirstName(cg) + '_' + CGP.year + '-' + dp2(CGP.month) + '.pdf', false);
+  const pre = { att: 'เอกสารเบิกเงิน_CG_', monthly: 'บันทึกปฏิบัติงานรายเดือน_CG_' }[CGP.doc] || 'เอกสาร_CG_';
   exportPDF($('rpPaper'), pre + cgFirstName(cg) + '_' + CGP.year + '-' + dp2(CGP.month) + '.pdf', false);
 }
 
