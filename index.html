@@ -2377,19 +2377,20 @@ function diaperOutForm(skuId) {
   const elderOpts = list(S.elders).filter(isActive).sort((a, b) => cmp(fullName(a), fullName(b)));
   openModal('บันทึกเบิกจ่าย: ' + esc(sku.label), `<div class="infobox" style="margin:0 0 12px">คงเหลือปัจจุบัน <b>${o.avail}</b> ชิ้น</div><div class="grid g2">
     ${field('ชื่อ-นามสกุลผู้เบิกจ่าย', inp('do_dname', ME.name || ME.username || '', 'text', 'readonly'), '', true)}${field('บทบาทผู้เบิกจ่าย', `<select id="do_drole">${opts(Object.entries(DISP_ROLES), '', '- เลือก -')}</select>`, '', true)}
-    ${field('ชื่อ-นามสกุลผู้รับ (ผู้สูงอายุ/เด็ก)', inp('do_rname', '', 'text', 'list="doRecipList" autocomplete="off" placeholder="พิมพ์เพื่อค้นหาจากข้อมูลผู้สูงอายุ..." oninput="diaperRecipPick(this.value)"') + `<datalist id="doRecipList">${elderOpts.map(e => `<option value="${esc(fullName(e))}">`).join('')}</datalist>`, '', true)}${field('ประเภทผู้รับ', `<select id="do_rtype">${opts(Object.entries(RECIP_TYPES), '', '- เลือก -')}</select>`, '', true)}
+    ${field('ชื่อ-นามสกุลผู้รับ (ผู้สูงอายุ/เด็ก)', inp('do_rname', '', 'text', 'list="doRecipList" autocomplete="off" placeholder="พิมพ์เพื่อค้นหาจากข้อมูลผู้สูงอายุ..." oninput="diaperRecipPick(this.value)"') + `<datalist id="doRecipList">${elderOpts.map(e => `<option value="${esc(fullName(e))}">`).join('')}</datalist>`, '', true)}${field('ประเภทผู้รับ / กลุ่มผู้มีภาวะพึ่งพิง', inp('do_rtype', '', 'text', 'readonly tabindex="-1" style="background:#f1f5f3" placeholder="เลือกชื่อผู้รับเพื่อแสดงกลุ่มอัตโนมัติ"'))}
     ${field('รหัสอ้างอิงผู้รับ (ถ้ามี)', inp('do_rref', ''))}${field('จำนวนที่เบิกจ่าย', inp('do_qty', 1, 'number', 'min="1"'), '', true)}
     ${field('วันที่เบิกจ่าย', inp('do_date', today(), 'date'))}${field('หมายเหตุ', inp('do_note', ''), 'spanall')}</div>`,
     `<button class="btn btn-o" onclick="closeModal()">ยกเลิก</button><button class="btn" onclick="diaperOutSave('${skuId}')">บันทึก</button>`);
 }
 function diaperRecipPick(name) {
-  const n = String(name || '').trim(); if (!n) return;
-  const e = list(S.elders).find(x => fullName(x) === n); if (!e) return;
-  const rt = $('do_rtype'), rr = $('do_rref'); if (rt) rt.value = 'elderly'; if (rr) rr.value = e.id;
+  const n = String(name || '').trim(); const rt = $('do_rtype'), rr = $('do_rref'); if (!rt) return;
+  const e = n ? list(S.elders).find(x => fullName(x) === n) : null;
+  if (!e) { rt.value = ''; return; }
+  rt.value = e.depGroup || taiGroup(e.tai) || 'ยังไม่ระบุ TAI'; if (rr) rr.value = e.id;
 }
 async function diaperOutSave(skuId) {
   const dname = val('do_dname'), drole = val('do_drole'), rname = val('do_rname'), rtype = val('do_rtype'), rref = val('do_rref'), note = val('do_note'), qty = numOrNull(val('do_qty')), date = val('do_date') || today();
-  if (!dname || !drole || !rname || !rtype) return toast('กรุณากรอกข้อมูลผู้เบิกจ่ายและผู้รับให้ครบถ้วน', 'err');
+  if (!dname || !drole || !rname) return toast('กรุณากรอกข้อมูลผู้เบิกจ่ายและผู้รับให้ครบถ้วน', 'err');
   if (!qty || qty < 1) return toast('กรุณาระบุจำนวนที่เบิกจ่าย', 'err');
   const o = diaperStock()[skuId];
   if (qty > o.avail) return toast('จำนวนคงเหลือไม่พอสำหรับการเบิกจ่าย (คงเหลือ ' + o.avail + ' ชิ้น)', 'err');
