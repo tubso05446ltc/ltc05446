@@ -707,7 +707,7 @@ const APP_TITLE = 'ระบบบันทึกการเยี่ยมผ�
 const MONTHS_S = ['ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.','ต.ค.','พ.ย.','ธ.ค.'];
 const MONTHS_F = ['มกราคม','กุมภาพันธ์','มีนาคม','เมษายน','พฤษภาคม','มิถุนายน','กรกฎาคม','สิงหาคม','กันยายน','ตุลาคม','พฤศจิกายน','ธันวาคม'];
 const FY_ORDER = [9,10,11,0,1,2,3,4,5,6,7,8];
-const COLS = ['elders','cms','cgs','visits','materials','txns','users'];
+const COLS = ['elders','cms','cgs','visits','materials','txns','diaperBatches','diaperTxns','diaperCfg','users'];
 const ROLES = { admin: 'ผู้ดูแลระบบ', staff: 'เจ้าหน้าที่ (บันทึก/แก้ไข)', cg: 'ผู้ดูแล CG (บันทึก/แก้ไข ลบไม่ได้)', viewer: 'ผู้ดูข้อมูล' };
 const VTYPES = { plan: 'เยี่ยมตามแผน', follow: 'เยี่ยมติดตาม', urgent: 'เยี่ยมเร่งด่วน' };
 const DISEASES = ['ความดันโลหิตสูง','เบาหวาน','หลอดเลือดสมอง (Stroke)','โรคหัวใจ','โรคไตเรื้อรัง','COPD/โรคปอด','สมองเสื่อม/อัลไซเมอร์','พาร์กินสัน','มะเร็ง','ข้อเสื่อม/กระดูกหัก','ซึมเศร้า'];
@@ -795,7 +795,7 @@ const BARTHEL = [
 
 /* ---------- state ---------- */
 let db = null;
-const S = { elders:{}, cms:{}, cgs:{}, visits:{}, materials:{}, txns:{}, users:{} };
+const S = { elders:{}, cms:{}, cgs:{}, visits:{}, materials:{}, txns:{}, diaperBatches:{}, diaperTxns:{}, diaperCfg:{}, users:{} };
 const loaded = {};
 let ME = null, page = 'dash', pending = false, rt = null;
 let seededAdmin = false;
@@ -1097,7 +1097,7 @@ function logout() {
 }
 const NAV = [
   ['dash', '📊', 'ภาพรวม (Dashboard)'], ['visit', '🩺', 'บันทึกการเยี่ยม'], ['team', '👥', 'จัดการ CM และ CG'],
-  ['elder', '👵', 'ข้อมูลผู้สูงอายุ'], ['report', '📄', 'รายงาน'], ['cgpay', '🧾', 'เอกสารเบิกเงิน CG'], ['mat', '🧰', 'วัสดุ อุปกรณ์'], ['users', '🔑', 'จัดการผู้ใช้']
+  ['elder', '👵', 'ข้อมูลผู้สูงอายุ'], ['report', '📄', 'รายงาน'], ['cgpay', '🧾', 'เอกสารเบิกเงิน CG'], ['mat', '🧰', 'วัสดุ อุปกรณ์'], ['diaper', '🍼', 'จัดการผ้าอ้อมและแผ่นรองซับ'], ['users', '🔑', 'จัดการผู้ใช้']
 ];
 function startApp() {
   $('app').innerHTML = `<div class="shell">
@@ -2330,6 +2330,77 @@ async function returnLoan(id) {
 }
 async function txnDel(id) { if (!await ask('ลบรายการนี้? (จำนวนคงเหลือจะถูกคำนวณใหม่)', 'ลบ')) return; try { await dbDel('txns', id); toast('ลบแล้ว'); } catch (e) { toast('ลบไม่สำเร็จ: ' + e.message, 'err'); } }
 
+/* =====================================================================
+   PAGE : จัดการผ้าอ้อมและแผ่นรองซับ (เบิกจ่าย/บริหารสต็อก)
+   ===================================================================== */
+PAGES.diaper = { title: 'จัดการผ้าอ้อมและแผ่นรองซับ', render: pDiaper };
+const DIAPER_CATS = { baby: 'ผ้าอ้อมเด็ก (Baby Diapers)', adult: 'ผ้าอ้อมผู้ใหญ่ (Adult Diapers)', pad: 'แผ่นรองซับ (Underpads)' };
+const DIAPER_SIZES = { baby: ['S', 'M', 'L', 'XL', 'XXL', '3XL'], adult: ['S', 'M', 'L', 'XL', 'XXL', '3XL'], pad: ['L', 'XL', 'XXL'] };
+const DIAPER_SKUS = [];
+Object.keys(DIAPER_SIZES).forEach(cat => DIAPER_SIZES[cat].forEach(sz => DIAPER_SKUS.push({ id: cat + '_' + sz, cat, size: sz, label: DIAPER_CATS[cat] + ' ไซส์ ' + sz })));
+const DISP_ROLES = { cg: 'ผู้ดูแล (CG)', cm: 'Care Manager (CM)', staff: 'เจ้าหน้าที่ รพ.สต.' };
+const RECIP_TYPES = { child: 'เด็ก', elderly: 'ผู้สูงอายุ' };
+let diaperTab = 'stock', diaperHF = { q: '' };
+function diaperStock() {
+  const out = {}; DIAPER_SKUS.forEach(s => out[s.id] = { sku: s, recv: 0, issued: 0, avail: 0 });
+  list(S.diaperBatches).forEach(b => { const o = out[b.skuId]; if (!o) return; o.recv += +b.qty || 0; });
+  list(S.diaperTxns).forEach(t => { const o = out[t.skuId]; if (!o) return; o.issued += +t.qty || 0; });
+  Object.values(out).forEach(o => o.avail = o.recv - o.issued); return out;
+}
+function pDiaper() {
+  const tabs = `<div class="tabs"><button class="${diaperTab === 'stock' ? 'on' : ''}" onclick="diaperTab='stock';renderPage()">คลังผ้าอ้อม/แผ่นรองซับ</button><button class="${diaperTab === 'history' ? 'on' : ''}" onclick="diaperTab='history';renderPage()">ประวัติการเบิกจ่าย</button></div>`;
+  const st = diaperStock();
+  const low = Object.values(st).filter(o => { const cfg = S.diaperCfg[o.sku.id] || {}; return (+cfg.reorder || 0) > 0 && o.avail <= +cfg.reorder; });
+  if (diaperTab === 'stock') {
+    const groups = Object.keys(DIAPER_CATS).map(cat => `<div class="tw" style="margin-bottom:16px"><table><thead><tr><th colspan="6" style="background:var(--pl)">${DIAPER_CATS[cat]}</th></tr><tr><th>ไซส์</th><th class="n">รับเข้าสะสม</th><th class="n">เบิกจ่ายสะสม</th><th class="n">คงเหลือ</th><th>สถานะ / จุดสั่งซื้อ</th><th></th></tr></thead><tbody>${DIAPER_SIZES[cat].map(sz => {
+      const o = st[cat + '_' + sz], cfg = S.diaperCfg[o.sku.id] || {}, rp = +cfg.reorder || 0, isLow = rp > 0 && o.avail <= rp;
+      return `<tr><td><b>${o.sku.size}</b></td><td class="n">${o.recv}</td><td class="n">${o.issued}</td><td class="n"><b>${o.avail}</b></td><td>${o.avail < 0 ? '<span class="badge b-g3">ติดลบ</span>' : isLow ? '<span class="badge b-g3">ใกล้หมด</span>' : '<span class="badge b-g1">ปกติ</span>'} <span class="mu sm">(จุดสั่งซื้อ ${rp})</span></td><td class="n" style="white-space:nowrap">${canEdit() ? `<button class="btn btn-s" onclick="diaperOutForm('${o.sku.id}')">เบิกจ่าย</button> <button class="btn btn-o btn-s" onclick="diaperInForm('${o.sku.id}')">รับเข้า</button> <button class="btn btn-o btn-s" onclick="diaperCfgForm('${o.sku.id}')">ตั้งจุดสั่งซื้อ</button>` : ''}</td></tr>`;
+    }).join('')}</tbody></table></div>`).join('');
+    return tabs + `<div class="mu sm" style="margin-bottom:12px">การเบิกจ่ายและตัดสต็อกเป็นแบบ Real-time โดยยึดหลักบริหารคลังแบบ FIFO (เบิกจ่ายจากล็อตที่รับเข้าก่อนเป็นลำดับแรก)</div>` + (low.length ? `<div class="infobox">⚠️ แจ้งเตือนสินค้าใกล้จุดสั่งซื้อ: ${low.map(o => esc(o.sku.label) + ' (คงเหลือ ' + o.avail + ')').join(', ')}</div><div class="mt2"></div>` : '') + groups;
+  }
+  const q = (diaperHF.q || '').trim().toLowerCase();
+  const tx = list(S.diaperTxns).filter(t => !q || (t.dispenserName || '').toLowerCase().includes(q) || (t.recipientName || '').toLowerCase().includes(q)).sort((a, b) => a.date < b.date ? 1 : a.date > b.date ? -1 : (b.createdAt || 0) - (a.createdAt || 0));
+  return tabs + `<div class="toolbar"><input placeholder="ค้นหาชื่อผู้เบิก หรือ ชื่อผู้รับ" value="${esc(diaperHF.q)}" oninput="diaperHF.q=this.value;renderPage()"></div>
+    ${tx.length ? `<div class="tw"><table><thead><tr><th>วันที่</th><th>รายการ</th><th class="n">จำนวน</th><th>ผู้เบิก</th><th>ผู้รับ</th><th></th></tr></thead><tbody>${tx.map(t => { const sku = DIAPER_SKUS.find(s => s.id === t.skuId); return `<tr><td>${thDate(t.date)}</td><td>${esc(sku ? sku.label : '(ถูกลบ)')}</td><td class="n">${t.qty}</td><td>${esc(t.dispenserName)}<div class="mu sm">${esc(DISP_ROLES[t.dispenserRole] || t.dispenserRole || '')}</div></td><td>${esc(t.recipientName)}<div class="mu sm">${esc(RECIP_TYPES[t.recipientType] || t.recipientType || '')}${t.recipientRef ? ' · ' + esc(t.recipientRef) : ''}</div></td><td class="n">${isAdmin() ? `<button class="btn btn-d btn-s" onclick="diaperTxnDel('${t.id}')">ลบ</button>` : ''}</td></tr>`; }).join('')}</tbody></table></div>` : '<div class="card empty">ไม่พบรายการ</div>'}`;
+}
+function diaperInForm(skuId) {
+  if (!canEdit()) return; const sku = DIAPER_SKUS.find(s => s.id === skuId);
+  openModal('บันทึกรับเข้า: ' + esc(sku.label), `<div class="grid g2">${field('จำนวนที่รับเข้า', inp('di_qty', 1, 'number', 'min="1"'), '', true)}${field('วันที่รับเข้า', inp('di_date', today(), 'date'))}${field('หมายเหตุ / แหล่งที่มา', inp('di_note', ''), 'spanall')}</div>`,
+    `<button class="btn btn-o" onclick="closeModal()">ยกเลิก</button><button class="btn" onclick="diaperInSave('${skuId}')">บันทึก</button>`);
+}
+async function diaperInSave(skuId) {
+  const qty = numOrNull(val('di_qty')); if (!qty || qty < 1) return toast('กรุณาระบุจำนวนรับเข้า', 'err');
+  try { await dbSave('diaperBatches', null, { skuId, qty, date: val('di_date') || today(), note: val('di_note') }); closeModal(); toast('บันทึกรับเข้าแล้ว'); } catch (e) { toast('บันทึกไม่สำเร็จ: ' + e.message, 'err'); }
+}
+function diaperOutForm(skuId) {
+  if (!canEdit()) return; const o = diaperStock()[skuId], sku = o.sku;
+  openModal('บันทึกเบิกจ่าย: ' + esc(sku.label), `<div class="infobox" style="margin:0 0 12px">คงเหลือปัจจุบัน <b>${o.avail}</b> ชิ้น</div><div class="grid g2">
+    ${field('ชื่อ-นามสกุลผู้เบิกจ่าย', inp('do_dname', ''), '', true)}${field('บทบาทผู้เบิกจ่าย', `<select id="do_drole">${opts(Object.entries(DISP_ROLES), '', '- เลือก -')}</select>`, '', true)}
+    ${field('ชื่อ-นามสกุลผู้รับ (ผู้สูงอายุ/เด็ก)', inp('do_rname', ''), '', true)}${field('ประเภทผู้รับ', `<select id="do_rtype">${opts(Object.entries(RECIP_TYPES), '', '- เลือก -')}</select>`, '', true)}
+    ${field('รหัสอ้างอิงผู้รับ (ถ้ามี)', inp('do_rref', ''))}${field('จำนวนที่เบิกจ่าย', inp('do_qty', 1, 'number', 'min="1"'), '', true)}
+    ${field('วันที่เบิกจ่าย', inp('do_date', today(), 'date'))}${field('หมายเหตุ', inp('do_note', ''), 'spanall')}</div>`,
+    `<button class="btn btn-o" onclick="closeModal()">ยกเลิก</button><button class="btn" onclick="diaperOutSave('${skuId}')">บันทึก</button>`);
+}
+async function diaperOutSave(skuId) {
+  const dname = val('do_dname'), drole = val('do_drole'), rname = val('do_rname'), rtype = val('do_rtype'), rref = val('do_rref'), note = val('do_note'), qty = numOrNull(val('do_qty')), date = val('do_date') || today();
+  if (!dname || !drole || !rname || !rtype) return toast('กรุณากรอกข้อมูลผู้เบิกจ่ายและผู้รับให้ครบถ้วน', 'err');
+  if (!qty || qty < 1) return toast('กรุณาระบุจำนวนที่เบิกจ่าย', 'err');
+  const o = diaperStock()[skuId];
+  if (qty > o.avail) return toast('จำนวนคงเหลือไม่พอสำหรับการเบิกจ่าย (คงเหลือ ' + o.avail + ' ชิ้น)', 'err');
+  try { await dbSave('diaperTxns', null, { skuId, qty, date, dispenserName: dname, dispenserRole: drole, recipientName: rname, recipientType: rtype, recipientRef: rref, note }); closeModal(); toast('บันทึกเบิกจ่ายแล้ว'); } catch (e) { toast('บันทึกไม่สำเร็จ: ' + e.message, 'err'); }
+}
+function diaperCfgForm(skuId) {
+  if (!canEdit()) return; const sku = DIAPER_SKUS.find(s => s.id === skuId), cfg = S.diaperCfg[skuId] || {};
+  openModal('ตั้งจุดสั่งซื้อ: ' + esc(sku.label), `<div class="grid">${field('จุดสั่งซื้อ (Reorder Point) — แจ้งเตือนเมื่อคงเหลือ ≤ ค่านี้', inp('dc_rp', cfg.reorder ?? 0, 'number', 'min="0"'))}</div>`,
+    `<button class="btn btn-o" onclick="closeModal()">ยกเลิก</button><button class="btn" onclick="diaperCfgSave('${skuId}')">บันทึก</button>`);
+}
+async function diaperCfgSave(skuId) {
+  try { await dbSave('diaperCfg', skuId, { reorder: numOrNull(val('dc_rp')) || 0 }); closeModal(); toast('บันทึกแล้ว'); } catch (e) { toast('บันทึกไม่สำเร็จ: ' + e.message, 'err'); }
+}
+async function diaperTxnDel(id) {
+  if (!isAdmin()) return; if (!await ask('ลบรายการเบิกจ่ายนี้? (จำนวนคงเหลือจะถูกคำนวณใหม่)', 'ลบ')) return;
+  try { await dbDel('diaperTxns', id); toast('ลบแล้ว'); } catch (e) { toast('ลบไม่สำเร็จ: ' + e.message, 'err'); }
+}
 
 /* =====================================================================
    หน้าสาธารณะ (ดูอย่างเดียว) — แสดงเฉพาะสถิติภาพรวมที่ไม่ระบุตัวบุคคล
