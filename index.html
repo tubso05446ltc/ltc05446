@@ -1403,7 +1403,8 @@ function visitForm() {
           <input type="hidden" id="vType" value="${esc(type)}">
           <div class="vf-seg" role="radiogroup" aria-labelledby="vTypeL">${Object.entries(VTYPES).map(([k, l]) => `<button type="button" role="radio" data-v="${k}" aria-checked="${k === type}" onclick="vfType('${k}')">${esc(l.replace(/^เยี่ยม/, ''))}</button>`).join('')}</div></div>
         ${field('วันที่เยี่ยม', inp('vDate', v.date || today(), 'date', 'max="' + today() + '" onchange="vElderChange(true)"'), '', true)}
-        ${field('เวลา', inp('vTime', v.time || new Date().toTimeString().slice(0, 5), 'time', 'class="vf-in"'))}
+        ${field('เวลาเริ่มการเยี่ยม', inp('vTime', v.time || new Date().toTimeString().slice(0, 5), 'time', 'class="vf-in"'))}
+        ${field('เวลาสิ้นสุดการเยี่ยม', inp('vTimeEnd', v.timeEnd || '', 'time', 'class="vf-in"'))}
         ${field('CM ผู้เยี่ยม', `<select id="vCm">${cmOpts(v.cmId)}</select>`, 'full')}
       </div>
     </section>
@@ -1626,7 +1627,7 @@ async function saveVisit() {
     for (let i = 0; i < VPH.files.length; i++) { btn.textContent = `อัปโหลดรูป ${i + 1}/${VPH.files.length}...`; urls.push(await uploadImg(VPH.files[i])); }
     const refer = $('vRefer').checked;
     const data = {
-      elderId, date, time: val('vTime'), type: val('vType'), cmId: val('vCm'), cgId: val('vCg'),
+      elderId, date, time: val('vTime'), timeEnd: val('vTimeEnd'), type: val('vType'), cmId: val('vCm'), cgId: val('vCg'),
       sys: numOrNull(val('vSys')), dia: numOrNull(val('vDia')), pulse: numOrNull(val('vPulse')), temp: numOrNull(val('vTemp')), rr: numOrNull(val('vRr')),
       spo2: numOrNull(val('vSpo2')), wt: numOrNull(val('vWt')), dtx: numOrNull(val('vDtx')),
       adl, adlItems: n === 10 ? adlItems : null, problems: chk('vProb'), care: chk('vCare'),
@@ -1643,7 +1644,7 @@ function visitHtml(v) {
   return `<div id="vPrint" style="background:#fff;padding:6px 4px">
     <div style="text-align:center;margin-bottom:10px"><b style="font-size:18px">แบบบันทึกการเยี่ยมผู้สูงอายุที่มีภาวะพึ่งพิง</b><div class="mu sm">${ORG.name} ${ORG.area}</div></div>
     <dl class="dl"><dt>ผู้สูงอายุ</dt><dd><b>${esc(fullName(e))}</b> ${e.birthdate ? '(อายุ ' + age(e.birthdate) + ' ปี)' : ''} ${e.moo ? '· หมู่ ' + esc(e.moo) : ''}</dd>
-    <dt>วันที่เยี่ยม</dt><dd>${thDate(v.date)} ${esc(v.time || '')} · ${VTYPES[v.type] || ''}</dd>
+    <dt>วันที่เยี่ยม</dt><dd>${thDate(v.date)} ${esc(v.time || '')}${v.timeEnd ? ' - ' + esc(v.timeEnd) : ''} · ${VTYPES[v.type] || ''}</dd>
     <dt>ผู้เยี่ยม</dt><dd>CM: ${esc(nmCm(v.cmId))} · CG: ${esc(nmCg(v.cgId))}</dd>
     <dt>ระดับ ADL</dt><dd>${v.adl !== null && v.adl !== undefined ? adlBadge(v.adl) : 'ไม่ได้ประเมิน'}</dd>
     ${vit.length ? `<dt>สัญญาณชีพ</dt><dd>${vit.map(x => x[0] + ' ' + x[1]).join(' · ')}</dd>` : ''}
@@ -2057,8 +2058,8 @@ function buildReport() {
     const mv = monthVisits(D, ym), ids = new Set(vs.map(v => v.elderId)); list(S.elders).forEach(e => { if (isActive(e) && e.cgId === RP.cg) ids.add(e.id); });
     const eRows = [...ids].map(id => S.elders[id] && { e: S.elders[id], id }).filter(Boolean).sort((a, b) => cmp(fullName(a.e), fullName(b.e)));
     const withPhoto = vs.filter(v => (v.photos || []).length).length, visited = new Set(vs.map(v => v.elderId)).size;
-    r.headers = ['วันที่', 'เวลา', 'ผู้สูงอายุ', 'หมู่', 'ประเภท', 'สัญญาณชีพ', 'ADL', 'ปัญหาที่พบ', 'การดูแลที่ให้', 'สรุป', 'แผน/นัด', 'ภาพประกอบ (URL)'];
-    vs.forEach(v => { const e = S.elders[v.elderId] || {}; r.rows.push([thDate(v.date), v.time || '', fullName(e), e.moo || '', VTYPES[v.type] || '', [v.sys ? 'BP ' + v.sys + '/' + (v.dia ?? '') : '', v.pulse ? 'ชีพจร ' + v.pulse : '', v.spo2 ? 'SpO2 ' + v.spo2 : '', v.dtx ? 'DTX ' + v.dtx : ''].filter(Boolean).join(' '), v.adl ?? '', (v.problems || []).join(', '), (v.care || []).join(', '), cut(v.note, 150), [cut(v.plan, 80), v.nextDate ? 'นัด ' + thDate(v.nextDate) : ''].filter(Boolean).join(' · '), (v.photos || [])[0] || '']); });
+    r.headers = ['วันที่', 'เวลาเริ่ม-สิ้นสุด', 'ผู้สูงอายุ', 'หมู่', 'ประเภท', 'สัญญาณชีพ', 'ADL', 'ปัญหาที่พบ', 'การดูแลที่ให้', 'สรุป', 'แผน/นัด', 'ภาพประกอบ (URL)'];
+    vs.forEach(v => { const e = S.elders[v.elderId] || {}; r.rows.push([thDate(v.date), [v.time || '', v.timeEnd || ''].filter(Boolean).join(' - '), fullName(e), e.moo || '', VTYPES[v.type] || '', [v.sys ? 'BP ' + v.sys + '/' + (v.dia ?? '') : '', v.pulse ? 'ชีพจร ' + v.pulse : '', v.spo2 ? 'SpO2 ' + v.spo2 : '', v.dtx ? 'DTX ' + v.dtx : ''].filter(Boolean).join(' '), v.adl ?? '', (v.problems || []).join(', '), (v.care || []).join(', '), cut(v.note, 150), [cut(v.plan, 80), v.nextDate ? 'นัด ' + thDate(v.nextDate) : ''].filter(Boolean).join(' · '), (v.photos || [])[0] || '']); });
     r.sum = [['จำนวนครั้งที่เยี่ยม', vs.length + ' ครั้ง'], ['ผู้สูงอายุที่ได้รับการเยี่ยม', visited + ' ราย จาก ' + eRows.length + ' ราย'], ['มีภาพประกอบ', withPhoto + '/' + vs.length + ' ครั้ง']];
     if (!vs.length) { r.empty = true; r.html = '<div style="text-align:center;padding:30px;color:#666">ไม่พบบันทึกการเยี่ยมของ CG นี้ในเดือนที่เลือก</div>'; return r; }
     const cmCount = {}; vs.forEach(v => { if (v.cmId) cmCount[v.cmId] = (cmCount[v.cmId] || 0) + 1; }); const cmTop = Object.entries(cmCount).sort((a, b) => b[1] - a[1])[0];
@@ -2066,7 +2067,7 @@ function buildReport() {
     r.html = `<table class="mini"><thead><tr><th style="width:34px">ที่</th><th>ผู้สูงอายุ</th><th>หมู่</th><th>กลุ่มพึ่งพิง</th><th>เกณฑ์ (ครั้ง/เดือน)</th><th>เยี่ยม (ครั้ง)</th><th>วันที่เยี่ยม</th></tr></thead><tbody>${eRows.map(({ e, id }, i) => `<tr><td style="text-align:center">${i + 1}</td><td>${esc(fullName(e))}</td><td>${esc(e.moo || '')}</td><td>${esc(taiGroup(e.tai) || '-')}</td><td style="text-align:center">${depQuota(e) || '-'}</td><td style="text-align:center">${mv[id] || 0}</td><td>${esc(dayList(id) || '-')}</td></tr>`).join('')}</tbody></table>
       <div class="vsec">รายละเอียดการเยี่ยม (พร้อมภาพประกอบ 1 ภาพต่อครั้ง)</div>
       ${vs.map((v, i) => { const e = S.elders[v.elderId] || {}, photo = (v.photos || [])[0], vit = [v.sys ? 'BP ' + v.sys + '/' + (v.dia ?? '-') : '', v.pulse ? 'ชีพจร ' + v.pulse : '', v.temp ? 'T ' + v.temp + '°C' : '', v.spo2 ? 'SpO₂ ' + v.spo2 + '%' : '', v.dtx ? 'DTX ' + v.dtx : ''].filter(Boolean).join(' · ');
-        return `<div class="vb nb"><div class="vt"><div class="vh">ครั้งที่ ${i + 1} · ${thDate(v.date)}${v.time ? ' เวลา ' + esc(v.time) + ' น.' : ''} · ${VTYPES[v.type] || ''}</div><div class="vn">${esc(fullName(e))}${e.moo ? ' · หมู่ ' + esc(e.moo) : ''}${e.birthdate ? ' · อายุ ' + age(e.birthdate) + ' ปี' : ''}</div>${line('สัญญาณชีพ:', vit)}${v.adl !== null && v.adl !== undefined ? line('ADL:', v.adl + ' คะแนน (' + adlGroup(v.adl).label + ')') : ''}${line('ปัญหาที่พบ:', (v.problems || []).join(', '))}${line('การดูแลที่ให้:', (v.care || []).join(', '))}${line('สรุป:', cut(v.note, 150))}${line('แผน/นัด:', [cut(v.plan, 80), v.nextDate ? 'นัด ' + thDate(v.nextDate) : ''].filter(Boolean).join(' · '))}${v.refer ? line('ส่งต่อ:', v.referTo || 'ส่งต่อ/ปรึกษาแพทย์') : ''}</div>${photo ? `<img class="ph" src="${esc(photo)}" alt="ภาพประกอบการเยี่ยม">` : '<div class="ph noph">ไม่มีภาพประกอบ</div>'}</div>`; }).join('')}
+        return `<div class="vb nb"><div class="vt"><div class="vh">ครั้งที่ ${i + 1} · ${thDate(v.date)}${v.time ? ' เวลา ' + esc(v.time) + (v.timeEnd ? '-' + esc(v.timeEnd) : '') + ' น.' : ''} · ${VTYPES[v.type] || ''}</div><div class="vn">${esc(fullName(e))}${e.moo ? ' · หมู่ ' + esc(e.moo) : ''}${e.birthdate ? ' · อายุ ' + age(e.birthdate) + ' ปี' : ''}</div>${line('สัญญาณชีพ:', vit)}${v.adl !== null && v.adl !== undefined ? line('ADL:', v.adl + ' คะแนน (' + adlGroup(v.adl).label + ')') : ''}${line('ปัญหาที่พบ:', (v.problems || []).join(', '))}${line('การดูแลที่ให้:', (v.care || []).join(', '))}${line('สรุป:', cut(v.note, 150))}${line('แผน/นัด:', [cut(v.plan, 80), v.nextDate ? 'นัด ' + thDate(v.nextDate) : ''].filter(Boolean).join(' · '))}${v.refer ? line('ส่งต่อ:', v.referTo || 'ส่งต่อ/ปรึกษาแพทย์') : ''}</div>${photo ? `<img class="ph" src="${esc(photo)}" alt="ภาพประกอบการเยี่ยม">` : '<div class="ph noph">ไม่มีภาพประกอบ</div>'}</div>`; }).join('')}
       <div class="sign nb"><div class="cert">ข้าพเจ้าขอรับรองว่าได้ออกเยี่ยมบ้านผู้สูงอายุตามรายการข้างต้นจริง</div><div class="sg"><div>ลงชื่อ ........................................<br>(${esc(pName(cg))})<br>ผู้เยี่ยม / ผู้รายงาน (CG)<br>วันที่ ........................</div><div>ลงชื่อ ........................................<br>(${cmTop && S.cms[cmTop[0]] ? esc(pName(S.cms[cmTop[0]])) : '........................................'})<br>ผู้ตรวจสอบ (Care Manager)<br>วันที่ ........................</div><div>ลงชื่อ ........................................<br>(........................................)<br>ผู้อำนวยการ ${ORG.name}<br>วันที่ ........................</div></div></div>`;
   } else if (RP.type === 'quota') {
     const ym = RP.month || today().slice(0, 7), mv = monthVisits(D, ym);
