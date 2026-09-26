@@ -2191,31 +2191,26 @@ function cgpMonthlyDoc(cg, ym) {
   const byDate = {};
   list(S.visits).filter(v => v.cgId === CGP.cg && v.date && v.date.startsWith(ym)).forEach(v => {
     const e = S.elders[v.elderId] || {};
-    (byDate[v.date] = byDate[v.date] || []).push({ name: fullName(e), care: (v.care || []).join(', '), note: v.note || '' });
+    (byDate[v.date] = byDate[v.date] || []).push({ name: fullName(e), care: (v.care || []).join(', ') });
   });
   const dates = Object.keys(byDate).sort(), cm = cgpMonthCM(CGP.cg, ym);
-  const totalVisits = dates.reduce((n, d) => n + byDate[d].length, 0);
-  return `${cgpHead('บันทึกการปฏิบัติทำงานรายเดือน', 'ตามโครงการจัดบริการดูแลระยะยาวด้านสาธารณสุขสำหรับผู้สูงอายุและผู้ที่มีภาวะพึ่งพิง')}
-    <div class="cgp-meta"><span><b>ชื่อ-สกุล (CG):</b> ${esc(pName(cg))}</span><span><b>ประจำเดือน:</b> ${esc(thMonth(ym))}</span></div>
-    <div class="rsum"><span>วันที่ปฏิบัติงาน: <b>${dates.length} วัน</b></span><span>จำนวนรายที่ดูแล: <b>${totalVisits} ครั้ง</b></span></div>
-    <table><thead><tr><th style="width:88px">วัน เดือน ปี</th><th>ผู้สูงอายุที่ปฏิบัติงานดูแล</th><th>กิจกรรม/การดูแลที่ปฏิบัติ</th><th>หมายเหตุ</th></tr></thead>
-    <tbody>${dates.length ? dates.map(d => `<tr><td style="white-space:nowrap">${esc(thDate(d))}</td><td>${esc(byDate[d].map(it => it.name).join(', '))}</td><td>${esc([...new Set(byDate[d].map(it => it.care).filter(Boolean))].join(' / '))}</td><td>${esc(byDate[d].map(it => it.note).filter(Boolean).join(' / '))}</td></tr>`).join('') : `<tr><td colspan="4" style="text-align:center;color:#888;padding:22px">ไม่พบบันทึกการปฏิบัติงานของ CG นี้ในเดือนที่เลือก</td></tr>`}</tbody></table>
-    ${cgpSign(cm, 'ขอรับรองว่าบันทึกการปฏิบัติทำงานรายเดือนข้างต้นเป็นความจริง')}`;
+  const amp = (ORG.area.match(/อ\.(\S+)/) || [])[1] || '';
+  const act = d => byDate[d].map(it => 'เยี่ยม' + (it.name ? ' ' + it.name : '') + (it.care ? ' (' + it.care + ')' : '')).join(', ');
+  return `<div class="cgp-title">แบบรายงานผลการปฏิบัติงานของผู้ช่วยเหลือดูแลผู้สูงอายุที่มีภาวะพึ่งพิง (Care giver)</div>
+    <div class="cgp-sub">รพ.สต. ${esc(ORG.name)} ตำบล${esc(ORG.tambon)}<br>อำเภอ${esc(amp)} จังหวัดสกลนคร<br>ประจำเดือน${esc(MONTHS_F[CGP.month - 1])} พ.ศ. ${CGP.year + 543}</div>
+    <div class="cgp-sub" style="margin-top:6px;font-weight:600">ชื่อ-สกุล (Care giver) ${esc(pName(cg))}</div>
+    <table class="mt2"><thead><tr><th style="width:78px">วัน/เดือน/ปี</th><th>กิจกรรมการปฏิบัติงาน</th><th style="width:80px">ระยะเวลาการดูแล</th><th style="width:86px">จำนวนการปฏิบัติงาน (ชั่วโมง/นาที)</th><th style="width:70px">ลงชื่อ CG</th><th style="width:80px">ลงชื่อผู้รับรอง (ตรวจรับ)</th></tr></thead>
+    <tbody>${dates.length ? dates.map(d => `<tr><td style="white-space:nowrap">${esc(thDate(d))}</td><td>${esc(act(d))}</td><td></td><td></td><td></td><td></td></tr>`).join('') : `<tr><td colspan="6" style="text-align:center;color:#888;padding:22px">ไม่พบบันทึกการปฏิบัติงานของ CG นี้ในเดือนที่เลือก</td></tr>`}</tbody></table>
+    <div class="sign nb"><div class="sg1">(ลงชื่อ)........................................ ผู้รับรอง<br>(${cm ? esc(pName(cm)) : '........................................'})<br>ตำแหน่ง ${cm && cm.position ? esc(cm.position) : '........................................'}<br>ผู้จัดการการดูแลผู้สูงอายุ (Care Manager: CM)</div></div>`;
 }
-function cgpVisitsDoc(cg, ym) {
-  const D = derived();
-  const vs = D.vs.filter(v => v.cgId === CGP.cg && v.date.startsWith(ym));
-  const mv = monthVisits(D, ym), ids = new Set(vs.map(v => v.elderId));
-  list(S.elders).forEach(e => { if (isActive(e) && e.cgId === CGP.cg) ids.add(e.id); });
-  const eRows = [...ids].map(id => S.elders[id] && { e: S.elders[id], id }).filter(Boolean).sort((a, b) => cmp(fullName(a.e), fullName(b.e)));
-  const cm = cgpMonthCM(CGP.cg, ym);
-  const dayList = id => vs.filter(v => v.elderId === id).map(v => +v.date.slice(8)).join(', ');
-  const visited = new Set(vs.map(v => v.elderId)).size;
-  return `${cgpHead('ผลงานการเยี่ยมผู้สูงอายุของ CG รายบุคคล', 'ตามโครงการจัดบริการดูแลระยะยาวด้านสาธารณสุขสำหรับผู้สูงอายุและผู้ที่มีภาวะพึ่งพิง')}
-    <div class="cgp-meta"><span><b>ชื่อ-สกุล (CG):</b> ${esc(pName(cg))}</span><span><b>ประจำเดือน:</b> ${esc(thMonth(ym))}</span></div>
-    <div class="rsum"><span>จำนวนครั้งที่เยี่ยม: <b>${vs.length} ครั้ง</b></span><span>ผู้สูงอายุที่ได้รับการเยี่ยม: <b>${visited}/${eRows.length} ราย</b></span></div>
-    ${eRows.length ? `<table class="mini"><thead><tr><th style="width:34px">ที่</th><th>ผู้สูงอายุ</th><th>หมู่</th><th>กลุ่มพึ่งพิง</th><th>เกณฑ์ (ครั้ง/เดือน)</th><th>เยี่ยม (ครั้ง)</th><th>วันที่เยี่ยม</th></tr></thead><tbody>${eRows.map(({ e, id }, i) => `<tr><td style="text-align:center">${i + 1}</td><td>${esc(fullName(e))}</td><td>${esc(e.moo || '')}</td><td>${esc(taiGroup(e.tai) || '-')}</td><td style="text-align:center">${depQuota(e) || '-'}</td><td style="text-align:center">${mv[id] || 0}</td><td>${esc(dayList(id) || '-')}</td></tr>`).join('')}</tbody></table>` : `<div style="text-align:center;padding:22px;color:#888">ไม่พบผู้สูงอายุในความดูแลของ CG นี้ในเดือนที่เลือก</div>`}
-    ${cgpSign(cm, 'ขอรับรองว่าผลงานการเยี่ยมผู้สูงอายุข้างต้นเป็นความจริง')}`;
+function cgpVisitsDoc() {
+  const bak = { type: RP.type, cg: RP.cg, month: RP.month };
+  RP.type = 'cgvisits'; RP.cg = CGP.cg; RP.month = CGP.year + '-' + dp2(CGP.month);
+  const r = buildReport();
+  RP.type = bak.type; RP.cg = bak.cg; RP.month = bak.month;
+  return `<div class="org">${esc(ORG.name)} ${esc(ORG.area)}</div><h2>${esc(r.title)}</h2><div class="rsub">${esc(r.sub)}</div>
+    ${r.sum.length ? `<div class="rsum">${r.sum.map(([a, b]) => `<span>${esc(a)}: <b>${esc(b)}</b></span>`).join('')}</div>` : ''}
+    ${r.html ? r.html : r.headers.length ? (r.rows.length ? `<table><thead><tr><th style="width:34px">ที่</th>${r.headers.map(h => `<th>${esc(h)}</th>`).join('')}</tr></thead><tbody>${r.rows.map((row, i) => `<tr><td style="text-align:center">${i + 1}</td>${row.map(c => `<td>${esc(c)}</td>`).join('')}</tr>`).join('')}</tbody></table>` : '<div style="text-align:center;padding:24px;color:#666">ไม่พบข้อมูลตามเงื่อนไขที่เลือก</div>') : ''}`;
 }
 function cgpRun() {
   const body = $('cgpBody'), actions = $('cgpActions'); if (!body) return;
@@ -2234,8 +2229,8 @@ function cgpRun() {
   const cg = S.cgs[CGP.cg];
   if (!cg) { body.innerHTML = '<div class="card empty">ไม่พบข้อมูล CG</div>'; if (actions) actions.innerHTML = ''; return; }
   if (actions) actions.innerHTML = `<button class="btn" onclick="cgpPDF()">⬇ ดาวน์โหลด PDF</button><button class="btn btn-o" onclick="window.print()">🖨 พิมพ์</button><button class="btn btn-o" onclick="CGP.cg='';cgpRun()">↩ เลือก CG อื่น</button>`;
-  const doc = CGP.doc === 'monthly' ? cgpMonthlyDoc(cg, ym) : CGP.doc === 'visits' ? cgpVisitsDoc(cg, ym) : cgpAttDoc(cg, ym);
-  body.innerHTML = `<div class="rpwrap"><div id="rpPaper" class="cgp-doc">
+  const doc = CGP.doc === 'monthly' ? cgpMonthlyDoc(cg, ym) : CGP.doc === 'visits' ? cgpVisitsDoc() : cgpAttDoc(cg, ym);
+  body.innerHTML = `<div class="rpwrap"><div id="rpPaper" class="cgp-doc" style="width:${CGP.doc === 'visits' ? '794px' : ''}">
     ${doc}
     <div class="foot">พิมพ์เมื่อ ${thDate(today())} โดย ${esc(ME.name || ME.username)}</div>
   </div></div>`;
