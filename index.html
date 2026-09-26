@@ -2145,7 +2145,7 @@ function rpCSV() {
 /* =====================================================================
    PAGE : เอกสารเบิกเงิน CG
    ===================================================================== */
-const CGP_DOCS = { att: 'บัญชีลงเวลาการปฏิบัติงานของ CG', monthly: 'บันทึกการปฏิบัติทำงานรายเดือน', visits: 'ผลงานการเยี่ยมผู้สูงอายุของ CG รายบุคคล' };
+const CGP_DOCS = { att: 'บัญชีลงเวลาการปฏิบัติงานของ CG', monthly: 'แบบรายงานผลการปฏิบัติงานของ CG', visits: 'ผลงานการเยี่ยมผู้สูงอายุของ CG รายบุคคล' };
 let CGP = { doc: 'att', month: +today().slice(5, 7), year: +today().slice(0, 4), cg: '' };
 PAGES.cgpay = { title: 'เอกสารเบิกเงิน CG', render: pCgPay, after: cgpRun };
 function cgpYearOpts(sel) { const cy = +today().slice(0, 4), arr = []; for (let y = cy - 1; y <= cy + 1; y++) arr.push([y, y + 543]); return opts(arr, sel); }
@@ -2188,20 +2188,41 @@ function cgpAttDoc(cg, ym) {
     <tbody>${days.length ? days.map(d => `<tr><td style="white-space:nowrap">${esc(thDate(d.date))}</td><td>${esc(d.items.map(it => 'บ้านเลขที่ ' + (it.house || '-') + ' หมู่ที่ ' + (it.moo || '-')).join(', '))}</td><td></td><td></td><td></td><td></td><td></td></tr>`).join('') : `<tr><td colspan="7" style="text-align:center;color:#888;padding:22px">ไม่พบบันทึกการเยี่ยมของ CG นี้ในเดือนที่เลือก</td></tr>`}</tbody></table>
     ${cgpSign(cm, 'ขอรับรองว่าบัญชีลงเวลาการปฏิบัติงานข้างต้นเป็นความจริง')}`;
 }
+const cgpTimeFmt = t => t ? String(t).replace(/^0(\d)/, '$1').replace(':', '.') : '';
+function cgpDur(t1, t2) {
+  if (!t1 || !t2) return '';
+  const [h1, m1] = t1.split(':').map(Number), [h2, m2] = t2.split(':').map(Number);
+  const mins = (h2 * 60 + m2) - (h1 * 60 + m1);
+  if (!(mins > 0)) return '';
+  const h = Math.floor(mins / 60), m = mins % 60;
+  return [h ? h + ' ชม.' : '', m ? m + ' นาที' : ''].filter(Boolean).join(' ');
+}
 function cgpMonthlyDoc(cg, ym) {
   const byDate = {};
-  list(S.visits).filter(v => v.cgId === CGP.cg && v.date && v.date.startsWith(ym)).forEach(v => {
-    const e = S.elders[v.elderId] || {};
-    (byDate[v.date] = byDate[v.date] || []).push({ name: fullName(e), care: (v.care || []).join(', ') });
-  });
+  list(S.visits).filter(v => v.cgId === CGP.cg && v.date && v.date.startsWith(ym))
+    .sort((a, b) => (a.time || '').localeCompare(b.time || ''))
+    .forEach(v => (byDate[v.date] = byDate[v.date] || []).push(v));
   const dates = Object.keys(byDate).sort(), cm = cgpMonthCM(CGP.cg, ym);
   const amp = (ORG.area.match(/อ\.(\S+)/) || [])[1] || '';
-  const act = d => byDate[d].map(it => 'เยี่ยม' + (it.name ? ' ' + it.name : '') + (it.care ? ' (' + it.care + ')' : '')).join(', ');
-  return `<div class="cgp-title">แบบรายงานผลการปฏิบัติงานของผู้ช่วยเหลือดูแลผู้สูงอายุที่มีภาวะพึ่งพิง (Care giver)</div>
-    <div class="cgp-sub">รพ.สต. ${esc(ORG.name)} ตำบล${esc(ORG.tambon)}<br>อำเภอ${esc(amp)} จังหวัดสกลนคร<br>ประจำเดือน${esc(MONTHS_F[CGP.month - 1])} พ.ศ. ${CGP.year + 543}</div>
+  let rowsHtml = '';
+  dates.forEach(d => {
+    const vs = byDate[d];
+    vs.forEach((v, i) => {
+      const e = S.elders[v.elderId] || {};
+      const who = fullName(e) !== '(ไม่พบข้อมูล)' ? ' ' + fullName(e) : '';
+      const careList = (v.care || []);
+      const act = 'เยี่ยม' + who + (careList.length ? ' (' + careList.join(', ') + ')' : '');
+      const timeRange = v.time ? cgpTimeFmt(v.time) + (v.timeEnd ? ' - ' + cgpTimeFmt(v.timeEnd) : '') + ' น.' : '';
+      rowsHtml += `<tr>${i === 0 ? `<td rowspan="${vs.length}" style="white-space:nowrap;vertical-align:top">${esc(thDate(d))}</td>` : ''}<td>${esc(act)}</td><td style="white-space:nowrap">${esc(timeRange)}</td><td>${esc(cgpDur(v.time, v.timeEnd))}</td><td></td><td></td></tr>`;
+    });
+  });
+  if (!dates.length) rowsHtml = `<tr><td colspan="6" style="text-align:center;color:#888;padding:22px">ไม่พบบันทึกการปฏิบัติงานของ CG นี้ในเดือนที่เลือก</td></tr>`;
+  return `<div class="cgp-title">แบบรายงานผลการปฏิบัติงานของ CG</div>
+    <div class="cgp-sub">(แบบรายงานผลการปฏิบัติงานของผู้ช่วยเหลือดูแลผู้สูงอายุที่มีภาวะพึ่งพิง (Care giver))</div>
+    <div class="cgp-org">รพ.สต. ${esc(ORG.name)} ตำบล${esc(ORG.tambon)} อำเภอ${esc(amp)} จังหวัดสกลนคร<br>ประจำเดือน${esc(MONTHS_F[CGP.month - 1])} พ.ศ. ${CGP.year + 543}</div>
     <div class="cgp-sub" style="margin-top:6px;font-weight:600">ชื่อ-สกุล (Care giver) ${esc(pName(cg))}</div>
-    <table class="mt2"><thead><tr><th style="width:78px">วัน/เดือน/ปี</th><th>กิจกรรมการปฏิบัติงาน</th><th style="width:80px">ระยะเวลาการดูแล</th><th style="width:86px">จำนวนการปฏิบัติงาน (ชั่วโมง/นาที)</th><th style="width:70px">ลงชื่อ CG</th><th style="width:80px">ลงชื่อผู้รับรอง (ตรวจรับ)</th></tr></thead>
-    <tbody>${dates.length ? dates.map(d => `<tr><td style="white-space:nowrap">${esc(thDate(d))}</td><td>${esc(act(d))}</td><td></td><td></td><td></td><td></td></tr>`).join('') : `<tr><td colspan="6" style="text-align:center;color:#888;padding:22px">ไม่พบบันทึกการปฏิบัติงานของ CG นี้ในเดือนที่เลือก</td></tr>`}</tbody></table>
+    <table class="mt2"><thead><tr><th style="width:78px">วัน/เดือน/ปี</th><th>กิจกรรมการปฏิบัติงาน</th><th style="width:90px">ระยะเวลาการดูแล</th><th style="width:86px">จำนวนการปฏิบัติงาน (ชั่วโมง/นาที)</th><th style="width:70px">ลงชื่อ CG</th><th style="width:80px">ลงชื่อผู้รับรอง (ตรวจรับ)</th></tr></thead>
+    <tbody>${rowsHtml}</tbody></table>
     <div class="sign nb"><div class="sg1">(ลงชื่อ)........................................ ผู้รับรอง<br>(${cm ? esc(pName(cm)) : '........................................'})<br>ตำแหน่ง ${cm && cm.position ? esc(cm.position) : '........................................'}<br>ผู้จัดการการดูแลผู้สูงอายุ (Care Manager: CM)</div></div>`;
 }
 function cgpVisitsDoc() {
