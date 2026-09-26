@@ -700,7 +700,7 @@ const FIREBASE_CONFIG = {
   appId: "1:322427373870:web:a0373040a6405ae57912bf"
 };
 const IMGBB_API_KEY = "6d050ff0baa662110ba2ca12c7247555";
-const ORG = { name: 'รพ.สต.บ้านทับสอ', area: 'อ.เมืองสกลนคร จ.สกลนคร' };
+const ORG = { name: 'รพ.สต.บ้านทับสอ', area: 'อ.เมืองสกลนคร จ.สกลนคร', tambon: 'งิ้วด่อน' };
 const APP_TITLE = 'ระบบบันทึกการเยี่ยมผู้สูงอายุที่มีภาวะพึ่งพิง';
 
 /* ---------- constants ---------- */
@@ -1881,7 +1881,7 @@ function elderForm(id) {
     ${field('เลขบัตรประชาชน 13 หลัก', inp('e_cid', e.cid || '', 'text', 'inputmode="numeric" maxlength="13"'))}${field('HN / รหัสผู้ป่วย', inp('e_hn', e.hn || ''))}
     ${field('เพศ', `<select id="e_sex">${opts([['ช', 'ชาย'], ['ญ', 'หญิง']], e.sex || '', '-')}</select>`)}
     ${field('วันเกิด', inp('e_bd', e.birthdate || '', 'date', 'max="' + today() + '"'))}${field('เบอร์โทร', inp('e_phone', e.phone || '', 'tel', 'inputmode="tel"'))}${field('วันที่ขึ้นทะเบียน', inp('e_enr', e.enrolled || '', 'date'))}
-    ${field('บ้านเลขที่', inp('e_house', e.house || ''))}${field('หมู่ที่', inp('e_moo', e.moo || '', 'text', 'list="mooList2"') + `<datalist id="mooList2">${mooList().map(m => `<option value="${esc(m)}">`).join('')}</datalist>`, '', true)}${field('ตำบล/ที่อยู่เพิ่มเติม', inp('e_addr', e.addr || ''))}
+    ${field('บ้านเลขที่', inp('e_house', e.house || ''))}${field('หมู่ที่', inp('e_moo', e.moo || '', 'text', 'list="mooList2"') + `<datalist id="mooList2">${mooList().map(m => `<option value="${esc(m)}">`).join('')}</datalist>`, '', true)}${field('ตำบล/ที่อยู่เพิ่มเติม', inp('e_addr', e.addr || (id ? '' : 'ตำบล' + ORG.tambon)))}
     ${field('CM ที่รับผิดชอบ', `<select id="e_cm">${cmOpts(e.cmId)}</select>`)}${field('CG ที่ดูแล', `<select id="e_cg">${cgOpts(e.cgId)}</select>`)}
     ${field('คะแนน ADL เริ่มต้น (0-20)', inp('e_adl', e.adl ?? '', 'number', 'min="0" max="20"'))}
     ${field('ข้อมูล TAI', `<select id="e_tai" onchange="taiChange()">${opts(TAI_OPTS.map(t => [t, t]), e.tai || '', '- ไม่ระบุ -')}</select>`)}
@@ -2188,7 +2188,7 @@ function cgpRun() {
   body.innerHTML = `<div class="rpwrap"><div id="rpPaper" class="cgp-doc">
     <div class="cgp-title">บัญชีลงเวลาการปฏิบัติงานของ CG</div>
     <div class="cgp-sub">ตามโครงการจัดบริการดูแลระยะยาวด้านสาธารณสุขสำหรับผู้สูงอายุและผู้ที่มีภาวะพึ่งพิง</div>
-    <div class="cgp-org">ของ ${esc(ORG.name)} ตำบล.................... อำเภอ${esc(amp)} จังหวัดสกลนคร ปี ${CGP.year + 543}</div>
+    <div class="cgp-org">ของ ${esc(ORG.name)} ตำบล${esc(ORG.tambon)} อำเภอ${esc(amp)} จังหวัดสกลนคร ปี ${CGP.year + 543}</div>
     <div class="cgp-meta"><span><b>ชื่อ-สกุล (CG):</b> ${esc(pName(cg))}</span><span><b>ประจำเดือน:</b> ${esc(thMonth(ym))}</span></div>
     <table><thead><tr><th style="width:88px">วัน เดือน ปี</th><th>สถานที่ปฏิบัติงาน</th><th style="width:64px">เวลามา</th><th style="width:76px">ลายมือชื่อ</th><th style="width:64px">เวลากลับ</th><th style="width:76px">ลายมือชื่อ</th><th style="width:76px">หมายเหตุ</th></tr></thead>
     <tbody>${days.length ? days.map(d => `<tr><td style="white-space:nowrap">${esc(thDate(d.date))}</td><td>${esc(d.items.map(it => 'บ้านเลขที่ ' + (it.house || '-') + ' หมู่ที่ ' + (it.moo || '-')).join(', '))}</td><td></td><td></td><td></td><td></td><td></td></tr>`).join('') : `<tr><td colspan="7" style="text-align:center;color:#888;padding:22px">ไม่พบบันทึกการเยี่ยมของ CG นี้ในเดือนที่เลือก</td></tr>`}</tbody></table>
