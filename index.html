@@ -860,7 +860,8 @@ function derived() {
   const vs = list(S.visits).sort((a, b) => a.date < b.date ? -1 : a.date > b.date ? 1 : (a.createdAt || 0) - (b.createdAt || 0));
   const last = {}, adl = {};
   vs.forEach(v => { last[v.elderId] = v; if (v.adl !== null && v.adl !== undefined) adl[v.elderId] = v; });
-  return { vs, last, adlOf: e => adl[e.id] ? adl[e.id].adl : (e.adl !== undefined && e.adl !== null && e.adl !== '' ? +e.adl : null) };
+  /* ADL ที่แสดงในตาราง/รายงาน: ใช้ค่าในทะเบียนผู้สูงอายุ (e.adl ซึ่งตรงกับ TAI/กลุ่มพึ่งพิง) เป็นหลัก — ถ้าไม่มีค่าในทะเบียนค่อยใช้คะแนนจากการเยี่ยมครั้งล่าสุด */
+  return { vs, last, adlOf: e => (e.adl !== undefined && e.adl !== null && e.adl !== '' && !isNaN(+e.adl)) ? +e.adl : (adl[e.id] ? adl[e.id].adl : null) };
 }
 const isActive = x => (x.status || 'active') === 'active';
 
