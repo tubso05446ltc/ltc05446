@@ -1880,7 +1880,7 @@ function pElder() {
     <select onchange="EF.cm=this.value;elderTable()">${cmOpts(EF.cm, 'ทุก CM')}</select>
     <select onchange="EF.cg=this.value;elderTable()">${cgOpts(EF.cg, 'ทุก CG')}</select>
     <select onchange="EF.status=this.value;elderTable()">${opts(Object.entries(ESTATUS), EF.status, 'ทุกสถานะ')}</select>
-    <span class="grow"></span>${isAdmin() ? '<button class="btn btn-o" onclick="seedImport()">⬆ นำเข้าจากไฟล์ทะเบียน (' + SEED_ELDERS.length + ' ราย)</button><button class="btn btn-o" onclick="adlTaiImport()">⟳ อัปเดต ADL/TAI จากไฟล์ (' + SEED_ELDERS.length + ' ราย)</button>' : ''}${canEdit() ? '<button class="btn" onclick="elderForm()">＋ เพิ่มผู้สูงอายุ</button>' : ''}</div><div id="elderArea"></div>`;
+    <span class="grow"></span>${isAdmin() ? '' : ''}${canEdit() ? '<button class="btn" onclick="elderForm()">＋ เพิ่มผู้สูงอายุ</button>' : ''}</div><div id="elderArea"></div>`;
 }
 function filteredElders() {
   const D = derived();
@@ -2020,13 +2020,107 @@ async function adlTaiImport() {
   if (!isAdmin()) return;
   const p = adlTaiPlan();
   if (!p.changes.length) return toast('ADL/TAI ตรงกับไฟล์ครบแล้ว (' + p.same + ' ราย)' + (p.missing ? ' · ไม่พบในระบบ ' + p.missing + ' ราย' : ''), 'warn');
-  if (!await ask('อัปเดตคะแนน ADL และ TAI ' + p.changes.length + ' ราย' + (p.same ? ' (ตรงอยู่แล้ว ' + p.same + ' ราย)' : '') + (p.missing ? ' · ไม่พบในระบบ ' + p.missing + ' ราย' : '') + ' ?', 'อัปเดต', false)) return;
+  if (!await ask('⚠ จะเขียนทับคะแนน ADL และ TAI ' + p.changes.length + ' ราย ด้วยค่าจากไฟล์ (ค่าที่ CG กรอกไว้ในระบบจะถูกแทนที่)' + (p.same ? ' · ตรงอยู่แล้ว ' + p.same + ' ราย' : '') + (p.missing ? ' · ไม่พบในระบบ ' + p.missing + ' ราย' : '') + '\nระบบจะสำรองค่าเดิมไว้ก่อน และดาวน์โหลดไฟล์สำรองให้ ต้องการดำเนินการต่อ?', 'เขียนทับ', true)) return;
   try {
+    await adlTaiBackupNow(p.changes.map(c => c.id), 'import');
     const now = Date.now(), upd = {};
     p.changes.forEach(c => { const b = 'elders/' + c.id + '/'; upd[b + 'adl'] = c.adl; upd[b + 'tai'] = c.tai; upd[b + 'depGroup'] = taiGroup(c.tai); upd[b + 'updatedAt'] = now; });
     await db.ref().update(upd);
-    toast('อัปเดต ADL/TAI เรียบร้อย ' + p.changes.length + ' ราย');
+    toast('อัปเดต ADL/TAI เรียบร้อย ' + p.changes.length + ' ราย (ย้อนกลับได้ด้วยปุ่ม "ย้อนกลับการอัปเดตล่าสุด")');
   } catch (e) { toast('อัปเดตไม่สำเร็จ: ' + e.message, 'err'); }
+}
+
+/* ---------- สำรอง / กู้คืนคะแนน ADL & TAI ---------- */
+function adlTaiSnap(ids) {
+  const o = {};
+  ids.forEach(id => { const e = S.elders[id]; if (!e) return; o[id] = { name: fullName(e), house: e.house || '', moo: e.moo || '', adl: e.adl ?? null, tai: e.tai ?? null, depGroup: e.depGroup ?? null }; });
+  return o;
+}
+async function adlTaiBackupNow(ids, tag) {
+  const snap = adlTaiSnap(ids), now = Date.now();
+  downloadBlob('adl-tai-backup_' + tag + '_' + now + '.json', new Blob([JSON.stringify({ tag, at: now, by: ME.username, data: snap }, null, 1)], { type: 'application/json' }));
+  try { await db.ref('adlTaiBackup/' + now).set({ tag, at: now, by: ME.username, data: snap }); } catch (e) { /* กฎฐานข้อมูลอาจไม่อนุญาต path นี้ — ยังมีไฟล์ดาวน์โหลดสำรองอยู่ */ }
+}
+async function adlTaiApply(items) {
+  await adlTaiBackupNow(items.map(x => x.id), 'before-restore');
+  const now = Date.now(), upd = {};
+  items.forEach(c => {
+    const b = 'elders/' + c.id + '/';
+    if (c.adl !== undefined) upd[b + 'adl'] = c.adl;
+    if (c.tai !== undefined) { upd[b + 'tai'] = c.tai; upd[b + 'depGroup'] = c.tai ? taiGroup(c.tai) : null; }
+    upd[b + 'updatedAt'] = now;
+  });
+  await db.ref().update(upd);
+}
+/* กู้ ADL จากคะแนนการเยี่ยมครั้งล่าสุด (TAI กู้จากตรงนี้ไม่ได้ เพราะบันทึกการเยี่ยมไม่เก็บ TAI) */
+async function adlVisitRestore() {
+  if (!isAdmin()) return;
+  const last = {};
+  list(S.visits).filter(v => v.adl !== null && v.adl !== undefined && v.adl !== '' && !isNaN(+v.adl))
+    .sort((a, b) => a.date < b.date ? -1 : a.date > b.date ? 1 : (a.createdAt || 0) - (b.createdAt || 0)).forEach(v => last[v.elderId] = v);
+  const items = []; let same = 0, none = 0, taiBad = 0;
+  list(S.elders).forEach(e => {
+    const v = last[e.id]; if (!v) { none++; return; }
+    const a = +v.adl, cur = (e.adl === undefined || e.adl === null || e.adl === '') ? null : +e.adl;
+    if (cur === a) { same++; return; }
+    items.push({ id: e.id, adl: a });
+    if (e.tai && !taiAllowed(a).includes(e.tai)) taiBad++;
+  });
+  if (!items.length) return toast('ADL ตรงกับบันทึกการเยี่ยมครั้งล่าสุดครบแล้ว (' + same + ' ราย)', 'warn');
+  if (!await ask('ตั้งค่า ADL ในทะเบียน ' + items.length + ' ราย ให้เท่ากับคะแนนจากการเยี่ยมครั้งล่าสุด' + (same ? ' (ตรงอยู่แล้ว ' + same + ' ราย)' : '') + (none ? ' · ไม่มีบันทึกการเยี่ยม ' + none + ' ราย (ไม่แตะ)' : '') + '\nจะไม่แก้ TAI' + (taiBad ? ' · มี ' + taiBad + ' รายที่ TAI ปัจจุบันไม่ตรงกับช่วงของ ADL ใหม่ ต้องตรวจสอบ/เลือก TAI ใหม่' : '') + '\nต้องการดำเนินการต่อ?', 'กู้ ADL', true)) return;
+  try { await adlTaiApply(items); toast('กู้ ADL เรียบร้อย ' + items.length + ' ราย'); } catch (e) { toast('กู้คืนไม่สำเร็จ: ' + e.message, 'err'); }
+}
+/* ย้อนกลับการอัปเดตจากไฟล์ครั้งล่าสุด (ใช้สำเนาที่ระบบสำรองไว้ใน Firebase) */
+async function adlTaiUndo() {
+  if (!isAdmin()) return;
+  try {
+    const s = await db.ref('adlTaiBackup').orderByKey().limitToLast(10).once('value'), all = s.val() || {};
+    const k = Object.keys(all).sort().reverse().find(x => all[x].tag === 'import');
+    if (!k) return toast('ไม่พบสำเนาสำรองใน Firebase — ใช้ปุ่ม "กู้คืนจากไฟล์สำรอง" กับไฟล์ .json ที่ดาวน์โหลดไว้ หรือไฟล์ Excel/CSV เดิม', 'warn');
+    const items = Object.entries(all[k].data || {}).filter(([id]) => S.elders[id]).map(([id, o]) => ({ id, adl: o.adl ?? null, tai: o.tai || null }));
+    if (!await ask('ย้อนกลับ ADL/TAI ' + items.length + ' ราย ไปเป็นค่าก่อนการอัปเดตจากไฟล์เมื่อ ' + new Date(+k).toLocaleString('th-TH') + ' ?', 'ย้อนกลับ', true)) return;
+    await adlTaiApply(items); toast('ย้อนกลับเรียบร้อย ' + items.length + ' ราย');
+  } catch (e) { toast('ย้อนกลับไม่สำเร็จ: ' + e.message, 'err'); }
+}
+/* กู้คืนจากไฟล์: .json (ไฟล์สำรองของระบบ) หรือ Excel/CSV ที่ส่งออกไว้ก่อนหน้า (ต้องมีคอลัมน์ ชื่อ, บ้านเลขที่, หมู่, ADL, TAI) */
+async function adlTaiRestoreFile(inp) {
+  const f = inp.files && inp.files[0]; inp.value = ''; if (!f || !isAdmin()) return;
+  try {
+    const items = []; let miss = 0, same = 0;
+    const cmp2 = (e, a, t) => { const ca = (e.adl === undefined || e.adl === null || e.adl === '') ? null : +e.adl; return (a === undefined || a === ca) && (t === undefined || (t || '') === (e.tai || '')); };
+    if (/\.json$/i.test(f.name)) {
+      const j = JSON.parse(await f.text()), data = j.data || j;
+      Object.entries(data).forEach(([id, o]) => {
+        const e = S.elders[id]; if (!e) { miss++; return; }
+        const a = (o.adl === null || o.adl === undefined) ? null : +o.adl, t = o.tai || '';
+        if (cmp2(e, a, t)) { same++; return; } items.push({ id, adl: a, tai: t || null });
+      });
+    } else {
+      if (!window.XLSX) return toast('โหลดตัวอ่าน Excel ไม่สำเร็จ ตรวจสอบอินเทอร์เน็ตแล้วรีเฟรชหน้า', 'err');
+      const wb = XLSX.read(await f.arrayBuffer(), { type: 'array' });
+      const rows = XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]], { header: 1, raw: true, defval: '' }).map(r => r.map(c => String(c ?? '').trim()));
+      const hi = rows.findIndex(r => r.some(c => /ADL/i.test(c)) && r.some(c => /TAI/i.test(c)));
+      if (hi < 0) return toast('ไม่พบหัวคอลัมน์ ADL และ TAI ในไฟล์', 'err');
+      const h = rows[hi], data = rows.slice(hi + 1);
+      const best = (re, ok) => { let bi = -1, bs = 0; h.forEach((c, i) => { if (!re.test(c)) return; const s = data.filter(r => ok(r[i])).length; if (s > bs) { bs = s; bi = i; } }); return bi; };
+      const cA = best(/ADL/i, v => v !== '' && !isNaN(+v) && +v >= 0 && +v <= 20), cT = best(/TAI/i, v => /^(B3|C2|C3|C4|I1|I2|I3)$/i.test(v));
+      const cN = h.findIndex(c => /ชื่อ/.test(c)), cL = h.findIndex((c, i) => i !== cN && /สกุล/.test(c));
+      const cH = h.findIndex(c => /บ้านเลขที่|^บ้าน/.test(c)), cM = h.findIndex(c => /หมู่/.test(c));
+      if (cN < 0 || cH < 0 || cM < 0 || (cA < 0 && cT < 0)) return toast('ไฟล์ต้องมีคอลัมน์ ชื่อ, บ้านเลขที่, หมู่ และ ADL/TAI', 'err');
+      const nz = x => String(x || '').replace(/\s+/g, ''), m1 = {}, m2 = {};
+      list(S.elders).forEach(e => { const k = '|' + nz(e.house) + '|' + nz(e.moo); m1[nz(fullName(e)) + k] = e; m2[nz(e.fname) + nz(e.lname) + k] = e; });
+      data.forEach(r => {
+        const nm = nz(r[cN] + (cL >= 0 ? r[cL] : '')); if (!nm) return;
+        const k = '|' + nz(r[cH]) + '|' + nz(r[cM]), e = m1[nm + k] || m2[nm + k]; if (!e) { miss++; return; }
+        const a = cA >= 0 && r[cA] !== '' && !isNaN(+r[cA]) ? +r[cA] : undefined, t = cT >= 0 && /^(B3|C2|C3|C4|I1|I2|I3)$/i.test(r[cT]) ? r[cT].toUpperCase() : undefined;
+        if (a === undefined && t === undefined) return;
+        if (cmp2(e, a, t)) { same++; return; } items.push({ id: e.id, adl: a, tai: t });
+      });
+    }
+    if (!items.length) return toast('ไม่มีรายการที่ต้องกู้ (ตรงอยู่แล้ว ' + same + ' ราย' + (miss ? ' · ไม่พบในระบบ ' + miss + ' ราย' : '') + ')', 'warn');
+    if (!await ask('กู้คืน ADL/TAI จากไฟล์ ' + f.name + ' จำนวน ' + items.length + ' ราย' + (same ? ' (ตรงอยู่แล้ว ' + same + ' ราย)' : '') + (miss ? ' · ไม่พบในระบบ ' + miss + ' ราย' : '') + ' ?', 'กู้คืน', true)) return;
+    await adlTaiApply(items); toast('กู้คืนเรียบร้อย ' + items.length + ' ราย');
+  } catch (e) { toast('กู้คืนไม่สำเร็จ: ' + e.message, 'err'); }
 }
 
 /* ---------- นำเข้า CM จากไฟล์ทะเบียน: สร้าง CM และผูกกับผู้สูงอายุที่มีอยู่แล้ว ---------- */
