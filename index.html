@@ -217,6 +217,8 @@ label.f>span i{color:var(--g3);font-style:normal}
 #rpPaper .cgp-title{text-align:center;font-size:18px;font-weight:700}
 #rpPaper .cgp-sub{text-align:center;font-size:13.5px;color:#333;margin-top:2px}
 #rpPaper .cgp-org{text-align:center;font-size:13.5px;color:#333;margin:6px 0 10px}
+#rpPaper .cgp-brace{position:relative;padding:0!important;min-width:60px}
+#rpPaper .cgp-brace svg{position:absolute;left:14px;right:14px;top:3px;bottom:3px;width:calc(100% - 28px);height:calc(100% - 6px)}
 #rpPaper .cgp-meta{display:flex;justify-content:space-between;flex-wrap:wrap;gap:6px 20px;font-size:14.5px;font-weight:600;margin-bottom:10px;padding-bottom:8px;border-bottom:1px solid #ccc}
 .cgp-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px;margin-top:2px}
 .cgp-card{display:flex;flex-direction:column;align-items:center;gap:6px;padding:16px 10px;border:1px solid var(--bd);border-radius:16px;background:linear-gradient(180deg,#fff,var(--d-soft,#f4f8f6));cursor:pointer;text-align:center;transition:transform .15s,box-shadow .15s;font-family:inherit}
@@ -2394,7 +2396,7 @@ function cgpMonthlyDoc(cg, ym) {
       const careList = (v.care || []);
       const act = 'เยี่ยม' + who + (careList.length ? ' (' + careList.join(', ') + ')' : '');
       const timeRange = v.time ? cgpTimeFmt(v.time) + (v.timeEnd ? ' - ' + cgpTimeFmt(v.timeEnd) : '') + ' น.' : '';
-      rowsHtml += `<tr>${i === 0 ? `<td rowspan="${vs.length}" style="white-space:nowrap;vertical-align:top">${esc(thDate(d))}</td>` : ''}<td>${esc(act)}</td><td style="white-space:nowrap">${esc(timeRange)}</td><td>${esc(cgpDur(v.time, v.timeEnd))}</td><td></td><td></td></tr>`;
+      rowsHtml += `<tr>${i === 0 ? `<td rowspan="${vs.length}" style="white-space:nowrap;vertical-align:top">${esc(thDate(d))}</td>` : ''}<td>${esc(act)}</td><td style="white-space:nowrap">${esc(timeRange)}</td><td>${esc(cgpDur(v.time, v.timeEnd))}</td>${i === 0 ? cgpBrace(vs.length) + cgpBrace(vs.length) : ''}</tr>`;
     });
   });
   if (!dates.length) rowsHtml = `<tr><td colspan="6" style="text-align:center;color:#888;padding:22px">ไม่พบบันทึกการปฏิบัติงานของ CG นี้ในเดือนที่เลือก</td></tr>`;
@@ -2405,6 +2407,10 @@ function cgpMonthlyDoc(cg, ym) {
     <table class="mt2"><thead><tr><th style="width:78px">วัน/เดือน/ปี</th><th>กิจกรรมการปฏิบัติงาน</th><th style="width:90px">ระยะเวลาการดูแล</th><th style="width:86px">จำนวนการปฏิบัติงาน (ชั่วโมง/นาที)</th><th style="width:70px">ลงชื่อ CG</th><th style="width:80px">ลงชื่อผู้รับรอง (ตรวจรับ)</th></tr></thead>
     <tbody>${rowsHtml}</tbody></table>
     <div class="sign nb"><div class="sg1">(ลงชื่อ)........................................ ผู้รับรอง<br>(${cm ? esc(pName(cm)) : '........................................'})<br>ตำแหน่ง ${cm && cm.position ? esc(cm.position) : '........................................'}<br>ผู้จัดการการดูแลผู้สูงอายุ (Care Manager: CM)</div></div>`;
+}
+/* ปีกกาขวา 1 อัน ต่อ 1 วัน (คลุมทุกแถวของวันนั้น) ในคอลัมน์ลงชื่อ CG / ผู้รับรอง */
+function cgpBrace(n) {
+  return `<td rowspan="${n}" class="cgp-brace"><svg viewBox="0 0 20 100" preserveAspectRatio="none" aria-hidden="true"><path d="M3 1 Q10 1 10 12 L10 38 Q10 50 18 50 Q10 50 10 62 L10 88 Q10 99 3 99" fill="none" stroke="#222" stroke-width="1.2" vector-effect="non-scaling-stroke"/></svg></td>`;
 }
 function cgpVisitsDoc() {
   const bak = { type: RP.type, cg: RP.cg, month: RP.month };
