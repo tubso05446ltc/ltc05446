@@ -1855,7 +1855,7 @@ function pElder() {
     <select onchange="EF.cm=this.value;elderTable()">${cmOpts(EF.cm, 'ทุก CM')}</select>
     <select onchange="EF.cg=this.value;elderTable()">${cgOpts(EF.cg, 'ทุก CG')}</select>
     <select onchange="EF.status=this.value;elderTable()">${opts(Object.entries(ESTATUS), EF.status, 'ทุกสถานะ')}</select>
-    <span class="grow"></span>${isAdmin() ? '<button class="btn btn-o" onclick="$(\'elderInfoFile\').click()">⬆ อัปเดตเลขบัตร/วันเกิด/ที่อยู่/ตำบล จากไฟล์ Excel</button><input type="file" id="elderInfoFile" accept=".xlsx,.xls,.csv" style="display:none" onchange="elderInfoImport(this)">' : ''}${canEdit() ? '<button class="btn" onclick="elderForm()">＋ เพิ่มผู้สูงอายุ</button>' : ''}</div><div id="elderArea"></div>`;
+    <span class="grow"></span>${isAdmin() ? '<button class="btn" onclick="elderForm()">＋ เพิ่มผู้สูงอายุ</button>' : ''}</div><div id="elderArea"></div>`;
 }
 function filteredElders() {
   const D = derived();
@@ -1880,8 +1880,8 @@ function elderForm(id) {
     ${field('วันเกิด', inp('e_bd', e.birthdate || '', 'date', 'max="' + today() + '"'))}${field('เบอร์โทร', inp('e_phone', e.phone || '', 'tel', 'inputmode="tel"'))}${field('วันที่ขึ้นทะเบียน', inp('e_enr', e.enrolled || '', 'date'))}
     ${field('บ้านเลขที่', inp('e_house', e.house || ''))}${field('หมู่ที่', inp('e_moo', e.moo || '', 'text', 'list="mooList2"') + `<datalist id="mooList2">${mooList().map(m => `<option value="${esc(m)}">`).join('')}</datalist>`, '', true)}${field('ตำบล/ที่อยู่เพิ่มเติม', inp('e_addr', e.addr || (id ? '' : ORG.tambon)))}
     ${field('CM ที่รับผิดชอบ', `<select id="e_cm">${cmOpts(e.cmId)}</select>`)}${field('CG ที่ดูแล', `<select id="e_cg">${cgOpts(e.cgId)}</select>`)}
-    ${field('คะแนน ADL เริ่มต้น (0-20)', inp('e_adl', e.adl ?? '', 'number', 'min="0" max="20" oninput="taiRefresh()"'))}
-    ${field('ข้อมูล TAI', `<select id="e_tai" onchange="taiChange()">${taiOptsHtml(e.adl, taiAllowed(e.adl).includes(e.tai) ? e.tai : '')}</select><small id="e_taihint" style="color:#b3261e">${e.tai && !taiAllowed(e.adl).includes(e.tai) ? 'TAI เดิม (' + esc(e.tai) + ') ไม่ตรงกับคะแนน ADL นี้ กรุณาเลือกใหม่' : ''}</small>`)}
+    ${field('คะแนน ADL เริ่มต้น (0-20)', inp('e_adl', e.adl ?? '', 'number', 'min="0" max="20" oninput="taiRefresh()"' + (isAdmin() ? '' : ' disabled style="background:#f1f5f3"')) + (isAdmin() ? '' : '<small class="mu">แก้ไขได้เฉพาะผู้ดูแลระบบ</small>'))}
+    ${field('ข้อมูล TAI', `<select id="e_tai" onchange="taiChange()"${isAdmin() ? '' : ' disabled style="background:#f1f5f3"'}>${taiOptsHtml(e.adl, taiAllowed(e.adl).includes(e.tai) ? e.tai : '')}</select><small id="e_taihint" style="color:#b3261e">${e.tai && !taiAllowed(e.adl).includes(e.tai) ? 'TAI เดิม (' + esc(e.tai) + ') ไม่ตรงกับคะแนน ADL นี้ กรุณาเลือกใหม่' : ''}</small>`)}
     ${field('ข้อมูล กลุ่มผู้มีภาวะพึ่งพิง (กรอกอัตโนมัติจาก TAI)', inp('e_depgrp', taiGroup(taiAllowed(e.adl).includes(e.tai) ? e.tai : ''), 'text', 'readonly tabindex="-1" style="background:#f1f5f3" placeholder="เลือก TAI เพื่อแสดงกลุ่ม"'), 'span2')}
   </div>
   <div class="sec"><h4>โรคประจำตัว</h4>${chips('e_dis', DISEASES, e.diseases || [])}<div class="mt2">${field('โรค/ข้อมูลอื่น ๆ', inp('e_disx', e.diseaseOther || ''))}</div></div>
@@ -1893,7 +1893,8 @@ function elderForm(id) {
     `<button class="btn btn-o" onclick="closeModal()">ยกเลิก</button><button class="btn" id="e_save" onclick="elderSave('${id || ''}')">บันทึก</button>`, true);
 }
 async function elderSave(id) {
-  const fname = val('e_fname'), cid = val('e_cid'), moo = val('e_moo'), adl = numOrNull(val('e_adl'));
+  const old = id && S.elders[id] ? S.elders[id] : {}, fname = val('e_fname'), cid = val('e_cid'), moo = val('e_moo'), adl = isAdmin() ? numOrNull(val('e_adl')) : (old.adl ?? null), tai = isAdmin() ? val('e_tai') : (old.tai || '');
+  if (!id && !isAdmin()) return toast('เฉพาะผู้ดูแลระบบเท่านั้นที่เพิ่มผู้สูงอายุได้', 'err');
   if (!fname) return toast('กรุณากรอกชื่อ', 'err'); if (!moo) return toast('กรุณากรอกหมู่ที่', 'err');
   if (cid && !/^\d{13}$/.test(cid)) return toast('เลขบัตรประชาชนต้องเป็นตัวเลข 13 หลัก', 'err');
   if (adl !== null && (adl < 0 || adl > 20)) return toast('คะแนน ADL ต้องอยู่ระหว่าง 0-20', 'err');
@@ -1901,7 +1902,7 @@ async function elderSave(id) {
   try {
     let photo = id && S.elders[id] ? S.elders[id].photo || '' : '';
     if (elderPhotoFile) photo = await uploadImg(elderPhotoFile);
-    await dbSave('elders', id || null, { prefix: val('e_prefix'), fname, lname: val('e_lname'), cid, hn: val('e_hn'), sex: val('e_sex'), birthdate: val('e_bd'), phone: val('e_phone'), enrolled: val('e_enr'), house: val('e_house'), moo, addr: val('e_addr'), cmId: val('e_cm'), cgId: val('e_cg'), adl, tai: val('e_tai'), depGroup: taiGroup(val('e_tai')), diseases: chk('e_dis'), diseaseOther: val('e_disx'), supports: chk('e_sup'), kin: val('e_kin'), kinRel: val('e_kinrel'), kinPhone: val('e_kinph'), status: val('e_status'), photo, lat: val('e_lat'), lng: val('e_lng'), note: val('e_note') });
+    await dbSave('elders', id || null, { prefix: val('e_prefix'), fname, lname: val('e_lname'), cid, hn: val('e_hn'), sex: val('e_sex'), birthdate: val('e_bd'), phone: val('e_phone'), enrolled: val('e_enr'), house: val('e_house'), moo, addr: val('e_addr'), cmId: val('e_cm'), cgId: val('e_cg'), adl, tai, depGroup: taiGroup(tai), diseases: chk('e_dis'), diseaseOther: val('e_disx'), supports: chk('e_sup'), kin: val('e_kin'), kinRel: val('e_kinrel'), kinPhone: val('e_kinph'), status: val('e_status'), photo, lat: val('e_lat'), lng: val('e_lng'), note: val('e_note') });
     closeModal(); toast('บันทึกข้อมูลผู้สูงอายุแล้ว');
   } catch (e) { toast('บันทึกไม่สำเร็จ: ' + e.message, 'err'); btn.disabled = false; btn.textContent = 'บันทึก'; }
 }
