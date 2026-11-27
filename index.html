@@ -1431,8 +1431,8 @@ function visitForm() {
           <input type="hidden" id="vType" value="${esc(type)}">
           <div class="vf-seg" role="radiogroup" aria-labelledby="vTypeL">${Object.entries(VTYPES).map(([k, l]) => `<button type="button" role="radio" data-v="${k}" aria-checked="${k === type}" onclick="vfType('${k}')">${esc(l.replace(/^เยี่ยม/, ''))}</button>`).join('')}</div></div>
         ${field('วันที่เยี่ยม', inp('vDate', v.date || today(), 'date', 'max="' + today() + '" onchange="vElderChange(true)"'), '', true)}
-        ${field('เวลาเริ่มการเยี่ยม', inp('vTime', v.time || new Date().toTimeString().slice(0, 5), 'time', 'class="vf-in"'), '', true)}
-        ${field('เวลาสิ้นสุดการเยี่ยม', inp('vTimeEnd', v.timeEnd || '', 'time', 'class="vf-in"'), '', true)}
+        ${field('เวลาเริ่มการเยี่ยม', inp('vTime', v.time || new Date().toTimeString().slice(0, 5), 'text', 'class="vf-in vf-time" inputmode="numeric" maxlength="5" placeholder="เช่น 09:30" autocomplete="off"'), '', true)}
+        ${field('เวลาสิ้นสุดการเยี่ยม', inp('vTimeEnd', v.timeEnd || '', 'text', 'class="vf-in vf-time" inputmode="numeric" maxlength="5" placeholder="เช่น 11:00" autocomplete="off"'), '', true)}
         ${field('CM ผู้เยี่ยม', `<select id="vCm">${cmOpts(v.cmId)}</select>`, 'full')}
       </div>
     </section>
@@ -1629,6 +1629,25 @@ function vfAlert(items) {
   document.body.appendChild(d);
   const ok = d.querySelector('#vfAlOk'); if (ok) ok.focus();
 }
+// ช่องเวลา: พิมพ์ตัวเลขได้ตรงๆ (เช่น 0930 → 09:30) ไม่เปิดตัวเลือกนาฬิกา
+document.addEventListener('input', e => {
+  const t = e.target;
+  if (!t || !t.classList || !t.classList.contains('vf-time')) return;
+  const d = t.value.replace(/\D/g, '').slice(0, 4);
+  t.value = d.length > 2 ? d.slice(0, 2) + ':' + d.slice(2) : d;
+});
+document.addEventListener('focusout', e => {
+  const t = e.target;
+  if (!t || !t.classList || !t.classList.contains('vf-time')) return;
+  const d = t.value.replace(/\D/g, '');
+  if (!d) { t.value = ''; return; }
+  let h, m;
+  if (d.length <= 2) { h = +d; m = 0; }
+  else if (d.length === 3) { h = +d.slice(0, 1); m = +d.slice(1); }
+  else { h = +d.slice(0, 2); m = +d.slice(2); }
+  h = Math.min(h, 23); m = Math.min(m, 59);
+  t.value = String(h).padStart(2, '0') + ':' + String(m).padStart(2, '0');
+});
 async function saveVisit() {
   if (!canEdit()) return;
   if (document.getElementById('vfAlertOv')) return;
